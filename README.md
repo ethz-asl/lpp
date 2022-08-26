@@ -60,3 +60,11 @@ int foo = 1;
 int bar = 3;
 LOG_FIRST(I, 5, "Values: " << foo << bar)
 ```
+***
+
+## Tests
+
+- All modes (default, glog, lpp, roslog)
+- Test Logging syntax for each mode
+- All severity levels (Info, Warning, Error, Fatal)
+- Maybe test Stream operator with different types
