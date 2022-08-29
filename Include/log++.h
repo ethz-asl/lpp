@@ -87,10 +87,10 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
 
-#define LOG_2(severity, x)                                      \
-switch(severity) {                                              \
+#define LOG_2(severity, x)                                        \
+switch(severity) {                                                \
      case I: LOG_1(INFO) << x; break;                             \
-     case W: LOG_1(WARNING) << x; break;                           \
+     case W: LOG_1(WARNING) << x; break;                          \
      case E: LOG_1(ERROR) << x;break;                             \
      case F: LOG_1(FATAL) << x; break;};
 
@@ -101,7 +101,7 @@ switch(severity) {                                              \
 #define ROS_WARN(x) LOG(WARNING) << x
 #define ROS_WARN_STREAM(x) LOG(WARNING) << x
 #define ROS_ERROR(x) LOG(ERROR) << x
-#define ROS_ERROR_STREAM LOG(ERROR) << x
+#define ROS_ERROR_STREAM(x) LOG(ERROR) << x
 #define ROS_FATAL(x) LOG(FATAL) << x
 #define ROS_FATAL_STREAM(x) LOG(FATAL) << x;
 #endif
@@ -153,7 +153,7 @@ operator<<(Log &&wrap, T const &whatever) {
 #define ROS_WARN(x) LOG_2(W, x)
 #define ROS_WARN_STREAM(x) LOG_2(W, x)
 #define ROS_ERROR(x) LOG_2(E, x)
-#define ROS_ERROR_STREAM LOG_2(E, x)
+#define ROS_ERROR_STREAM(x) LOG_2(E, x)
 #define ROS_FATAL(x) LOG_2(F, x)
 #define ROS_FATAL_STREAM(x) LOG_2(F, x)
 
