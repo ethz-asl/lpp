@@ -6,7 +6,6 @@
 #define LOG__LOG_H_
 
 //! assert if mode is supported by the libraries available
-
 #if defined MODE_GLOG && !defined GLOG_SUPPORTED
 #error Logging Mode is set to glog but glog is not found
 #endif
@@ -16,9 +15,7 @@
 #endif
 
 
-
 //! Includes
-
 #ifdef GLOG_SUPPORTED
 #include <glog/logging.h>
 #endif // GLOG_SUPPORTED
@@ -79,6 +76,8 @@
  * LOG_1 = Google logging syntax
  * LOG_2 = LPP logging syntax
  */
+
+//! MODE_GLOG
 #if defined MODE_GLOG || defined MODE_DEFAULT
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 #endif
@@ -98,6 +97,7 @@ switch(severity) {                                              \
 #pragma clang diagnostic pop
 #endif
 
+//! MODE_ROSLOG
 #ifdef MODE_ROSLOG
 #define LOG_1(severity) ROS_ ## severity ## _STREAM(severity.stream())
 #define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl; // NOLINT(bugprone-macro-parentheses)
@@ -116,18 +116,19 @@ operator<<(Log &&wrap, T const &whatever) {
   return std::move(wrap);
 }
 
-#define INTERNAL_LPP_LOG(x) Log() << glogSeverityToLpp(#x) << " "
 
+//! MODE_LPP
 #ifdef MODE_LPP
+#define INTERNAL_LPP_LOG(x) Log() << glogSeverityToLpp(#x) << " "
 
 #define ROS_INFO(x) LOG_2(I, x)
 #define ROS_INFO_STREAM(x) LOG_2(I, x)
-#define ROS_WARN
-#define ROS_WARN_STREAM
-#define ROS_ERROR
-#define ROS_ERROR_STREAM
-#define ROS_FATAL
-#define ROS_FATAL_STREAM
+#define ROS_WARN(x) LOG_2(W, x)
+#define ROS_WARN_STREAM(x) LOG_2(W, x)
+#define ROS_ERROR(x) LOG_2(E, x)
+#define ROS_ERROR_STREAM LOG_2(E, x)
+#define ROS_FATAL(x) LOG_2(F, x)
+#define ROS_FATAL_STREAM(x) LOG_2(F, x)
 
 #define LOG_1(severity) INTERNAL_LPP_LOG(severity)
 #define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl // NOLINT(bugprone-macro-parentheses)
@@ -135,7 +136,6 @@ operator<<(Log &&wrap, T const &whatever) {
 
 
 //! Helper functions
-
 std::string severityToString(int severity) {
   switch (severity) {
     case 1:return "Info ";

@@ -13,7 +13,7 @@ int main() {
 }
 ```
 
-## Serverity levels
+## Severity levels
 
 - **Verbose:** Verbose in-depth debug information.
 - **Debug:** Everything too verbose during normal execution and can be ignored.
