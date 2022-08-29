@@ -95,13 +95,40 @@ switch(severity) {                                              \
      case F: LOG_1(FATAL) << x; break;};
 
 #pragma clang diagnostic pop
+
+#define ROS_INFO(x) LOG(INFO) << x
+#define ROS_INFO_STREAM(x) LOG(INFO) << x
+#define ROS_WARN(x) LOG(WARNING) << x
+#define ROS_WARN_STREAM(x) LOG(WARNING) << x
+#define ROS_ERROR(x) LOG(ERROR) << x
+#define ROS_ERROR_STREAM LOG(ERROR) << x
+#define ROS_FATAL(x) LOG(FATAL) << x
+#define ROS_FATAL_STREAM(x) LOG(FATAL) << x;
 #endif
+
 
 //! MODE_ROSLOG
 #ifdef MODE_ROSLOG
-#define LOG_1(severity) ROS_ ## severity ## _STREAM(severity.stream())
-#define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl; // NOLINT(bugprone-macro-parentheses)
+
+#define LOG_1(severity) InternalRoslog()
+#define LOG_2(severity, x) ROS_INFO_STREAM(x) // NOLINT(bugprone-macro-parentheses)
+
+
+struct InternalRoslog {
+  std::stringstream ss;
+  ~InternalRoslog() {
+    ROS_INFO_STREAM(ss.str());
+  }
+};
+
+template<typename T>
+InternalRoslog &&operator<<(InternalRoslog &&wrap, T const &whatever) {
+  wrap.ss << whatever;
+  return std::move(wrap);
+}
+
 #endif
+
 
 struct Log {
   ~Log() {
