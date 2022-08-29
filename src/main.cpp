@@ -7,7 +7,6 @@
 int main(int argc, char **argv) {
   LOG_INIT(argv[0]);
   FLAGS_logtostderr = true;
-  std::cout << FLAGS_logtostderr << std::endl;
   ROS_INFO_STREAM("a" << "b");
 
   int a = 3;
