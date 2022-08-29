@@ -5,46 +5,51 @@
 #ifndef LOG__LOG_H_
 #define LOG__LOG_H_
 
-/**
- * Static assertions to check if selected log mode is supported by the libraries available
- */
+//! assert if mode is supported by the libraries available
 
-#ifdef MODE_GLOG
-#ifndef GLOG_SUPPORTED
-static_assert(false, "Logging Mode is set to glog but glog is not found");
-#endif
+#if defined MODE_GLOG && !defined GLOG_SUPPORTED
+#error Logging Mode is set to glog but glog is not found
 #endif
 
-#ifdef MODE_ROSLOG
-#ifndef ROSLOG_SUPPORTED
-static_assert(false, "Logging Mode is set to roslog but roslog is not found");
-#endif
+#if defined MODE_ROSLOG && !defined ROSLOG_SUPPORTED
+#error Logging Mode is set to roslog but roslog is not found
 #endif
 
 
-//! Helper macro
 
-// If a macro is detected, add an arg, so the second one will be 1.
-#define DETECT_EXIST_TRUE ~,1
-
-// DETECT_EXIST merely concatenate a converted macro to the end of DETECT_EXIST_TRUE.
-// If empty, DETECT_EXIST_TRUE converts fine.  If not 0 remains second argument.
-#define DETECT_EXIST(X) DETECT_EXIST_IMPL(CONCAT2(DETECT_EXIST_TRUE,X), 0, ~)
-#define DETECT_EXIST_IMPL(...) SECOND_ARG(__VA_ARGS__)
+//! Includes
 
 #ifdef GLOG_SUPPORTED
-
 #include <glog/logging.h>
-#undef LOG
-
-#define LOG_INIT(argv0) google::InitGoogleLogging(argv0);
-
-#else
-#define LOG_INIT(argv0, mode) static_assert((mode <= 3 && mode >= 0), "Invalid mode");
 #endif // GLOG_SUPPORTED
 
 #ifdef ROSLOG_SUPPORTED
 #include <ros/console.h>
+#endif
+
+
+//! un-define macros to avoid conflicts
+#ifdef GLOG_SUPPORTED
+#undef LOG
+#endif
+
+#if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG
+#undef ROS_INFO
+#undef ROS_INFO_STREAM
+#undef ROS_WARN
+#undef ROS_WARN_STREAM
+#undef ROS_ERROR
+#undef ROS_ERROR_STREAM
+#undef ROS_FATAL
+#undef ROS_FATAL_STREAM
+#endif
+
+
+//! Log init
+#ifdef MODE_GLOG
+#define LOG_INIT(argv0) google::InitGoogleLogging(argv0)
+#else
+#define LOG_INIT(argv0) bool LPP_INITIALIZED = true // do nothing
 #endif
 
 
@@ -63,6 +68,7 @@ static_assert(false, "Logging Mode is set to roslog but roslog is not found");
 #define VA_SIZE(...) GET_COUNT( __VA_ARGS__, 6, 5, 4, 3, 2, 1 )
 #define VA_SELECT(NAME, ...) SELECT( NAME, VA_SIZE(__VA_ARGS__) )(__VA_ARGS__)
 
+
 //! Overloads
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedMacroInspection"
@@ -77,7 +83,7 @@ static_assert(false, "Logging Mode is set to roslog but roslog is not found");
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 #endif
 
-//Map LOG_2 to google logging syntax
+
 #ifdef MODE_GLOG
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
@@ -92,18 +98,43 @@ switch(severity) {                                              \
 #pragma clang diagnostic pop
 #endif
 
-
 #ifdef MODE_ROSLOG
-#define LOG_1(severity) ROS_ ## severity ## _ STREAM ## severity.stream()
+#define LOG_1(severity) ROS_ ## severity ## _STREAM(severity.stream())
+#define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl; // NOLINT(bugprone-macro-parentheses)
 #endif
+
+struct Log {
+  ~Log() {
+    std::cout << std::endl;
+  }
+};
+
+template<typename T>
+Log &&
+operator<<(Log &&wrap, T const &whatever) {
+  std::cout << whatever;
+  return std::move(wrap);
+}
+
+#define INTERNAL_LPP_LOG(x) Log() << glogSeverityToLpp(#x) << " "
 
 #ifdef MODE_LPP
-#define LPP_INFO  I
-#define LPP_WARN  W
-#define LPP_ERROR E
-#define LPP_FATAL F
-#define LOG_1(severity) LOG_2(LPP_ ## severity, severity.stream())
+
+#define ROS_INFO(x) LOG_2(I, x)
+#define ROS_INFO_STREAM(x) LOG_2(I, x)
+#define ROS_WARN
+#define ROS_WARN_STREAM
+#define ROS_ERROR
+#define ROS_ERROR_STREAM
+#define ROS_FATAL
+#define ROS_FATAL_STREAM
+
+#define LOG_1(severity) INTERNAL_LPP_LOG(severity)
+#define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl // NOLINT(bugprone-macro-parentheses)
 #endif
+
+
+//! Helper functions
 
 std::string severityToString(int severity) {
   switch (severity) {
@@ -116,6 +147,9 @@ std::string severityToString(int severity) {
   }
 }
 
-//#define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl; // NOLINT(bugprone-macro-parentheses)
+std::string glogSeverityToLpp(std::string glog_severity) {
+  std::transform(glog_severity.begin() + 1, glog_severity.end(), glog_severity.begin() + 1, ::tolower);
+  return glog_severity;
+}
 
 #endif //LOG__LOG_H_

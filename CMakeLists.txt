@@ -40,4 +40,4 @@ endif ()
 
 
 # Valid modes are: MODE_GLOG MODE_ROSLOG MODE_LPP MODE_DEFAULT
-target_compile_definitions(Log++ PRIVATE MODE_GLOG)
+# target_compile_definitions(Log++ PRIVATE MODE_ROSLOG)

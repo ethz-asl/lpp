@@ -1,14 +1,11 @@
-#define LOGPP_MODE MODE_GLOG
+#define MODE_LPP
 
 #include <iostream>
-#include "ros/ros.h"
 #include "log++.h"
 #include "glog/logging.h"
 
-
-
 int main(int argc, char **argv) {
-  LOG_INIT(argv[0])
+  LOG_INIT(argv[0]);
   FLAGS_logtostderr = true;
   std::cout << FLAGS_logtostderr << std::endl;
   ROS_INFO_STREAM("a" << "b");
@@ -23,8 +20,4 @@ int main(int argc, char **argv) {
   ROS_INFO("Hello Ros");
 
   LOG(FATAL) << "Hello glog. Found: " << b << " cookies";
-
-
-
-
 }
