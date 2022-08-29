@@ -1,12 +1,15 @@
 # Log++ Logging framework
 
-Header only library for a unified logging interface. 
+Header only library to unify roslog and glog output.
 
 ## Usage
 
 ```c++
-#include<log++.h>
-int main() {
+#define MODE_LPP //Must be defined before log++.h include!
+#include <log++.h>
+
+int main(int argc, char **argv) {
+  LOG_INIT(argv[0]);
   int foo = 5;
   LOG(I, "Foo: " << foo);
   return 0;
@@ -60,6 +63,10 @@ int foo = 1;
 int bar = 3;
 LOG_FIRST(I, 5, "Values: " << foo << bar)
 ```
+***
+
+## Limitations
+- ROS_INFO() only accepts one argument at the moment
 ***
 
 ## Tests
