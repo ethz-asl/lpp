@@ -4,6 +4,17 @@
 
 #ifndef LOG__LOG_H_
 #define LOG__LOG_H_
+namespace lpp {
+namespace internal {
+
+class Init {
+ public:
+  bool is_lpp_initialized = false;
+  bool is_glog_initialized = false;
+};
+  Init lppInit;
+}
+}
 
 //! assert if mode is supported by the libraries available
 #if defined MODE_GLOG && !defined GLOG_SUPPORTED
@@ -41,21 +52,16 @@
 #undef ROS_FATAL_STREAM
 #endif
 
-struct LPPInternal {
-  bool is_lpp_initialized = false;
-  bool is_glog_initialized = false;
-} lppInternal;
-
-
+using namespace lpp::internal;
 //! Log init
 #ifdef MODE_GLOG
 
 //! If LOG_INIT is called more than once, do nothing.
-#define LOG_INIT(argv0) if (!lppInternal.is_glog_initialized) { \
-google::InitGoogleLogging(argv0); lppInternal.is_glog_initialized = true;} \
-lppInternal.is_lpp_initialized = true
+#define LOG_INIT(argv0) if (!lppInit.is_glog_initialized) { \
+google::InitGoogleLogging(argv0); lppInit.is_glog_initialized = true;} \
+lppInit.is_lpp_initialized = true
 #else
-#define LOG_INIT(argv0) lppInternal.is_lpp_initialized = true
+#define LOG_INIT(argv0) lppInit.is_lpp_initialized = true
 #endif
 
 
