@@ -1,12 +1,10 @@
-#define MODE_LPP
+#define MODE_GLOG
 
 #include <iostream>
 #include "log++.h"
-#include "glog/logging.h"
 
 int main(int argc, char **argv) {
   LOG_INIT(argv[0]);
-  FLAGS_logtostderr = true;
   ROS_INFO_STREAM("a" << "b");
 
   int a = 3;

@@ -4,6 +4,19 @@
 
 #ifndef LOG__LOG_H_
 #define LOG__LOG_H_
+
+#include <algorithm>
+
+//! Check if libraries are available at compile time
+#if __has_include(<glog/logging.h>)
+#define GLOG_SUPPORTED
+#endif
+
+#if __has_include(<ros/console.h>)
+#define ROSLOG_SUPPORTED
+#endif
+
+//! Initialization logic
 namespace lpp {
 namespace internal {
 
@@ -12,7 +25,7 @@ class Init {
   bool is_lpp_initialized = false;
   bool is_glog_initialized = false;
 };
-  Init lppInit;
+Init lppInit;
 }
 }
 
@@ -27,11 +40,11 @@ class Init {
 
 
 //! Includes
-#ifdef GLOG_SUPPORTED
+#if defined GLOG_SUPPORTED && defined MODE_GLOG
 #include <glog/logging.h>
 #endif // GLOG_SUPPORTED
 
-#ifdef ROSLOG_SUPPORTED
+#if defined ROSLOG_SUPPORTED && defined MODE_ROSLOG
 #include <ros/console.h>
 #endif
 
@@ -59,7 +72,7 @@ using namespace lpp::internal;
 //! If LOG_INIT is called more than once, do nothing.
 #define LOG_INIT(argv0) if (!lppInit.is_glog_initialized) { \
 google::InitGoogleLogging(argv0); lppInit.is_glog_initialized = true;} \
-lppInit.is_lpp_initialized = true
+lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #else
 #define LOG_INIT(argv0) lppInit.is_lpp_initialized = true
 #endif
@@ -97,7 +110,6 @@ lppInit.is_lpp_initialized = true
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 #endif
 
-
 #ifdef MODE_GLOG
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
@@ -127,7 +139,6 @@ switch(severity) {                                                \
 #define LOG_1(severity) InternalRoslog()
 #define LOG_2(severity, x) ROS_INFO_STREAM(x) // NOLINT(bugprone-macro-parentheses)
 
-
 struct InternalRoslog {
   std::stringstream ss;
   ~InternalRoslog() {
@@ -142,7 +153,6 @@ InternalRoslog &&operator<<(InternalRoslog &&wrap, T const &whatever) {
 }
 
 #endif
-
 
 struct Log {
   ~Log() {
@@ -174,7 +184,6 @@ operator<<(Log &&wrap, T const &whatever) {
 #define LOG_1(severity) INTERNAL_LPP_LOG(severity)
 #define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl // NOLINT(bugprone-macro-parentheses)
 #endif
-
 
 //! Helper functions
 std::string severityToString(int severity) {
