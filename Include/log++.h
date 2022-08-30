@@ -7,11 +7,11 @@
 
 //! assert if mode is supported by the libraries available
 #if defined MODE_GLOG && !defined GLOG_SUPPORTED
-#error Logging Mode is set to glog but glog is not found
+#error Logging Mode is set to glog but glog was not found
 #endif
 
 #if defined MODE_ROSLOG && !defined ROSLOG_SUPPORTED
-#error Logging Mode is set to roslog but roslog is not found
+#error Logging Mode is set to roslog but roslog was not found
 #endif
 
 
@@ -103,8 +103,6 @@ switch(severity) {                                                \
      case E: LOG_1(ERROR) << x;break;                             \
      case F: LOG_1(FATAL) << x; break;};
 
-#pragma clang diagnostic pop
-
 #define ROS_INFO(x) LOG(INFO) << x
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
 #define ROS_WARN(x) LOG(WARNING) << x
@@ -113,6 +111,7 @@ switch(severity) {                                                \
 #define ROS_ERROR_STREAM(x) LOG(ERROR) << x
 #define ROS_FATAL(x) LOG(FATAL) << x
 #define ROS_FATAL_STREAM(x) LOG(FATAL) << x;
+#pragma clang diagnostic pop
 #endif
 
 
