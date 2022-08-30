@@ -1,12 +1,12 @@
 # Log++ Logging framework
 
-Header only library to unify roslog and glog output.
+Header only library to standardize roslog and glog output at compile time.
 
 ## Usage
 
 ```c++
-#define MODE_LPP //Must be defined before log++.h include!
-#include <log++.h>
+#include <ros/ros.h> //Dummy include
+#include <log++.h> // Must be defined AFTER <ros/ros.h> or <glog/logging.h>
 
 int main(int argc, char **argv) {
   LOG_INIT(argv[0]);
@@ -15,6 +15,18 @@ int main(int argc, char **argv) {
   return 0;
 }
 ```
+
+Add the following line to cmake to select desired mode:
+```cmake
+# Valid modes are: MODE_GLOG MODE_ROSLOG MODE_LPP MODE_DEFAULT
+target_compile_definitions(my_executable PRIVATE MODE_LPP) 
+```
+
+## Modes
+- **MODE_GLOG:** Google Logging syntax. Calls abort() if it logs a fatal error.
+- **MODE_ROSLOG:** ROS Logging syntax.
+- **MODE_LPP** Log++ Logging syntax.
+- **MODE_DEFAULT:** Disables Logging standardization. Messages are logged according to their framework
 
 ## Severity levels
 
