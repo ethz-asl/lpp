@@ -1,6 +1,8 @@
 #define MODE_GLOG
 
 #include <iostream>
+#include "glog/logging.h"
+#include "ros/ros.h"
 #include "log++.h"
 
 int main(int argc, char **argv) {

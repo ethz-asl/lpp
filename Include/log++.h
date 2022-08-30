@@ -25,7 +25,7 @@ class Init {
   bool is_lpp_initialized = false;
   bool is_glog_initialized = false;
 };
-Init lppInit;
+inline Init lppInit;
 }
 }
 
@@ -186,7 +186,7 @@ operator<<(Log &&wrap, T const &whatever) {
 #endif
 
 //! Helper functions
-std::string severityToString(int severity) {
+inline std::string severityToString(int severity) {
   switch (severity) {
     case 1:return "Info ";
     case 2:return "Warning ";
@@ -197,7 +197,7 @@ std::string severityToString(int severity) {
   }
 }
 
-std::string glogSeverityToLpp(std::string glog_severity) {
+inline std::string glogSeverityToLpp(std::string glog_severity) {
   std::transform(glog_severity.begin() + 1, glog_severity.end(), glog_severity.begin() + 1, ::tolower);
   return glog_severity;
 }
