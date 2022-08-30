@@ -41,12 +41,21 @@
 #undef ROS_FATAL_STREAM
 #endif
 
+struct LPPInternal {
+  bool is_lpp_initialized = false;
+  bool is_glog_initialized = false;
+} lppInternal;
+
 
 //! Log init
 #ifdef MODE_GLOG
-#define LOG_INIT(argv0) google::InitGoogleLogging(argv0)
+
+//! If LOG_INIT is called more than once, do nothing.
+#define LOG_INIT(argv0) if (!lppInternal.is_glog_initialized) { \
+google::InitGoogleLogging(argv0); lppInternal.is_glog_initialized = true;} \
+lppInternal.is_lpp_initialized = true
 #else
-#define LOG_INIT(argv0) bool LPP_INITIALIZED = true // do nothing
+#define LOG_INIT(argv0) lppInternal.is_lpp_initialized = true
 #endif
 
 

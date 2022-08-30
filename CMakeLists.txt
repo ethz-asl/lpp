@@ -28,7 +28,7 @@ if (GLOG_FOUND)
     if (catkin_FOUND)
         add_executable(Logtest test/test_entry_point.cpp
                 Include/log++.h
-                test/glog/test_glog.cc
+                test/glog/test_basic_glog.cc
 
                 )
         target_include_directories(Logtest PRIVATE test)

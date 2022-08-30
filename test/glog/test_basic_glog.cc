@@ -8,18 +8,43 @@
 
 //! ################ glog ################
 TEST(glog_glog_syntax, severity_info) {
-  LOG_INIT(*test_argv);
+  LOG_INIT(*test_argv);       //Only in first glog test
+  FLAGS_logtostderr = true;   //Only in first glog test
+
   testing::internal::CaptureStderr();
-  FLAGS_logtostderr = true;
+
   LOG(INFO) << "xyz";
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
-  ASSERT_TRUE(isSubstring(output, "test_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
 
   ASSERT_EQ(output[0], 'I');
 }
 
+TEST(glog_glog_syntax, severity_warning) {
+  testing::internal::CaptureStderr();
+  FLAGS_logtostderr = true;
+  LOG(WARNING) << "xyz";
+  std::string output = testing::internal::GetCapturedStderr();
+
+  ASSERT_TRUE(isSubstring(output, "xyz"));
+  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+
+  ASSERT_EQ(output[0], 'W');
+}
+
+TEST(glog_glog_syntax, severity_error) {
+  testing::internal::CaptureStderr();
+  FLAGS_logtostderr = true;
+  LOG(ERROR) << "xyz";
+  std::string output = testing::internal::GetCapturedStderr();
+
+  ASSERT_TRUE(isSubstring(output, "xyz"));
+  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+
+  ASSERT_EQ(output[0], 'E');
+}
 
 
 //! ################ lpp ################
@@ -31,7 +56,7 @@ TEST(glog_lpp_syntax, severity_info) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
 
   ASSERT_TRUE(output[0] == 'I');
 }
@@ -72,6 +97,9 @@ TEST(glog_lpp_syntax, lpp_fatal) {
   ASSERT_TRUE(output[0] == 'F');
 }
 */
+
+//! ################ Roslog ################
+
 
 
 #undef MODE_GLOG
