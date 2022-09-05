@@ -7,6 +7,8 @@
 
 #include <algorithm>
 #include <utility>
+#include <set>
+#include <sstream>
 
 //! Check if libraries are available at compile time
 #if __has_include(<glog/logging.h>)
