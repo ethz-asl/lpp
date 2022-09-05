@@ -6,6 +6,7 @@
 #define LOG__LOG_H_
 
 #include <algorithm>
+#include <utility>
 
 //! Check if libraries are available at compile time
 #if __has_include(<glog/logging.h>)
@@ -78,13 +79,6 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #endif
 
 
-//! Severity
-#define I 1
-#define W 2
-#define E 3
-#define F 4
-
-
 //! Hack to enable macro overloading. Used to overload glog's LOG() macro.
 #define CAT(A, B) A ## B
 #define SELECT(NAME, NUM) CAT( NAME ## _, NUM )
@@ -114,12 +108,11 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
 
-#define LOG_2(severity, x)                                        \
-switch(severity) {                                                \
-     case I: LOG_1(INFO) << x; break;                             \
-     case W: LOG_1(WARNING) << x; break;                          \
-     case E: LOG_1(ERROR) << x;break;                             \
-     case F: LOG_1(FATAL) << x; break;};
+#define LOG_2(severity, x) \
+if      (strcmp(#severity, "I") == 0) {LOG_1(INFO) << x;}        \
+else if (strcmp(#severity, "W") == 0) {LOG_1(WARNING) << x;}     \
+else if (strcmp(#severity, "E") == 0) {LOG_1(ERROR) << x;}       \
+else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;}       \
 
 #define ROS_INFO(x) LOG(INFO) << x
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
@@ -136,41 +129,15 @@ switch(severity) {                                                \
 //! MODE_ROSLOG
 #ifdef MODE_ROSLOG
 
-#define LOG_1(severity) InternalRoslog()
-#define LOG_2(severity, x) ROS_INFO_STREAM(x) // NOLINT(bugprone-macro-parentheses)
-
-struct InternalRoslog {
-  std::stringstream ss;
-  ~InternalRoslog() {
-    ROS_INFO_STREAM(ss.str());
-  }
-};
-
-template<typename T>
-InternalRoslog &&operator<<(InternalRoslog &&wrap, T const &whatever) {
-  wrap.ss << whatever;
-  return std::move(wrap);
-}
+#define LOG_1(severity) InternalLog(#severity)
+#define LOG_2(severity, x) InternalLog(#severity) << x
 
 #endif
 
-struct Log {
-  ~Log() {
-    std::cout << std::endl;
-  }
-};
-
-template<typename T>
-Log &&
-operator<<(Log &&wrap, T const &whatever) {
-  std::cout << whatever;
-  return std::move(wrap);
-}
 
 
 //! MODE_LPP
 #ifdef MODE_LPP
-#define INTERNAL_LPP_LOG(x) Log() << glogSeverityToLpp(#x) << " "
 
 #define ROS_INFO(x) LOG_2(I, x)
 #define ROS_INFO_STREAM(x) LOG_2(I, x)
@@ -181,25 +148,81 @@ operator<<(Log &&wrap, T const &whatever) {
 #define ROS_FATAL(x) LOG_2(F, x)
 #define ROS_FATAL_STREAM(x) LOG_2(F, x)
 
-#define LOG_1(severity) INTERNAL_LPP_LOG(severity)
-#define LOG_2(severity, x) std::cout << severityToString((severity)) << x << std::endl // NOLINT(bugprone-macro-parentheses)
+#define LOG_1(severity) InternalLog(#severity)
+#define LOG_2(severity, x) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
 
-//! Helper functions
-inline std::string severityToString(int severity) {
-  switch (severity) {
-    case 1:return "Info ";
-    case 2:return "Warning ";
-    case 3:return "Error ";
-    case 4:return "Fatal ";
-    default:std::cerr << "Warning: skipped invalid severity level" << std::endl;
-      return "";
-  }
-}
+enum SeverityType {
+  INFO,
+  WARN,
+  ERROR,
+  FATAL
+};
 
-inline std::string glogSeverityToLpp(std::string glog_severity) {
-  std::transform(glog_severity.begin() + 1, glog_severity.end(), glog_severity.begin() + 1, ::tolower);
-  return glog_severity;
+//! Internal log class
+class InternalLog {
+ public:
+  explicit InternalLog(SeverityType severity_type) : severity_(severity_type) {}
+  explicit InternalLog(const std::string &severity) {
+    severity_ = getSeverityFromString(severity);
+  }
+
+  SeverityType severity_;
+  std::stringstream ss;
+#ifdef MODE_ROSLOG
+  ~InternalLog() {
+    switch (severity_) {
+      case SeverityType::INFO:ROS_INFO_STREAM(ss.str());
+        break;
+      case SeverityType::WARN:ROS_WARN_STREAM(ss.str());
+        break;
+      case SeverityType::ERROR:ROS_ERROR_STREAM(ss.str());
+        break;
+      case SeverityType::FATAL:ROS_FATAL_STREAM(ss.str());
+        break;
+    }
+  }
+#endif
+
+#ifdef MODE_LPP
+  ~InternalLog() {
+    switch (severity_) {
+      case SeverityType::INFO:std::cout << "INFO  " << ss.str() << std::endl;
+        break;
+      case SeverityType::WARN:std::cout << "WARN  " << ss.str() << std::endl;
+        break;
+      case SeverityType::ERROR:std::cout << "ERROR " << ss.str() << std::endl;
+        break;
+      case SeverityType::FATAL:std::cout << "FATAL " << ss.str() << std::endl;
+        break;
+    }
+  }
+#endif
+
+ private:
+  static SeverityType getSeverityFromString(const std::string &str) {
+    if (INFO.find(str) != INFO.end()) {
+      return SeverityType::INFO;
+    } else if (WARNING.find(str) != WARNING.end()) {
+      return SeverityType::WARN;
+    } else if (ERROR.find(str) != ERROR.end()) {
+      return SeverityType::ERROR;
+    } else if (FATAL.find(str) != FATAL.end()) {
+      return SeverityType::FATAL;
+    }
+    abort();
+  }
+
+  inline static const std::set<std::string> INFO{"I", "INFO"};
+  inline static const std::set<std::string> WARNING{"W", "WARNING"};
+  inline static const std::set<std::string> ERROR{"E", "ERROR"};
+  inline static const std::set<std::string> FATAL{"F", "FATAL"};
+};
+
+template<typename T>
+InternalLog &&operator<<(InternalLog &&wrap, T const &whatever) {
+  wrap.ss << whatever;
+  return std::move(wrap);
 }
 
 #endif //LOG__LOG_H_
