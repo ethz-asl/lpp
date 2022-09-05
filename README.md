@@ -5,7 +5,7 @@ Header only library to standardize roslog and glog output at compile time.
 ## Usage
 
 ```c++
-#include <ros/ros.h> //Dummy include
+#include <ros/ros.h>
 #include <log++.h> // Must be defined AFTER <ros/ros.h> or <glog/logging.h>
 
 int main(int argc, char **argv) {
@@ -79,6 +79,7 @@ LOG_FIRST(I, 5, "Values: " << foo << bar)
 
 ## Limitations
 - ROS_INFO() only accepts one argument at the moment
+- Header file is not self-contained (include order matters)
 ***
 
 ## Tests

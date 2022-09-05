@@ -7,7 +7,6 @@
 
 int main(int argc, char **argv) {
   LOG_INIT(argv[0]);
-  ROS_INFO_STREAM("a" << "b");
 
   int a = 3;
   int b = 2;
