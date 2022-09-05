@@ -55,6 +55,9 @@ inline Init lppInit;
 //! un-define macros to avoid conflicts
 #ifdef GLOG_SUPPORTED
 #undef LOG
+#ifndef MODE_GLOG
+#undef LOG_IF
+#endif
 #endif
 
 #if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG
@@ -66,6 +69,15 @@ inline Init lppInit;
 #undef ROS_ERROR_STREAM
 #undef ROS_FATAL
 #undef ROS_FATAL_STREAM
+
+#undef ROS_INFO_COND
+#undef ROS_INFO_STREAM_COND
+#undef ROS_WARN_COND
+#undef ROS_WARN_STREAM_COND
+#undef ROS_ERROR_COND
+#undef ROS_ERROR_STREAM_COND
+#undef ROS_FATAL_COND
+#undef ROS_FATAL_STREAM_COND
 #endif
 
 using namespace lpp::internal;
@@ -99,6 +111,7 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 /**
  * LOG_1 = Google logging syntax
  * LOG_2 = LPP logging syntax
+ * LOG_3 = LPP conditional syntax
  */
 
 //! MODE_GLOG
@@ -114,7 +127,10 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 if      (strcmp(#severity, "I") == 0) {LOG_1(INFO) << x;}        \
 else if (strcmp(#severity, "W") == 0) {LOG_1(WARNING) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_1(ERROR) << x;}       \
-else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;}       \
+else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;} true
+
+//Add true at the end to make semicolons mandatory. Compiles to nothing.
+#define LOG_3(severity, cond, x) if (cond) { LOG_2(severity, x);} true
 
 #define ROS_INFO(x) LOG(INFO) << x
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
@@ -123,7 +139,16 @@ else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;}       \
 #define ROS_ERROR(x) LOG(ERROR) << x
 #define ROS_ERROR_STREAM(x) LOG(ERROR) << x
 #define ROS_FATAL(x) LOG(FATAL) << x
-#define ROS_FATAL_STREAM(x) LOG(FATAL) << x;
+#define ROS_FATAL_STREAM(x) LOG(FATAL) << x
+#define ROS_INFO_COND(cond, x) LOG_IF(INFO, cond) << x
+#define ROS_INFO_STREAM_COND(cond, x) LOG_IF(INFO, cond) << x
+#define ROS_WARN_COND(cond, x) LOG_IF(WARNING, cond) << x
+#define ROS_WARN_STREAM_COND(cond, x) LOG_IF(WARNING, cond) << x
+#define ROS_ERROR_COND(cond, x) LOG_IF(ERROR, cond) << x
+#define ROS_ERROR_STREAM_COND(cond, x) LOG_IF(ERROR, cond) << x
+#define ROS_FATAL_COND(cond, x) LOG_IF(ERROR, cond) << x
+#define ROS_FATAL_STREAM_COND(cond, x) LOG_IF(ERROR, cond) << x
+
 #pragma clang diagnostic pop
 #endif
 
@@ -131,8 +156,11 @@ else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;}       \
 //! MODE_ROSLOG
 #ifdef MODE_ROSLOG
 
+#define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
+
 #define LOG_1(severity) InternalLog(#severity)
 #define LOG_2(severity, x) InternalLog(#severity) << x
+#define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x
 
 #endif
 
@@ -150,8 +178,20 @@ else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;}       \
 #define ROS_FATAL(x) LOG_2(F, x)
 #define ROS_FATAL_STREAM(x) LOG_2(F, x)
 
+#define ROS_INFO_COND(cond, x) LOG_3(I, cond, x)
+#define ROS_INFO_STREAM_COND(cond, x) LOG_3(I, cond, x)
+#define ROS_WARN_COND(cond, x) LOG_3(W, cond, x)
+#define ROS_WARN_STREAM_COND(cond, x) LOG_3(W, cond, x)
+#define ROS_ERROR_COND(cond, x) LOG_3(E, cond, x)
+#define ROS_ERROR_STREAM_COND(cond, x) LOG_3(E, cond, x)
+#define ROS_FATAL_COND(cond, x) LOG_3(F, cond, x)
+#define ROS_FATAL_STREAM_COND(cond, x) LOG_3(F, cond, x)
+
+#define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
+
 #define LOG_1(severity) InternalLog(#severity)
 #define LOG_2(severity, x) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
+#define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
 
 enum SeverityType {
