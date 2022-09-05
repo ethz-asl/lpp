@@ -19,6 +19,8 @@ int main(int argc, char **argv) {
   LOG(W, true, "Hello log++. Found:" << a << " cookies");
   LOG(E, true, "Hello log++. Found:" << a << " cookies");
 
+  int occasion = 5;
+
   LOG(INFO) << "Hello glog. Found: " << b << " cookies";
   LOG(WARNING) << "Hello glog. Found: " << b << " cookies";
   LOG(ERROR) << "Hello glog. Found: " << b << " cookies";
@@ -40,4 +42,38 @@ int main(int argc, char **argv) {
   ROS_WARN_COND(false, "Test1");
   ROS_ERROR_COND(true, "Test");
   ROS_ERROR_COND(false, "Test1");
+
+  std::cout << "----------- Occasional logging -----------" << std::endl;
+  usleep(1e5);
+  for (int i = 0; i < occasion; i++) {
+    LOG_EVERY(I, occasion, "Occasional log");
+    LOG_EVERY(W, occasion, "Occasional log");
+    LOG_EVERY(E, occasion, "Occasional log");
+    LOG_EVERY_N(INFO, occasion) << "Occasional log";
+    LOG_EVERY_N(WARNING, occasion) << "Occasional log";
+    LOG_EVERY_N(ERROR, occasion) << "Occasional log";
+
+    //TODO Implement
+    /*
+    ROS_INFO_THROTTLE(occasion, "Hello Ros");
+    ROS_INFO_STREAM_THROTTLE(occasion, "" << "Occasional log");
+    ROS_WARN_THROTTLE(occasion, "Hello Ros");
+    ROS_WARN_STREAM_THROTTLE(occasion, "" << "Occasional log");
+    ROS_ERROR_THROTTLE(occasion, "Hello Ros");
+    ROS_ERROR_STREAM_THROTTLE(occasion, "" << "Occasional log");
+     */
+  }
+
+  usleep(1e5);
+  std::cout << "----------- First N occurrences -----------" << std::endl;
+  for (int i = 0; i < occasion; i++) {
+    int first_n_occurrences = occasion - 3;
+
+
+    LOG_FIRST(I, first_n_occurrences, "Log++ First " << first_n_occurrences << " occurrences");
+
+    LOG_FIRST_N(INFO, first_n_occurrences) << "Log INFO First " << first_n_occurrences << " occurrences";
+    LOG_FIRST_N(WARNING, first_n_occurrences) << "Log WARNING First " << first_n_occurrences << " occurrences";
+    LOG_FIRST_N(ERROR, first_n_occurrences) << "Log ERROR First " << first_n_occurrences << " occurrences";
+  }
 }

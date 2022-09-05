@@ -9,6 +9,7 @@
 #include <utility>
 #include <set>
 #include <sstream>
+#include <unordered_map>
 
 //! Check if libraries are available at compile time
 #if __has_include(<glog/logging.h>)
@@ -45,6 +46,7 @@ inline Init lppInit;
 //! Includes
 #if defined GLOG_SUPPORTED && defined MODE_GLOG
 #include <glog/logging.h>
+#include <unordered_map>
 #endif // GLOG_SUPPORTED
 
 #if defined ROSLOG_SUPPORTED && defined MODE_ROSLOG
@@ -131,6 +133,19 @@ else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;} true
 
 //Add true at the end to make semicolons mandatory. Compiles to nothing.
 #define LOG_3(severity, cond, x) if (cond) { LOG_2(severity, x);} true
+#define LOG_EVERY(severity, n, x) \
+if      (strcmp(#severity, "I") == 0) {LOG_EVERY_N(INFO, n) << x;}        \
+else if (strcmp(#severity, "W") == 0) {LOG_EVERY_N(WARNING, n) << x;}     \
+else if (strcmp(#severity, "E") == 0) {LOG_EVERY_N(ERROR, n) << x;}       \
+else if (strcmp(#severity, "F") == 0) {LOG_EVERY_N(FATAL, n) << x;} true
+
+#define LOG_FIRST(severity, n, x) \
+if      (strcmp(#severity, "I") == 0) {LOG_FIRST_N(INFO, n) << x;}        \
+else if (strcmp(#severity, "W") == 0) {LOG_FIRST_N(WARNING, n) << x;}     \
+else if (strcmp(#severity, "E") == 0) {LOG_FIRST_N(ERROR, n) << x;}       \
+else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
+
+//#define LOG_FIRST(severity, n, x) std::stringstream ss; ss << x; InternalLogCount::getInstance().update(LPP_GET_KEY(), n, ss.str(), #severity)
 
 #define ROS_INFO(x) LOG(INFO) << x
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
@@ -266,5 +281,54 @@ InternalLog &&operator<<(InternalLog &&wrap, T const &whatever) {
   wrap.ss << whatever;
   return std::move(wrap);
 }
+
+struct OccurenceCountData {
+  int count{};
+  int max{};
+  std::string msg{};
+  std::string severity_str;
+};
+
+class InternalLogCount {
+ public:
+  static InternalLogCount &getInstance() {
+    static InternalLogCount instance;
+    return instance;
+  }
+
+  inline bool keyExists(const std::string &key) {
+    return occurences_.find(key) != occurences_.end();
+  }
+
+  inline void update(const std::string &key, int max, std::string msg, std::string severity_str) {
+    if (keyExists(key)) {
+      addCount(key);
+      return;
+    }
+
+    OccurenceCountData occurence_data;
+    occurence_data.count = 1;
+    occurence_data.max = max;
+    occurence_data.msg = std::move(msg);
+    occurence_data.severity_str = std::move(severity_str);
+
+    occurences_.insert({key, occurence_data});
+  }
+
+  inline void addCount(const std::string &key) {
+    OccurenceCountData *occ = &occurences_[key];
+    occ->count++;
+    if (occ->count >= occ->max) {
+      InternalLog(occ->severity_str) << occ->severity_str;
+      occurences_.erase(key);
+    }
+  }
+
+ private:
+  InternalLogCount() = default;
+  std::unordered_map<std::string, OccurenceCountData> occurences_{};
+};
+
+#define LPP_GET_KEY() std::string(__FILE__) + std::to_string(__LINE__)
 
 #endif //LOG__LOG_H_
