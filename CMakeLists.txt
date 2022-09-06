@@ -25,8 +25,8 @@ if (GLOG_FOUND)
     if (catkin_FOUND)
         add_executable(Logtest test/test_entry_point.cpp
                 Include/log++.h
-                test/glog/test_basic_glog.cc
-                test/roslog/test_basic_roslog.cc)
+                test/log/glog/test_basic_glog.cc
+                test/log/roslog/test_basic_roslog.cc)
         target_include_directories(Logtest PRIVATE test)
 
         target_link_libraries(Logtest glog ${catkin_LIBRARIES})
