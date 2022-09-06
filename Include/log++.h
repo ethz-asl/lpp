@@ -186,7 +186,7 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N)
 #define LOG_EVERY_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
 #define LOG_FIRST(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::FIRST_N)
-#define LOG_FIRST_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
+#define LOG_FIRST_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N)
 #endif
 
 //! MODE_LPP

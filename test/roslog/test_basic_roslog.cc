@@ -5,8 +5,6 @@
 #include <gtest/gtest.h>
 #include "test_utils.h"
 
-#undef MODE_GLOG
-#define MODE_ROSLOG
 #include "log++.h"
 
 /**

@@ -1,19 +1,21 @@
 //
 // Created by acey on 23.08.22.
 //
-#define MODE_GLOG
+
 #include "test_utils.h"
 #include <gtest/gtest.h>
-#include "log++.h"
+#include <log++.h>
 
 //! ################ glog ################
 TEST(glog_glog_syntax, severity_info) {
   LOG_INIT(*test_argv);
   FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(INFO) << "xyz";
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR_LOG(LOG(INFO) << "xyz");
+
+  //testing::internal::CaptureStderr();
+  //LOG(INFO) << "xyz";
+  //std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
