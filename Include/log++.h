@@ -431,7 +431,7 @@ class InternalPolicyLog : public InternalLog {
       severity_(std::move(severity)), key_(std::move(key)), n_(n), policy_type_(policy_type) {};
 
   ~InternalPolicyLog() {
-    InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, PolicyType::EVERY_N);
+    InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, policy_type_);
   }
  private:
   std::string severity_{};
