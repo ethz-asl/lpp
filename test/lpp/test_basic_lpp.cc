@@ -50,3 +50,26 @@ TEST(LPP_glog_syntax, severity_error) {
   std::string output = LPP_CAPTURE_STDOUT(LOG(ERROR) << "Test" << 123);
   ASSERT_EQ(output, "ERROR Test123\n");
 }
+
+
+//! Roslog syntax
+TEST(LPP_roslog_syntax, severity_info) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("Test" << 123));
+  ASSERT_EQ(output, "INFO  Test123\n");
+}
+
+TEST(LPP_roslog_syntax, severity_warning) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_WARN_STREAM("Test" << 123));
+  ASSERT_EQ(output, "WARN  Test123\n");
+}
+
+TEST(LPP_roslog_syntax, severity_error) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_ERROR_STREAM("Test" << 123));
+  ASSERT_EQ(output, "ERROR Test123\n");
+}

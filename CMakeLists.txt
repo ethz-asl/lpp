@@ -45,7 +45,7 @@ if (GLOG_FOUND)
         add_executable(${LPP_TESTS} test/test_entry_point.cpp
                 test/lpp/test_basic_lpp.cc
                 test/lpp/test_first_n.cc
-                )
+                test/lpp/test_every_n.cc)
 
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp )
         target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES})
