@@ -56,7 +56,7 @@ TEST(glog_lpp_syntax, severity_info) {
   FLAGS_logtostderr = true;
 
   testing::internal::CaptureStderr();
-  LOG(I, "Test" << "123")
+  LOG(I, "Test" << "123");
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
@@ -70,7 +70,7 @@ TEST(glog_lpp_syntax, severity_warning) {
   FLAGS_logtostderr = true;
 
   testing::internal::CaptureStderr();
-  LOG(W, "Test" << "123")
+  LOG(W, "Test" << "123");
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
@@ -83,7 +83,7 @@ TEST(glog_lpp_syntax, severity_error) {
   FLAGS_logtostderr = true;
 
   testing::internal::CaptureStderr();
-  LOG(E, "Test" << "123")
+  LOG(E, "Test" << "123");
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
