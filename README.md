@@ -89,8 +89,7 @@ LOG_FIRST(I, 5, "Values: " << foo << bar)
 ***
 
 ## Tests
-
-- All modes (default, glog, lpp, roslog)
+- All modes (glog, lpp, roslog) have a seperate test suite
 - Test Logging syntax for each mode
 - All severity levels (Info, Warning, Error, Fatal)
 - Maybe test Stream operator with different types
