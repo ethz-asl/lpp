@@ -46,7 +46,6 @@ inline Init lppInit;
 //! Includes
 #if defined GLOG_SUPPORTED && defined MODE_GLOG
 #include <glog/logging.h>
-#include <unordered_map>
 #endif // GLOG_SUPPORTED
 
 #if defined ROSLOG_SUPPORTED && defined MODE_ROSLOG
@@ -57,9 +56,14 @@ inline Init lppInit;
 //! un-define macros to avoid conflicts
 #ifdef GLOG_SUPPORTED
 #undef LOG
-#ifndef MODE_GLOG
-#undef LOG_IF
 #endif
+
+
+//! Redefine log methods
+#if defined GLOG_SUPPORTED && !defined MODE_GLOG
+#undef LOG_IF
+#undef LOG_EVERY_N
+#undef LOG_FIRST_N
 #endif
 
 #if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG
@@ -145,7 +149,6 @@ else if (strcmp(#severity, "W") == 0) {LOG_FIRST_N(WARNING, n) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_FIRST_N(ERROR, n) << x;}       \
 else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 
-//#define LOG_FIRST(severity, n, x) std::stringstream ss; ss << x; InternalLogCount::getInstance().update(LPP_GET_KEY(), n, ss.str(), #severity)
 
 #define ROS_INFO(x) LOG(INFO) << x
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
@@ -170,7 +173,6 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 
 //! MODE_ROSLOG
 #ifdef MODE_ROSLOG
-
 #define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
 
 #define LOG_1(severity) InternalLog(#severity)
@@ -180,6 +182,12 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #endif
 
 
+#if defined MODE_ROSLOG || defined MODE_LPP
+#define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N)
+#define LOG_EVERY_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
+#define LOG_FIRST(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::FIRST_N)
+#define LOG_FIRST_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
+#endif
 
 //! MODE_LPP
 #ifdef MODE_LPP
@@ -219,15 +227,25 @@ enum SeverityType {
 //! Internal log class
 class InternalLog {
  public:
+  InternalLog() {
+    should_print_ = false;
+  };
+
   explicit InternalLog(SeverityType severity_type) : severity_(severity_type) {}
   explicit InternalLog(const std::string &severity) {
     severity_ = getSeverityFromString(severity);
   }
 
-  SeverityType severity_;
-  std::stringstream ss;
+  InternalLog(InternalLog const &log) : severity_(log.severity_) {
+    ss << log.ss.str();
+  }
+  SeverityType severity_{};
+  std::stringstream ss{};
 #ifdef MODE_ROSLOG
   ~InternalLog() {
+    if (!should_print_) {
+      return;
+    }
     switch (severity_) {
       case SeverityType::INFO:ROS_INFO_STREAM(ss.str());
         break;
@@ -243,6 +261,9 @@ class InternalLog {
 
 #ifdef MODE_LPP
   ~InternalLog() {
+    if (!should_print_) {
+      return;
+    }
     switch (severity_) {
       case SeverityType::INFO:std::cout << "INFO  " << ss.str() << std::endl;
         break;
@@ -255,8 +276,8 @@ class InternalLog {
     }
   }
 #endif
-
  private:
+  bool should_print_{true};
   static SeverityType getSeverityFromString(const std::string &str) {
     if (INFO.find(str) != INFO.end()) {
       return SeverityType::INFO;
@@ -282,9 +303,77 @@ InternalLog &&operator<<(InternalLog &&wrap, T const &whatever) {
   return std::move(wrap);
 }
 
-struct OccurenceCountData {
-  int count{};
-  int max{};
+class LogPolicy {
+ public:
+  virtual void update() = 0;
+  virtual bool shouldLog() = 0;
+  virtual ~LogPolicy() = default;
+ protected:
+  explicit LogPolicy(int max) : max_(max) {}
+  int counter_{0};
+  int max_{0};
+};
+
+class OccasionPolicy : public LogPolicy {
+ public:
+  explicit OccasionPolicy(int max) : LogPolicy(max) {}
+  inline void update() override {
+    should_log_ = false;
+    counter_++;
+    if (counter_ >= max_) {
+      should_log_ = true;
+      counter_ = 0;
+    }
+  }
+
+  inline bool shouldLog() override {
+    return should_log_;
+  }
+
+ private:
+  bool should_log_{false};
+};
+
+class FirstNOccurrencesPolicy : public LogPolicy {
+ public:
+  explicit FirstNOccurrencesPolicy(int max) : LogPolicy(max) {}
+  inline void update() override {
+    if (!is_n_occurences_reached) {
+      counter_++;
+    }
+
+    if (counter_ > max_) {
+      is_n_occurences_reached = true;
+    }
+  }
+
+  inline bool shouldLog() override {
+    return !is_n_occurences_reached;
+  }
+
+ private:
+  bool is_n_occurences_reached = false;
+};
+
+enum PolicyType {
+  FIRST_N,
+  EVERY_N
+};
+
+class LogPolicyFactory {
+ public:
+  static LogPolicy *create(PolicyType policy_type, int max) {
+    switch (policy_type) {
+      case FIRST_N: return new FirstNOccurrencesPolicy(max);
+      case EVERY_N: return new OccasionPolicy(max);
+      default:abort();
+    }
+  }
+};
+
+struct LogStatementData {
+  explicit LogStatementData(LogPolicy *log_policy) : log_policy_(log_policy) {}
+  LogPolicy *log_policy_;
   std::string msg{};
   std::string severity_str;
 };
@@ -296,39 +385,60 @@ class InternalLogCount {
     return instance;
   }
 
+  inline void update(const std::string &key,
+                     int max,
+                     const InternalLog &internal_log,
+                     const std::string &severity_str,
+                     PolicyType policy_type) {
+    update(key, max, internal_log.ss.str(), severity_str, policy_type);
+  }
+
+  inline void update(const std::string &key,
+                     int max,
+                     const std::string &log_msg,
+                     const std::string &severity_str,
+                     PolicyType policy_type) {
+    if (!keyExists(key)) {
+      LogStatementData data(LogPolicyFactory::create(policy_type, max));
+
+      data.msg = log_msg;
+      data.severity_str = severity_str;
+      occurences_.insert({key, data});
+    }
+    process(key);
+  }
+
+ private:
   inline bool keyExists(const std::string &key) {
     return occurences_.find(key) != occurences_.end();
   }
 
-  inline void update(const std::string &key, int max, std::string msg, std::string severity_str) {
-    if (keyExists(key)) {
-      addCount(key);
-      return;
-    }
-
-    OccurenceCountData occurence_data;
-    occurence_data.count = 1;
-    occurence_data.max = max;
-    occurence_data.msg = std::move(msg);
-    occurence_data.severity_str = std::move(severity_str);
-
-    occurences_.insert({key, occurence_data});
-  }
-
-  inline void addCount(const std::string &key) {
-    OccurenceCountData *occ = &occurences_[key];
-    occ->count++;
-    if (occ->count >= occ->max) {
-      InternalLog(occ->severity_str) << occ->severity_str;
-      occurences_.erase(key);
+  inline void process(const std::string &key) {
+    LogStatementData *data = &occurences_.at(key);
+    data->log_policy_->update();
+    if (data->log_policy_->shouldLog()) {
+      InternalLog(data->severity_str) << data->msg;
     }
   }
 
- private:
   InternalLogCount() = default;
-  std::unordered_map<std::string, OccurenceCountData> occurences_{};
+  std::unordered_map<std::string, LogStatementData> occurences_{};
 };
 
+class InternalPolicyLog : public InternalLog {
+ public:
+  InternalPolicyLog(std::string key, int n, std::string severity, PolicyType policy_type) :
+      severity_(std::move(severity)), key_(std::move(key)), n_(n), policy_type_(policy_type) {};
+
+  ~InternalPolicyLog() {
+    InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, PolicyType::EVERY_N);
+  }
+ private:
+  std::string severity_{};
+  std::string key_{};
+  int n_{};
+  PolicyType policy_type_{};
+};
 #define LPP_GET_KEY() std::string(__FILE__) + std::to_string(__LINE__)
 
 #endif //LOG__LOG_H_

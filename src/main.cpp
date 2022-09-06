@@ -61,16 +61,21 @@ int main(int argc, char **argv) {
     ROS_WARN_STREAM_THROTTLE(occasion, "" << "Occasional log");
     ROS_ERROR_THROTTLE(occasion, "Hello Ros");
     ROS_ERROR_STREAM_THROTTLE(occasion, "" << "Occasional log");
-     */
+    */
   }
 
-  usleep(1e5);
+  usleep(1e6);
   std::cout << "----------- First N occurrences -----------" << std::endl;
-  for (int i = 0; i < occasion; i++) {
-    int first_n_occurrences = occasion - 3;
+  occasion = 5;
+  int first_n_occurrences = 2;
+  for (int i = 0; i < occasion * 2; i++) {
 
 
     LOG_FIRST(I, first_n_occurrences, "Log++ First " << first_n_occurrences << " occurrences");
+    LOG_EVERY(I, occasion, "Log every " << occasion << " occasion");
+    LOG_FIRST(W, first_n_occurrences, "Log++ First " << first_n_occurrences << " occurrences");
+    LOG_FIRST(E, first_n_occurrences, "Log++ First " << first_n_occurrences << " occurrences");
+
 
     LOG_FIRST_N(INFO, first_n_occurrences) << "Log INFO First " << first_n_occurrences << " occurrences";
     LOG_FIRST_N(WARNING, first_n_occurrences) << "Log WARNING First " << first_n_occurrences << " occurrences";
