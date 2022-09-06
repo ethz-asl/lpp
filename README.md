@@ -38,12 +38,13 @@ target_compile_definitions(my_executable PRIVATE MODE_LPP)
 - **Fatal:** Everything that should stop execution immediately. Calls abort().
 
 ## Logging methods
-| Method                      | Log++           | Glog                | Roslog                           |
-|-----------------------------|-----------------|---------------------|----------------------------------|
-| Default logging             | LOG(I)          | LOG(INFO)           | ROS_INFO()                       |
-| Conditional logging         | LOG(I, COND)    | LOG_IF()            | ROS_INFO_COND()                  |
-| Occasional logging          | LOG_EVERY(I, N) | LOG_EVERY_N()       | ROS_INFO_THROTTLE()              |
-| Logging first N occurrences | LOG_FIRST(I, N) | LOG_FIRST_N(INFO,1) | ROS_INFO_ONCE(), ROS_INFO_COND() |
+| Method                       | Log++           | Glog                | Roslog                              | 
+|------------------------------|-----------------|---------------------|-------------------------------------|
+| Default logging              | LOG(I)          | LOG(INFO)           | ROS_INFO()                          |
+| Conditional logging          | LOG(I, COND)    | LOG_IF()            | ROS_INFO_COND()                     |
+| Occasional logging (every n) | LOG_EVERY(I, N) | LOG_EVERY_N()       | -                                   |
+| Occasional logging (by time) | -               | -                   | ROS_INFO_THROTTLE()                 |
+| Logging first N occurrences  | LOG_FIRST(I, N) | LOG_FIRST_N(INFO,1) | ROS_INFO_ONCE() (only 1 occurrence) |
 
 ***
 
@@ -83,6 +84,7 @@ LOG_FIRST(I, 5, "Values: " << foo << bar)
 
 ## Roadmap
 - Implement ROS_INFO_THROTTLE()
+- Implement ROS_INFO_ONCE()
 - Implement ROS_INFO() with more than one argument
 ***
 
