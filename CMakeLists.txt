@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.16)
 project(Log++)
 
 set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-include_directories(Include)
+include_directories(include)
 
 find_package(glog)
 find_package(catkin REQUIRED COMPONENTS roscpp)
@@ -26,7 +26,7 @@ if (GLOG_FOUND)
 
         message("-- Found glog and catkin: Log++ tests will be built")
         ##### Common includes #####
-        set(LPP_INCLUDE_DIRECTORIES Include test/common)
+        set(LPP_INCLUDE_DIRECTORIES include test/common)
 
         ##### GLOG Tests #####
         set(GLOG_TESTS "test_glog")
