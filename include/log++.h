@@ -12,12 +12,14 @@
 #include <unordered_map>
 #include <iostream>
 
-//! Check if libraries are available at compile time
+//! Check if libraries are available at compile time and include required headers
 #if __has_include(<glog/logging.h>)
+#include <glog/logging.h>
 #define GLOG_SUPPORTED
 #endif
 
 #if __has_include(<ros/console.h>)
+#include <ros/console.h>
 #define ROSLOG_SUPPORTED
 #endif
 
@@ -41,16 +43,6 @@ inline Init lppInit;
 
 #if defined MODE_ROSLOG && !defined ROSLOG_SUPPORTED
 #error Logging Mode is set to roslog but roslog was not found
-#endif
-
-
-//! Includes
-#if defined GLOG_SUPPORTED && defined MODE_GLOG
-#include <glog/logging.h>
-#endif // GLOG_SUPPORTED
-
-#if defined ROSLOG_SUPPORTED && defined MODE_ROSLOG
-#include <ros/console.h>
 #endif
 
 
