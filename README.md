@@ -88,10 +88,12 @@ LOG_FIRST(I, 5, "Values: " << foo << bar)
 ## Roadmap
 - Implement ROS_INFO_THROTTLE()
 - Implement ROS_INFO() with more than one argument
+- Implement ROS_INFO_NAMED()
+- Make log policies thread-safe
 ***
 
 ## Tests
-- All modes (glog, lpp, roslog) have a seperate test suite
+- All modes (glog, lpp, roslog) have a separate test suite
 - Test Logging syntax for each mode
 - All severity levels (Info, Warning, Error, Fatal)
 - Maybe test Stream operator with different types
