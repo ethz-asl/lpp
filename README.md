@@ -19,9 +19,16 @@ int main(int argc, char **argv) {
 }
 ```
 
-Add the following line to cmake to select desired mode:
+Add the following line to `CMakeLists.txt` to select the desired mode for...
+
+- a project:
 ```cmake
-# Valid modes are: MODE_GLOG MODE_ROSLOG MODE_LPP MODE_DEFAULT
+# Valid modes are: MODE_LPP MODE_GLOG MODE_ROSLOG MODE_DEFAULT
+add_compile_definitions(MODE_LPP)
+```
+
+- a specific executable:
+```cmake
 target_compile_definitions(my_executable PRIVATE MODE_LPP) 
 ```
 
