@@ -87,7 +87,6 @@ LOG_FIRST(I, 5, "Values: " << foo << bar)
 
 ## Roadmap
 - Implement ROS_INFO_THROTTLE()
-- Implement ROS_INFO_ONCE()
 - Implement ROS_INFO() with more than one argument
 ***
 

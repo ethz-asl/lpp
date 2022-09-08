@@ -85,6 +85,11 @@ inline Init lppInit;
 #undef ROS_ERROR_STREAM_COND
 #undef ROS_FATAL_COND
 #undef ROS_FATAL_STREAM_COND
+
+#undef ROS_INFO_ONCE
+#undef ROS_WARN_ONCE
+#undef ROS_ERROR_ONCE
+#undef ROS_FATAL_ONCE
 #endif
 
 using namespace lpp::internal;
@@ -168,6 +173,12 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define ROS_FATAL_COND(cond, x) LOG_IF(ERROR, cond) << x
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_IF(ERROR, cond) << x
 
+#define ROS_INFO_ONCE(x) LOG_FIRST_N(INFO, 1) << x
+#define ROS_WARN_ONCE(x) LOG_FIRST_N(WARNING, 1) << x
+#define ROS_ERROR_ONCE(x) LOG_FIRST_N(ERROR, 1) << x
+#define ROS_FATAL_ONCE(x) LOG_FIRST_N(FATAL, 1) << x
+
+
 #pragma clang diagnostic pop
 #endif
 
@@ -210,6 +221,11 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define ROS_ERROR_STREAM_COND(cond, x) LOG_3(E, cond, x)
 #define ROS_FATAL_COND(cond, x) LOG_3(F, cond, x)
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_3(F, cond, x)
+
+#define ROS_INFO_ONCE(x) LOG_FIRST(I, 1, x)
+#define ROS_WARN_ONCE(x) LOG_FIRST(W, 1, x)
+#define ROS_ERROR_ONCE(x) LOG_FIRST(E, 1, x)
+#define ROS_FATAL_ONCE(x) LOG_FIRST(F, 1, x)
 
 #define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
 
