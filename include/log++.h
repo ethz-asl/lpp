@@ -316,14 +316,18 @@ class LogPolicy {
 
 class OccasionPolicy : public LogPolicy {
  public:
-  explicit OccasionPolicy(int max) : LogPolicy(max) {}
+  explicit OccasionPolicy(int max) : LogPolicy(max) {
+    counter_ = max_;
+  }
+
   inline void update() override {
     should_log_ = false;
-    counter_++;
-    if (counter_ >= max_) {
+
+    if (counter_ % max_ == 0) {
       should_log_ = true;
       counter_ = 0;
     }
+    counter_++;
   }
 
   inline bool shouldLog() override {
