@@ -236,6 +236,9 @@ std::string formatToString(const char *f, Args... args) {
   return buf;
 }
 
+std::string formatToString(const char *str) {
+  return str;
+}
 
 enum SeverityType {
   INFO,
