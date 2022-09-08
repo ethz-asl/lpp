@@ -3,11 +3,9 @@
 //
 
 #include <gtest/gtest.h>
-#include "test_utils.h"
+#include <test_utils.h>
+#include <log++.h>
 
-#include "log++.h"
-
-//TODO fix
 TEST(LPP_LogEveryN, lpp_syntax) {
   for (int i = 0; i < 5; i++) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(I, 3, "Test"));

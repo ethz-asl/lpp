@@ -18,7 +18,7 @@ TEST(glog_glog_syntax, severity_info) {
   //std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
 
   ASSERT_EQ(output[0], 'I');
 }
@@ -32,7 +32,7 @@ TEST(glog_glog_syntax, severity_warning) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
 
   ASSERT_EQ(output[0], 'W');
 }
@@ -46,7 +46,7 @@ TEST(glog_glog_syntax, severity_error) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
 
   ASSERT_EQ(output[0], 'E');
 }
@@ -62,7 +62,7 @@ TEST(glog_lpp_syntax, severity_info) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
 
   ASSERT_TRUE(output[0] == 'I');
 }
@@ -76,7 +76,7 @@ TEST(glog_lpp_syntax, severity_warning) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'W');
 }
 
@@ -89,7 +89,7 @@ TEST(glog_lpp_syntax, severity_error) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'E');
 }
 
@@ -118,7 +118,7 @@ TEST(glog_roslog_syntax, severity_info) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'I');
 }
 
@@ -131,7 +131,7 @@ TEST(glog_roslog_syntax, severity_info_stream) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'I');
 }
 
@@ -144,7 +144,7 @@ TEST(glog_roslog_syntax, severity_warn) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'W');
 }
 
@@ -157,7 +157,7 @@ TEST(glog_roslog_syntax, severity_warn_stream) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'W');
 }
 
@@ -170,7 +170,7 @@ TEST(glog_roslog_syntax, severity_error) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'E');
 }
 
@@ -183,7 +183,7 @@ TEST(glog_roslog_syntax, severity_error_stream) {
   std::string output = testing::internal::GetCapturedStderr();
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_basic_glog.cc"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'E');
 }
 

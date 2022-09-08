@@ -32,7 +32,9 @@ if (GLOG_FOUND)
         set(GLOG_TESTS "test_glog")
 
         add_executable(${GLOG_TESTS} test/test_entry_point.cpp
-                test/glog/test_basic_glog.cc
+                test/glog/test_glog_basic.cc
+                test/glog/test_glog_first_n.cc
+                test/glog/test_glog_every_n.cc
                 )
 
         target_include_directories(${GLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/glog )
@@ -43,9 +45,10 @@ if (GLOG_FOUND)
         ##### Log++ Tests #####
         set(LPP_TESTS "test_lpp")
         add_executable(${LPP_TESTS} test/test_entry_point.cpp
-                test/lpp/test_basic_lpp.cc
-                test/lpp/test_first_n.cc
-                test/lpp/test_every_n.cc)
+                test/lpp/test_lpp_basic.cc
+                test/lpp/test_lpp_first_n.cc
+                test/lpp/test_lpp_every_n.cc
+                )
 
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp )
         target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES})
@@ -55,7 +58,9 @@ if (GLOG_FOUND)
         ##### Roslog Tests #####
         set(ROSLOG_TESTS "test_roslog")
         add_executable(${ROSLOG_TESTS} test/test_entry_point.cpp
-                test/roslog/test_basic_roslog.cc
+                test/roslog/test_roslog_basic.cc
+                test/roslog/test_roslog_first_n.cc
+                test/roslog/test_roslog_every_n.cc
                 )
 
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)

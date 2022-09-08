@@ -9,7 +9,7 @@
 
 /**
  * Ros logging stdout/stderr capture doesn't work. Probably because of threading things.
- * Unittests only cover ros function calls through Log++ at the moment.
+ * At the moment, unittests only test if ros function calls are called  through Log++.
  */
 
 //! ################ GLOG ################

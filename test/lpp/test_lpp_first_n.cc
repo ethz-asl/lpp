@@ -1,10 +1,10 @@
 //
 // Created by 4c3y (acey) on 06.09.22.
 //
-#include <gtest/gtest.h>
-#include "test_utils.h"
 
-#include "log++.h"
+#include <gtest/gtest.h>
+#include <test_utils.h>
+#include <log++.h>
 
 TEST(LPP_LogPolicyFirstN, lpp_syntax) {
   for (int i = 0; i < 5; i++) {
