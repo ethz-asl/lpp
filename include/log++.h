@@ -10,6 +10,7 @@
 #include <set>
 #include <sstream>
 #include <unordered_map>
+#include <iostream>
 
 //! Check if libraries are available at compile time
 #if __has_include(<glog/logging.h>)
