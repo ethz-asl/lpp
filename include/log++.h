@@ -226,7 +226,7 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 
 //! function which composes a string with the same text that would be printed if format was used on printf(3)
 template<typename... Args>
-std::string formatToString(const char *f, Args... args) {
+inline std::string formatToString(const char *f, Args... args) {
   size_t sz = snprintf(nullptr, 0, f, args...);
   if (sz == 0) {
     return "";
@@ -236,7 +236,7 @@ std::string formatToString(const char *f, Args... args) {
   return buf;
 }
 
-std::string formatToString(const char *str) {
+inline std::string formatToString(const char *str) {
   return str;
 }
 
