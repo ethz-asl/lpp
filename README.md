@@ -4,9 +4,12 @@ Header only library to standardize roslog and glog output at compile time.
 
 ## Usage
 
+The `log++.h` header must be defined in every file containing log functions and must be included **AFTER** all other 
+includes.
+
 ```c++
 #include <ros/ros.h>
-#include <log++.h> // Must be defined AFTER <ros/ros.h> or <glog/logging.h>
+#include <log++.h> //defined AFTER <ros/ros.h>
 
 int main(int argc, char **argv) {
   LOG_INIT(argv[0]);
