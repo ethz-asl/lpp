@@ -89,12 +89,10 @@ LOG_FIRST(I, 5, "Values: " << foo << bar)
 ***
 
 ## Limitations
-- ROS_INFO() only accepts one argument at the moment
 - Header file is not self-contained (include order matters)
 
 ## Roadmap
 - Implement ROS_INFO_THROTTLE()
-- Implement ROS_INFO() with more than one argument
 - Implement ROS_INFO_NAMED()
 - Make log policies thread-safe
 ***

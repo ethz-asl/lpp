@@ -96,7 +96,6 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #define LOG_INIT(argv0) lppInit.is_lpp_initialized = true
 #endif
 
-
 //! Hack to enable macro overloading. Used to overload glog's LOG() macro.
 #define CAT(A, B) A ## B
 #define SELECT(NAME, NUM) CAT( NAME ## _, NUM )
@@ -104,7 +103,6 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #define GET_COUNT(_1, _2, _3, _4, _5, _6, COUNT, ...) COUNT
 #define VA_SIZE(...) GET_COUNT( __VA_ARGS__, 6, 5, 4, 3, 2, 1 )
 #define VA_SELECT(NAME, ...) SELECT( NAME, VA_SIZE(__VA_ARGS__) )(__VA_ARGS__)
-
 
 //! Overloads
 #pragma clang diagnostic push
@@ -148,13 +146,13 @@ else if (strcmp(#severity, "E") == 0) {LOG_FIRST_N(ERROR, n) << x;}       \
 else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 
 
-#define ROS_INFO(x) LOG(INFO) << x
+#define ROS_INFO(...) LOG(INFO) << formatToString(__VA_ARGS__)
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
-#define ROS_WARN(x) LOG(WARNING) << x
+#define ROS_WARN(...) LOG(WARNING) << formatToString(__VA_ARGS__)
 #define ROS_WARN_STREAM(x) LOG(WARNING) << x
-#define ROS_ERROR(x) LOG(ERROR) << x
+#define ROS_ERROR(...) LOG(ERROR) << formatToString(__VA_ARGS__)
 #define ROS_ERROR_STREAM(x) LOG(ERROR) << x
-#define ROS_FATAL(x) LOG(FATAL) << x
+#define ROS_FATAL(...) LOG(FATAL) << formatToString(__VA_ARGS__)
 #define ROS_FATAL_STREAM(x) LOG(FATAL) << x
 #define ROS_INFO_COND(cond, x) LOG_IF(INFO, cond) << x
 #define ROS_INFO_STREAM_COND(cond, x) LOG_IF(INFO, cond) << x
@@ -165,10 +163,10 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define ROS_FATAL_COND(cond, x) LOG_IF(ERROR, cond) << x
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_IF(ERROR, cond) << x
 
-#define ROS_INFO_ONCE(x) LOG_FIRST_N(INFO, 1) << x
-#define ROS_WARN_ONCE(x) LOG_FIRST_N(WARNING, 1) << x
-#define ROS_ERROR_ONCE(x) LOG_FIRST_N(ERROR, 1) << x
-#define ROS_FATAL_ONCE(x) LOG_FIRST_N(FATAL, 1) << x
+#define ROS_INFO_ONCE(...) LOG_FIRST_N(INFO, 1) << formatToString(__VA_ARGS__)
+#define ROS_WARN_ONCE(...) LOG_FIRST_N(WARNING, 1) << formatToString(__VA_ARGS__)
+#define ROS_ERROR_ONCE(...) LOG_FIRST_N(ERROR, 1) << formatToString(__VA_ARGS__)
+#define ROS_FATAL_ONCE(...) LOG_FIRST_N(FATAL, 1) << formatToString(__VA_ARGS__)
 
 
 #pragma clang diagnostic pop
@@ -196,13 +194,13 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 //! MODE_LPP
 #ifdef MODE_LPP
 
-#define ROS_INFO(x) LOG_2(I, x)
+#define ROS_INFO(...) LOG_2(I, formatToString(__VA_ARGS__))
 #define ROS_INFO_STREAM(x) LOG_2(I, x)
-#define ROS_WARN(x) LOG_2(W, x)
+#define ROS_WARN(...) LOG_2(W, formatToString(__VA_ARGS__))
 #define ROS_WARN_STREAM(x) LOG_2(W, x)
-#define ROS_ERROR(x) LOG_2(E, x)
+#define ROS_ERROR(...) LOG_2(E, formatToString(__VA_ARGS__))
 #define ROS_ERROR_STREAM(x) LOG_2(E, x)
-#define ROS_FATAL(x) LOG_2(F, x)
+#define ROS_FATAL(...) LOG_2(F, formatToString(__VA_ARGS__))
 #define ROS_FATAL_STREAM(x) LOG_2(F, x)
 
 #define ROS_INFO_COND(cond, x) LOG_3(I, cond, x)
@@ -214,10 +212,10 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define ROS_FATAL_COND(cond, x) LOG_3(F, cond, x)
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_3(F, cond, x)
 
-#define ROS_INFO_ONCE(x) LOG_FIRST(I, 1, x)
-#define ROS_WARN_ONCE(x) LOG_FIRST(W, 1, x)
-#define ROS_ERROR_ONCE(x) LOG_FIRST(E, 1, x)
-#define ROS_FATAL_ONCE(x) LOG_FIRST(F, 1, x)
+#define ROS_INFO_ONCE(...) LOG_FIRST(I, 1, formatToString(__VA_ARGS__))
+#define ROS_WARN_ONCE(...) LOG_FIRST(W, 1, formatToString(__VA_ARGS__))
+#define ROS_ERROR_ONCE(...) LOG_FIRST(E, 1, formatToString(__VA_ARGS__))
+#define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, formatToString(__VA_ARGS__))
 
 #define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
 
@@ -225,6 +223,19 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define LOG_2(severity, x) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
 #define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
+
+//! function which composes a string with the same text that would be printed if format was used on printf(3)
+template<typename... Args>
+std::string formatToString(const char *f, Args... args) {
+  size_t sz = snprintf(nullptr, 0, f, args...);
+  if (sz == 0) {
+    return "";
+  }
+  char *buf = (char *) malloc(sz + 1);
+  snprintf(buf, sz + 1, f, args...);
+  return buf;
+}
+
 
 enum SeverityType {
   INFO,
