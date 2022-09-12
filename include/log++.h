@@ -86,7 +86,7 @@ inline Init lppInit;
 
 using namespace lpp::internal;
 //! Log init
-#ifdef MODE_GLOG
+#if defined MODE_GLOG || defined MODE_DEFAULT
 
 //! If LOG_INIT is called more than once, do nothing.
 #define LOG_INIT(argv0) if (!lppInit.is_glog_initialized) { \
@@ -275,7 +275,7 @@ class InternalLog {
     if (!should_print_) {
       return;
     }
-#ifdef MODE_ROSLOG
+#if defined MODE_ROSLOG
     switch (severity_) {
       case SeverityType::INFO:ROS_INFO_STREAM(ss.str());
         break;
@@ -287,7 +287,7 @@ class InternalLog {
         break;
     }
 #endif
-#ifdef MODE_LPP
+#if defined MODE_LPP || defined MODE_DEFAULT
     switch (severity_) {
       case SeverityType::INFO:std::cout << "INFO  " << ss.str() << std::endl;
         break;

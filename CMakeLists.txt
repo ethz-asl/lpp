@@ -67,6 +67,14 @@ if (GLOG_FOUND)
         target_link_libraries(${ROSLOG_TESTS} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${ROSLOG_TESTS} PRIVATE MODE_ROSLOG)
 
+        ##### Default Tests #####
+        set(DEFAULT_TESTS "test_default")
+        add_executable(${DEFAULT_TESTS} test/test_entry_point.cpp
+                test/default/test_default_basic.cc test/default/test_default_every_n.cc)
+
+        target_include_directories(${DEFAULT_TESTS} PRIVATE  ${LPP_INCLUDE_DIRECTORIES} test/default)
+        target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES})
+        target_compile_definitions(${DEFAULT_TESTS} PRIVATE MODE_DEFAULT)
     endif ()
 endif ()
 
