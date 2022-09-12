@@ -53,13 +53,13 @@ inline Init lppInit;
 
 
 //! Redefine log methods
-#if defined GLOG_SUPPORTED && !defined MODE_GLOG
+#if defined GLOG_SUPPORTED && !defined MODE_GLOG && !defined MODE_DEFAULT
 #undef LOG_IF
 #undef LOG_EVERY_N
 #undef LOG_FIRST_N
 #endif
 
-#if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG
+#if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG && !defined MODE_DEFAULT
 #undef ROS_INFO
 #undef ROS_INFO_STREAM
 #undef ROS_WARN
@@ -145,7 +145,7 @@ else if (strcmp(#severity, "W") == 0) {LOG_FIRST_N(WARNING, n) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_FIRST_N(ERROR, n) << x;}       \
 else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 
-
+#ifndef MODE_DEFAULT
 #define ROS_INFO(...) LOG(INFO) << formatToString(__VA_ARGS__)
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
 #define ROS_WARN(...) LOG(WARNING) << formatToString(__VA_ARGS__)
@@ -167,7 +167,7 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define ROS_WARN_ONCE(...) LOG_FIRST_N(WARNING, 1) << formatToString(__VA_ARGS__)
 #define ROS_ERROR_ONCE(...) LOG_FIRST_N(ERROR, 1) << formatToString(__VA_ARGS__)
 #define ROS_FATAL_ONCE(...) LOG_FIRST_N(FATAL, 1) << formatToString(__VA_ARGS__)
-
+#endif
 
 #pragma clang diagnostic pop
 #endif
@@ -180,15 +180,16 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define LOG_1(severity) InternalLog(#severity)
 #define LOG_2(severity, x) InternalLog(#severity) << x
 #define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x
-
 #endif
 
-
-#if defined MODE_ROSLOG || defined MODE_LPP
+#if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
 #define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N)
-#define LOG_EVERY_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
 #define LOG_FIRST(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::FIRST_N)
+
+#ifndef MODE_DEFAULT
+#define LOG_EVERY_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
 #define LOG_FIRST_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N)
+#endif
 #endif
 
 //! MODE_LPP
@@ -218,8 +219,13 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, formatToString(__VA_ARGS__))
 
 #define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
+#endif
 
+#if defined MODE_LPP
 #define LOG_1(severity) InternalLog(#severity)
+#endif
+
+#if defined MODE_LPP || defined MODE_DEFAULT
 #define LOG_2(severity, x) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
 #define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
@@ -264,11 +270,12 @@ class InternalLog {
   }
   SeverityType severity_{};
   std::stringstream ss{};
-#ifdef MODE_ROSLOG
+
   ~InternalLog() {
     if (!should_print_) {
       return;
     }
+#ifdef MODE_ROSLOG
     switch (severity_) {
       case SeverityType::INFO:ROS_INFO_STREAM(ss.str());
         break;
@@ -279,14 +286,8 @@ class InternalLog {
       case SeverityType::FATAL:ROS_FATAL_STREAM(ss.str());
         break;
     }
-  }
 #endif
-
 #ifdef MODE_LPP
-  ~InternalLog() {
-    if (!should_print_) {
-      return;
-    }
     switch (severity_) {
       case SeverityType::INFO:std::cout << "INFO  " << ss.str() << std::endl;
         break;
@@ -297,8 +298,9 @@ class InternalLog {
       case SeverityType::FATAL:std::cout << "FATAL " << ss.str() << std::endl;
         break;
     }
-  }
 #endif
+  }
+
  private:
   bool should_print_{true};
   static SeverityType getSeverityFromString(const std::string &str) {
