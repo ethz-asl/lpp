@@ -70,7 +70,7 @@ if (GLOG_FOUND)
         ##### Default Tests #####
         set(DEFAULT_TESTS "test_default")
         add_executable(${DEFAULT_TESTS} test/test_entry_point.cpp
-                test/default/test_default_basic.cc test/default/test_default_every_n.cc)
+                test/default/test_default_basic.cc test/default/test_default_every_n.cc test/default/test_default_first_n.cc test/default/test_default_rosprintf.cc)
 
         target_include_directories(${DEFAULT_TESTS} PRIVATE  ${LPP_INCLUDE_DIRECTORIES} test/default)
         target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES})
