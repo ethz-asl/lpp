@@ -86,18 +86,13 @@ int foo = 1;
 int bar = 3;
 LOG_FIRST(I, 5, "Values: " << foo << bar)
 ```
-***
 
-## Limitations
-- Header file is not self-contained (include order matters)
-
-## Roadmap
+# Roadmap
 - Implement ROS_INFO_THROTTLE()
 - Implement ROS_INFO_NAMED()
 - Make log policies thread-safe
-***
 
-## Tests
+# Tests
 - All modes (glog, lpp, roslog) have a separate test suite
 - Test Logging syntax for each mode
 - All severity levels (Info, Warning, Error, Fatal)
