@@ -66,7 +66,7 @@ TEST(default_LogEveryN, lpp_syntax_severity_fatal) {
   }
 }
 
-TEST(default_LogPolicyEveryN, glog_syntax_severity_debug) {
+TEST(default_LogEveryN, glog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
   for (int i = 0; i < 5; i++) {
@@ -80,7 +80,7 @@ TEST(default_LogPolicyEveryN, glog_syntax_severity_debug) {
   }
 }
 
-TEST(default_LogPolicyEveryN, glog_syntax_severity_info) {
+TEST(default_LogEveryN, glog_syntax_severity_info) {
   LOG_INIT(*test_argv);
 
   for (int i = 0; i < 5; i++) {
@@ -94,7 +94,7 @@ TEST(default_LogPolicyEveryN, glog_syntax_severity_info) {
   }
 }
 
-TEST(default_LogPolicyEveryN, glog_syntax_severity_warning) {
+TEST(default_LogEveryN, glog_syntax_severity_warning) {
   LOG_INIT(*test_argv);
 
   for (int i = 0; i < 5; i++) {
@@ -108,7 +108,7 @@ TEST(default_LogPolicyEveryN, glog_syntax_severity_warning) {
   }
 }
 
-TEST(default_LogPolicyEveryN, glog_syntax_severity_error) {
+TEST(default_LogEveryN, glog_syntax_severity_error) {
   LOG_INIT(*test_argv);
 
   for (int i = 0; i < 5; i++) {
