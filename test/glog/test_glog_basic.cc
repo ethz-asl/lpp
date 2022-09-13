@@ -8,9 +8,8 @@
 
 //! ################ glog ################
 
-TEST(glog_glog_syntax, severity_debug) {
+TEST(glog_basic, glog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
   std::string output = LPP_CAPTURE_STDERR(DLOG(INFO) << "xyz");
 
@@ -20,9 +19,8 @@ TEST(glog_glog_syntax, severity_debug) {
   ASSERT_EQ(output[0], 'I');
 }
 
-TEST(glog_glog_syntax, severity_info) {
+TEST(glog_basic, glog_syntax_severity_info) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
   std::string output = LPP_CAPTURE_STDERR(LOG(INFO) << "xyz");
 
@@ -32,13 +30,10 @@ TEST(glog_glog_syntax, severity_info) {
   ASSERT_EQ(output[0], 'I');
 }
 
-TEST(glog_glog_syntax, severity_warning) {
+TEST(glog_basic, glog_syntax_severity_warning) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(WARNING) << "xyz";
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(WARNING) << "xyz");
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
@@ -46,13 +41,10 @@ TEST(glog_glog_syntax, severity_warning) {
   ASSERT_EQ(output[0], 'W');
 }
 
-TEST(glog_glog_syntax, severity_error) {
+TEST(glog_basic, glog_syntax_severity_error) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(ERROR) << "xyz";
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(ERROR) << "xyz");
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
@@ -63,13 +55,10 @@ TEST(glog_glog_syntax, severity_error) {
 
 //! ################ lpp ################
 
-TEST(glog_lpp_syntax, severity_debug) {
+TEST(glog_basic, lpp_syntax_severity_debug) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(D, "Test" << "123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(D, "Test" << "123"));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
@@ -77,13 +66,10 @@ TEST(glog_lpp_syntax, severity_debug) {
   ASSERT_TRUE(output[0] == 'I');
 }
 
-TEST(glog_lpp_syntax, severity_info) {
+TEST(glog_basic, lpp_syntax_severity_info) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(I, "Test" << "123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(I, "Test" << 123));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
@@ -91,26 +77,20 @@ TEST(glog_lpp_syntax, severity_info) {
   ASSERT_TRUE(output[0] == 'I');
 }
 
-TEST(glog_lpp_syntax, severity_warning) {
+TEST(glog_basic, lpp_syntax_severity_warning) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(W, "Test" << "123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(W, "Test" << 123));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'W');
 }
 
-TEST(glog_lpp_syntax, severity_error) {
+TEST(glog_basic, lpp_syntax_severity_error) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(E, "Test" << "123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(E, "Test" << 123));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
@@ -133,104 +113,80 @@ TEST(glog_lpp_syntax, lpp_fatal) {
 */
 
 //! ################ Roslog ################
-TEST(glog_roslog_syntax, severity_debug) {
+TEST(glog_basic, roslog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_DEBUG("Test123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR( ROS_DEBUG("Test123"));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'I');
 }
 
-TEST(glog_roslog_syntax, severity_debug_stream) {
+TEST(glog_basic, roslog_syntax_severity_debug_stream) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_DEBUG_STREAM("Test123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(ROS_DEBUG_STREAM("Test123"));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'I');
 }
 
-TEST(glog_roslog_syntax, severity_info) {
+TEST(glog_basic, roslog_syntax_severity_info) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_INFO("Test123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(ROS_INFO("Test123"));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'I');
 }
 
-TEST(glog_roslog_syntax, severity_info_stream) {
+TEST(glog_basic, roslog_syntax_severity_info_stream) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_INFO_STREAM("Test" << 123);
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(ROS_INFO_STREAM("Test" << 123));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'I');
 }
 
-TEST(glog_roslog_syntax, severity_warn) {
+TEST(glog_basic, roslog_syntax_severity_warn) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_WARN("Test123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(ROS_WARN("Test123"));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'W');
 }
 
-TEST(glog_roslog_syntax, severity_warn_stream) {
+TEST(glog_basic, roslog_syntax_severity_warn_stream) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_WARN_STREAM("Test" << 123);
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(ROS_WARN_STREAM("Test" << 123));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'W');
 }
 
-TEST(glog_roslog_syntax, severity_error) {
+TEST(glog_basic, roslog_syntax_severity_error) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_ERROR("Test123");
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(ROS_ERROR("Test123"));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'E');
 }
 
-TEST(glog_roslog_syntax, severity_error_stream) {
+TEST(glog_basic, roslog_syntax_severity_error_stream) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  ROS_ERROR_STREAM("Test" << 123);
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(ROS_ERROR_STREAM("Test" << 123));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
