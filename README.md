@@ -126,10 +126,10 @@ for (int i = 0; i < 10; i++) {
 | LOG_EVERY_T()    |      | x   |
 
 
-# Tests
+# Testing
 - All modes (default, glog, lpp, roslog) have a separate test suite
 - All severity levels (Debug, Info, Warning, Error, Fatal)
-- All logging methods (Default, Conditional, Occasional, Timed,  first N occurrences )
+- All logging methods (Default, Conditional, Occasional, Timed,  first N occurrences)
 
 > **Note:**
 > Tests must run in debug mode in order to test debug log output.
@@ -141,7 +141,9 @@ TEST(<MODE>_<LoggingMethod>, <mode>_syntax>_severity_<severity>) {
 }
 ```
 
-Testing convention for different test suites
-- LPP: Test whole string with ASSERT_EQ().
-- GLOG: Test first char and isSubstring(log_message), don't test fatal severity (at the moment).
-- Roslog: Only test execution
+Testing convention for different test suites:
+
+- lpp: Test whole string with ASSERT_EQ().
+- glog: Test first char, isSubstring(log_message) and isSubstring(file_name), don't test fatal severity (at the moment).
+- roslog: Only test execution
+- Use LPP_CAPTURE macros to capture stdout/stderr in all modes.
