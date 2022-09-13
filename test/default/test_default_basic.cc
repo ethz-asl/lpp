@@ -80,7 +80,7 @@ TEST(default_lpp_syntax, severity_fatal) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG(F, "Test" << 123));
-  ASSERT_EQ(output, "ERROR Test123\n");
+  ASSERT_EQ(output, "FATAL Test123\n");
 }
 
 TEST(default_roslog_syntax, severity_debug) {

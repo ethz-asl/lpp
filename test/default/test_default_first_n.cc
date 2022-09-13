@@ -98,7 +98,7 @@ TEST(default_LogPolicyFirstN, lpp_syntax_severity_error) {
 
 TEST(default_LogPolicyFirstN, lpp_syntax_severity_fatal) {
   for (int i = 0; i < 5; i++) {
-    std::string output = LPP_CAPTURE_STDOUT(LOG_FIRST(I, 3, "Test" << 123));
+    std::string output = LPP_CAPTURE_STDOUT(LOG_FIRST(F, 3, "Test" << 123));
 
     if (i < 3) {
       ASSERT_EQ(output, "FATAL Test123\n");
