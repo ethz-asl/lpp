@@ -8,10 +8,9 @@
 
 TEST(default_glog_syntax, severity_debug) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
   std::string output = LPP_CAPTURE_STDERR(DLOG(INFO) << "xyz");
-  LOG(I, output);
+
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_default_basic.cc"));
 
@@ -20,10 +19,9 @@ TEST(default_glog_syntax, severity_debug) {
 
 TEST(default_glog_syntax, severity_info) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
   std::string output = LPP_CAPTURE_STDERR(LOG(INFO) << "xyz");
-  LOG(I, output);
+
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_default_basic.cc"));
 
@@ -32,29 +30,21 @@ TEST(default_glog_syntax, severity_info) {
 
 TEST(default_glog_syntax, severity_warning) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(WARNING) << "xyz";
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(WARNING) << "xyz");
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_default_basic.cc"));
-
   ASSERT_EQ(output[0], 'W');
 }
 
 TEST(default_glog_syntax, severity_error) {
   LOG_INIT(*test_argv);
-  FLAGS_logtostderr = true;
 
-  testing::internal::CaptureStderr();
-  LOG(ERROR) << "xyz";
-  std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(ERROR) << "xyz");
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_default_basic.cc"));
-
   ASSERT_EQ(output[0], 'E');
 }
 
@@ -83,6 +73,13 @@ TEST(default_lpp_syntax, severity_error) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG(E, "Test" << 123));
+  ASSERT_EQ(output, "ERROR Test123\n");
+}
+
+TEST(default_lpp_syntax, severity_fatal) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(LOG(F, "Test" << 123));
   ASSERT_EQ(output, "ERROR Test123\n");
 }
 

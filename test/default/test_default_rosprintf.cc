@@ -6,6 +6,14 @@
 #include <test_utils.h>
 #include <log++.h>
 
+TEST(roslog_rosprintf, ros_debug) {
+  ROS_DEBUG("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+}
+
+TEST(roslog_rosprintf, ros_debug_once) {
+  ROS_DEBUG_ONCE("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+}
+
 TEST(roslog_rosprintf, ros_info) {
   ROS_INFO("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
 }
