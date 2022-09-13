@@ -3,9 +3,8 @@
 //
 
 #include <gtest/gtest.h>
-#include "test_utils.h"
-
-#include "log++.h"
+#include <test_utils.h>
+#include <log++.h>
 
 /**
  * Ros logging stdout/stderr capture doesn't work. Probably because of threading things.
@@ -13,57 +12,85 @@
  */
 
 //! ################ GLOG ################
-TEST(roslog_glog_syntax, severity_info) {
+TEST(roslog_basic, glog_syntax_severity_debug) {
+  //TODO implement
+  //DLOG(INFO) << "Test";
+}
+
+TEST(roslog_basic, glog_syntax_severity_info) {
   LOG(INFO) << "Test";
 }
 
-TEST(roslog_glog_syntax, severity_warning) {
+TEST(roslog_basic, glog_syntax_severity_warning) {
   LOG(WARNING) << "Test";
 }
 
-TEST(roslog_glog_syntax, severity_error) {
+TEST(roslog_basic, glog_syntax_severity_error) {
   LOG(ERROR) << "Test";
 }
 
-TEST(roslog_glog_syntax, severity_fatal) {
+TEST(roslog_basic, glog_syntax_severity_fatal) {
   LOG(FATAL) << "Test";
 }
 
 //! ################ lpp ################
-TEST(roslog_lpp_syntax, severity_info) {
+TEST(roslog_basic, lpp_syntax_severity_debug) {
   LOG(I, "" << "Test");
 }
 
-TEST(roslog_lpp_syntax, severity_warning) {
+TEST(roslog_basic, lpp_syntax_severity_info) {
+  LOG(I, "" << "Test");
+}
+
+TEST(roslog_basic, lpp_syntax_severity_warning) {
   LOG(W, "" << "Test");
 }
 
-TEST(roslog_lpp_syntax, severity_error) {
+TEST(roslog_basic, lpp_syntax_severity_error) {
   LOG(E, "" << "Test");
 }
 
-TEST(roslog_lpp_syntax, severity_fatal) {
+TEST(roslog_basic, lpp_syntax_severity_fatal) {
   LOG(F, "" << "Test");
 }
 
 //! ################ Roslog ################
-TEST(roslog_roslog_syntax, severity_info) {
+TEST(roslog_basic, roslog_syntax_severity_debug) {
+  ROS_DEBUG("Test");
+}
+
+TEST(roslog_basic, roslog_syntax_severity_debug_stream) {
+  ROS_DEBUG_STREAM("Test");
+}
+
+TEST(roslog_basic, roslog_syntax_severity_info) {
   ROS_INFO("Test");
+}
+
+TEST(roslog_basic, roslog_syntax_severity_info_stream) {
   ROS_INFO_STREAM("" << "Test");
 }
 
-TEST(roslog_roslog_syntax, severity_warn) {
+TEST(roslog_basic, roslog_syntax_severity_warn) {
   ROS_WARN("Test");
-  ROS_WARN_STREAM("" << "Test");
 }
 
-TEST(roslog_roslog_syntax, severity_error) {
+TEST(roslog_basic, roslog_syntax_severity_warn_stream) {
+ ROS_WARN_STREAM("" << "Test");
+}
+
+TEST(roslog_basic, roslog_syntax_severity_error) {
   ROS_ERROR("Test");
+}
+
+TEST(roslog_basic, roslog_syntax_severity_error_stream) {
   ROS_ERROR_STREAM("" << "Test");
 }
 
-TEST(roslog_roslog_syntax, severity_fatal) {
+TEST(roslog_basic, roslog_syntax_severity_fatal) {
   ROS_FATAL("Test");
+}
+
+TEST(roslog_basic, roslog_syntax_severity_fatal_stream) {
   ROS_FATAL_STREAM("" << "Test");
 }
-#undef MODE_ROSLOG
