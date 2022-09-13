@@ -50,6 +50,11 @@
 #define ROSLOG_SUPPORTED
 #endif
 
+//! Debug flag, If LPP_DEBUG is enabled, debug output should be printed.
+#ifndef NDEBUG
+#define LPP_DEBUG
+#endif
+
 //! Initialization logic
 namespace lpp {
 namespace internal {
@@ -87,6 +92,8 @@ inline Init lppInit;
 #endif
 
 #if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG && !defined MODE_DEFAULT
+#undef ROS_DEBUG
+#undef ROS_DEBUG_STREAM
 #undef ROS_INFO
 #undef ROS_INFO_STREAM
 #undef ROS_WARN
@@ -96,6 +103,8 @@ inline Init lppInit;
 #undef ROS_FATAL
 #undef ROS_FATAL_STREAM
 
+#undef ROS_DEBUG_COND
+#undef ROS_DEBUG_STREAM_COND
 #undef ROS_INFO_COND
 #undef ROS_INFO_STREAM_COND
 #undef ROS_WARN_COND
@@ -105,6 +114,7 @@ inline Init lppInit;
 #undef ROS_FATAL_COND
 #undef ROS_FATAL_STREAM_COND
 
+#undef ROS_DEBUG_ONCE
 #undef ROS_INFO_ONCE
 #undef ROS_WARN_ONCE
 #undef ROS_ERROR_ONCE
@@ -164,13 +174,17 @@ else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;} true
 if      (strcmp(#severity, "I") == 0) {LOG_EVERY_N(INFO, n) << x;}        \
 else if (strcmp(#severity, "W") == 0) {LOG_EVERY_N(WARNING, n) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_EVERY_N(ERROR, n) << x;}       \
-else if (strcmp(#severity, "F") == 0) {LOG_EVERY_N(FATAL, n) << x;} true
+else if (strcmp(#severity, "F") == 0) {LOG_EVERY_N(FATAL, n) << x;}       \
+else if (strcmp(#severity, "D") == 0) {DLOG_EVERY_N(INFO, n) << x;}                                  \
+true
 
 #define LOG_FIRST(severity, n, x) \
 if      (strcmp(#severity, "I") == 0) {LOG_FIRST_N(INFO, n) << x;}        \
 else if (strcmp(#severity, "W") == 0) {LOG_FIRST_N(WARNING, n) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_FIRST_N(ERROR, n) << x;}       \
-else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
+else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;}       \
+else if (strcmp(#severity, "D") == 0) {LOG_FIRST_N(INFO, n) << x;}                                  \
+true
 
 #ifndef MODE_DEFAULT
 #define ROS_INFO(...) LOG(INFO) << formatToString(__VA_ARGS__)
@@ -221,7 +235,8 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 
 //! MODE_LPP
 #ifdef MODE_LPP
-
+#define ROS_DEBUG(...) LOG_2(D, formatToString(__VA_ARGS__))
+#define ROS_DEBUG_STREAM(x) LOG_2(D, x)
 #define ROS_INFO(...) LOG_2(I, formatToString(__VA_ARGS__))
 #define ROS_INFO_STREAM(x) LOG_2(I, x)
 #define ROS_WARN(...) LOG_2(W, formatToString(__VA_ARGS__))
@@ -231,6 +246,8 @@ else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;} true
 #define ROS_FATAL(...) LOG_2(F, formatToString(__VA_ARGS__))
 #define ROS_FATAL_STREAM(x) LOG_2(F, x)
 
+#define ROS_DEBUG_COND(cond, x) LOG_3(D, cond, x)
+#define ROS_DEBUG_STREAM_COND(cond, x) LOG_3(I, cond, x)
 #define ROS_INFO_COND(cond, x) LOG_3(I, cond, x)
 #define ROS_INFO_STREAM_COND(cond, x) LOG_3(I, cond, x)
 #define ROS_WARN_COND(cond, x) LOG_3(W, cond, x)
@@ -274,6 +291,7 @@ inline std::string formatToString(const char *str) {
 }
 
 enum SeverityType {
+  DEBUG,
   INFO,
   WARN,
   ERROR,
@@ -316,6 +334,8 @@ class InternalLog {
 #endif
 #if defined MODE_LPP || defined MODE_DEFAULT
     switch (severity_) {
+      case SeverityType::DEBUG:std::cout << "DEBUG " << ss.str() << std::endl;
+        break;
       case SeverityType::INFO:std::cout << "INFO  " << ss.str() << std::endl;
         break;
       case SeverityType::WARN:std::cout << "WARN  " << ss.str() << std::endl;
@@ -331,7 +351,9 @@ class InternalLog {
  private:
   bool should_print_{true};
   static SeverityType getSeverityFromString(const std::string &str) {
-    if (INFO.find(str) != INFO.end()) {
+    if (DEBUG.find(str) != DEBUG.end()) {
+      return SeverityType::DEBUG;
+    }else if (INFO.find(str) != INFO.end()) {
       return SeverityType::INFO;
     } else if (WARNING.find(str) != WARNING.end()) {
       return SeverityType::WARN;
@@ -342,7 +364,7 @@ class InternalLog {
     }
     abort();
   }
-
+  inline static const std::set<std::string> DEBUG {"D"};
   inline static const std::set<std::string> INFO{"I", "INFO"};
   inline static const std::set<std::string> WARNING{"W", "WARNING"};
   inline static const std::set<std::string> ERROR{"E", "ERROR"};

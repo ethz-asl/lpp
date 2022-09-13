@@ -7,6 +7,14 @@
 #include <log++.h>
 
 //! LPP syntax
+
+TEST(LPP_lpp_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(LOG(D, "Test" << 123));
+  ASSERT_EQ(output, "DEBUG Test123\n");
+}
+
 TEST(LPP_lpp_syntax, severity_info) {
   LOG_INIT(*test_argv);
 
@@ -30,6 +38,13 @@ TEST(LPP_lpp_syntax, severity_error) {
 
 
 //! Glog syntax
+TEST(LPP_glog_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(LOG(DEBUG) << "Test" << 123);
+  ASSERT_EQ(output, "DEBUG Test123\n");
+}
+
 TEST(LPP_glog_syntax, severity_info) {
   LOG_INIT(*test_argv);
 
@@ -53,6 +68,21 @@ TEST(LPP_glog_syntax, severity_error) {
 
 
 //! Roslog syntax
+
+TEST(LPP_roslog_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG("Test123"));
+  ASSERT_EQ(output, "DEBUG Test123\n");
+}
+
+TEST(LPP_roslog_syntax, severity_debug_stream) {
+LOG_INIT(*test_argv);
+
+std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("Test" << 123));
+ASSERT_EQ(output, "DEBUG Test123\n");
+}
+
 
 TEST(LPP_roslog_syntax, severity_info) {
   LOG_INIT(*test_argv);
