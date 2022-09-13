@@ -7,15 +7,24 @@
 #include <log++.h>
 
 //! ################ glog ################
+
+TEST(glog_glog_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+  FLAGS_logtostderr = true;
+
+  std::string output = LPP_CAPTURE_STDERR(DLOG(INFO) << "xyz");
+
+  ASSERT_TRUE(isSubstring(output, "xyz"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+
+  ASSERT_EQ(output[0], 'I');
+}
+
 TEST(glog_glog_syntax, severity_info) {
   LOG_INIT(*test_argv);
   FLAGS_logtostderr = true;
 
-  std::string output = LPP_CAPTURE_STDERR_LOG(LOG(INFO) << "xyz");
-
-  //testing::internal::CaptureStderr();
-  //LOG(INFO) << "xyz";
-  //std::string output = testing::internal::GetCapturedStderr();
+  std::string output = LPP_CAPTURE_STDERR(LOG(INFO) << "xyz");
 
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
@@ -53,6 +62,21 @@ TEST(glog_glog_syntax, severity_error) {
 
 
 //! ################ lpp ################
+
+TEST(glog_lpp_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+  FLAGS_logtostderr = true;
+
+  testing::internal::CaptureStderr();
+  LOG(D, "Test" << "123");
+  std::string output = testing::internal::GetCapturedStderr();
+
+  ASSERT_TRUE(isSubstring(output, "Test123"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+
+  ASSERT_TRUE(output[0] == 'I');
+}
+
 TEST(glog_lpp_syntax, severity_info) {
   LOG_INIT(*test_argv);
   FLAGS_logtostderr = true;
@@ -109,6 +133,32 @@ TEST(glog_lpp_syntax, lpp_fatal) {
 */
 
 //! ################ Roslog ################
+TEST(glog_roslog_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+  FLAGS_logtostderr = true;
+
+  testing::internal::CaptureStderr();
+  ROS_DEBUG("Test123");
+  std::string output = testing::internal::GetCapturedStderr();
+
+  ASSERT_TRUE(isSubstring(output, "Test123"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+  ASSERT_EQ(output[0], 'I');
+}
+
+TEST(glog_roslog_syntax, severity_debug_stream) {
+  LOG_INIT(*test_argv);
+  FLAGS_logtostderr = true;
+
+  testing::internal::CaptureStderr();
+  ROS_DEBUG_STREAM("Test123");
+  std::string output = testing::internal::GetCapturedStderr();
+
+  ASSERT_TRUE(isSubstring(output, "Test123"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+  ASSERT_EQ(output[0], 'I');
+}
+
 TEST(glog_roslog_syntax, severity_info) {
   LOG_INIT(*test_argv);
   FLAGS_logtostderr = true;

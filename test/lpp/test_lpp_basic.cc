@@ -41,7 +41,7 @@ TEST(LPP_lpp_syntax, severity_error) {
 TEST(LPP_glog_syntax, severity_debug) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(DEBUG) << "Test" << 123);
+  std::string output = LPP_CAPTURE_STDOUT(DLOG(INFO) << "Test" << 123);
   ASSERT_EQ(output, "DEBUG Test123\n");
 }
 
@@ -79,7 +79,7 @@ TEST(LPP_roslog_syntax, severity_debug) {
 TEST(LPP_roslog_syntax, severity_debug_stream) {
 LOG_INIT(*test_argv);
 
-std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("Test" << 123));
+std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("Test" << 123));
 ASSERT_EQ(output, "DEBUG Test123\n");
 }
 

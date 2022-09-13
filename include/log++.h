@@ -89,6 +89,9 @@ inline Init lppInit;
 #undef LOG_IF
 #undef LOG_EVERY_N
 #undef LOG_FIRST_N
+#undef VLOG
+#undef DLOG
+#undef DLOG_EVERY_N
 #endif
 
 #if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG && !defined MODE_DEFAULT
@@ -163,10 +166,11 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
 
 #define LOG_2(severity, x) \
-if      (strcmp(#severity, "I") == 0) {LOG_1(INFO) << x;}        \
+if      (strcmp(#severity, "I") == 0 || strcmp(#severity, "D") == 0) {LOG_1(INFO) << x;}        \
 else if (strcmp(#severity, "W") == 0) {LOG_1(WARNING) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_1(ERROR) << x;}       \
-else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;} true
+else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;}       \
+true
 
 //Add true at the end to make semicolons mandatory. Compiles to nothing.
 #define LOG_3(severity, cond, x) if (cond) { LOG_2(severity, x);} true
@@ -175,18 +179,19 @@ if      (strcmp(#severity, "I") == 0) {LOG_EVERY_N(INFO, n) << x;}        \
 else if (strcmp(#severity, "W") == 0) {LOG_EVERY_N(WARNING, n) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_EVERY_N(ERROR, n) << x;}       \
 else if (strcmp(#severity, "F") == 0) {LOG_EVERY_N(FATAL, n) << x;}       \
-else if (strcmp(#severity, "D") == 0) {DLOG_EVERY_N(INFO, n) << x;}                                  \
+else if (strcmp(#severity, "D") == 0) {DLOG_EVERY_N(INFO, n) << x;}       \
 true
 
 #define LOG_FIRST(severity, n, x) \
-if      (strcmp(#severity, "I") == 0) {LOG_FIRST_N(INFO, n) << x;}        \
+if      (strcmp(#severity, "I") == 0 || strcmp(#severity, "D") == 0) {LOG_FIRST_N(INFO, n) << x;}        \
 else if (strcmp(#severity, "W") == 0) {LOG_FIRST_N(WARNING, n) << x;}     \
 else if (strcmp(#severity, "E") == 0) {LOG_FIRST_N(ERROR, n) << x;}       \
 else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;}       \
-else if (strcmp(#severity, "D") == 0) {LOG_FIRST_N(INFO, n) << x;}                                  \
 true
 
 #ifndef MODE_DEFAULT
+#define ROS_DEBUG(...) DLOG(INFO) << formatToString(__VA_ARGS__)
+#define ROS_DEBUG_STREAM(x) DLOG(INFO) << x
 #define ROS_INFO(...) LOG(INFO) << formatToString(__VA_ARGS__)
 #define ROS_INFO_STREAM(x) LOG(INFO) << x
 #define ROS_WARN(...) LOG(WARNING) << formatToString(__VA_ARGS__)
@@ -195,6 +200,9 @@ true
 #define ROS_ERROR_STREAM(x) LOG(ERROR) << x
 #define ROS_FATAL(...) LOG(FATAL) << formatToString(__VA_ARGS__)
 #define ROS_FATAL_STREAM(x) LOG(FATAL) << x
+
+#define ROS_DEBUG_COND(cond, x) DLOG_IF(INFO, cond) << x
+#define ROS_DEBUG_STREAM_COND DLOG_IF(INFO, cond) << x;
 #define ROS_INFO_COND(cond, x) LOG_IF(INFO, cond) << x
 #define ROS_INFO_STREAM_COND(cond, x) LOG_IF(INFO, cond) << x
 #define ROS_WARN_COND(cond, x) LOG_IF(WARNING, cond) << x
@@ -204,6 +212,7 @@ true
 #define ROS_FATAL_COND(cond, x) LOG_IF(ERROR, cond) << x
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_IF(ERROR, cond) << x
 
+#define ROS_DEBUG_ONCE(...) LOG_FIRST_N(INFO, 1) << formatToString(__VA_ARGS__)
 #define ROS_INFO_ONCE(...) LOG_FIRST_N(INFO, 1) << formatToString(__VA_ARGS__)
 #define ROS_WARN_ONCE(...) LOG_FIRST_N(WARNING, 1) << formatToString(__VA_ARGS__)
 #define ROS_ERROR_ONCE(...) LOG_FIRST_N(ERROR, 1) << formatToString(__VA_ARGS__)
@@ -267,6 +276,7 @@ true
 
 #if defined MODE_LPP
 #define LOG_1(severity) InternalLog(#severity)
+#define DLOG(severity) InternalLog(SeverityType::DEBUG)
 #endif
 
 #if defined MODE_LPP || defined MODE_DEFAULT

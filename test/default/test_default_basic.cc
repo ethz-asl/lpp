@@ -6,11 +6,23 @@
 #include <gtest/gtest.h>
 #include <log++.h>
 
+TEST(default_glog_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+  FLAGS_logtostderr = true;
+
+  std::string output = LPP_CAPTURE_STDERR(DLOG(INFO) << "xyz");
+  LOG(I, output);
+  ASSERT_TRUE(isSubstring(output, "xyz"));
+  ASSERT_TRUE(isSubstring(output, "test_default_basic.cc"));
+
+  ASSERT_EQ(output[0], 'I');
+}
+
 TEST(default_glog_syntax, severity_info) {
   LOG_INIT(*test_argv);
   FLAGS_logtostderr = true;
 
-  std::string output = LPP_CAPTURE_STDERR_LOG(LOG(INFO) << "xyz");
+  std::string output = LPP_CAPTURE_STDERR(LOG(INFO) << "xyz");
   LOG(I, output);
   ASSERT_TRUE(isSubstring(output, "xyz"));
   ASSERT_TRUE(isSubstring(output, "test_default_basic.cc"));
@@ -46,6 +58,13 @@ TEST(default_glog_syntax, severity_error) {
   ASSERT_EQ(output[0], 'E');
 }
 
+TEST(default_lpp_syntax, severity_debug) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(LOG(D, "Test" << 123));
+  ASSERT_EQ(output, "DEBUG Test123\n");
+}
+
 TEST(default_lpp_syntax, severity_info) {
   LOG_INIT(*test_argv);
 
@@ -65,6 +84,11 @@ TEST(default_lpp_syntax, severity_error) {
 
   std::string output = LPP_CAPTURE_STDOUT(LOG(E, "Test" << 123));
   ASSERT_EQ(output, "ERROR Test123\n");
+}
+
+TEST(default_roslog_syntax, severity_debug) {
+  ROS_DEBUG("Test");
+  ROS_DEBUG_STREAM("" << "Test");
 }
 
 TEST(default_roslog_syntax, severity_info) {
