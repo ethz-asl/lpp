@@ -145,6 +145,10 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #define VA_SIZE(...) GET_COUNT( __VA_ARGS__, 6, 5, 4, 3, 2, 1 )
 #define VA_SELECT(NAME, ...) SELECT( NAME, VA_SIZE(__VA_ARGS__) )(__VA_ARGS__)
 
+//! Helper macros to generate warnings
+#define DO_PRAGMA(x) _Pragma (#x)
+#define LPP_WARN(x) DO_PRAGMA(message (#x))
+
 //! Overloads
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedMacroInspection"
@@ -161,9 +165,9 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #if defined MODE_GLOG || defined MODE_DEFAULT
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 
-#ifndef LOG_EVERY_T // LOG_EVERY_T is only available in glog 0.6 and newer.
-#warning "LOG_EVERY_T not found in glog. LOG_EVERY_T is only defined in glog 0.6 and newer.";
-#define LOG_EVERY_T(severity, t) InternalPolicyLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED)
+#ifndef LOG_EVERY_T
+#define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in glog 0.6 or newer.") \
+InternalPolicyLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED)
 #endif
 #endif
 
