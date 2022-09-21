@@ -6,6 +6,7 @@
 #define LOG_TEST_COMMON_ASYNC_TESTS_H_
 
 #include <thread>
+#include <test_utils.h>
 
 #define GET_CLASS_NAME(class_ptr, status) abi::__cxa_demangle(typeid(class_ptr).name(), nullptr, nullptr, status)
 
