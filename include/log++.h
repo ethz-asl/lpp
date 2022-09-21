@@ -38,6 +38,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <iostream>
+#include <chrono>
 
 //! Check if libraries are available at compile time and include required headers
 #if __has_include(<glog/logging.h>)
@@ -159,6 +160,11 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 //! MODE_GLOG
 #if defined MODE_GLOG || defined MODE_DEFAULT
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
+
+#ifndef LOG_EVERY_T // LOG_EVERY_T is only available in glog 0.6 and newer.
+#warning "LOG_EVERY_T not found in glog. LOG_EVERY_T is only defined in glog 0.6 and newer.";
+#define LOG_EVERY_T(severity, t) InternalPolicyLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED)
+#endif
 #endif
 
 #ifdef MODE_GLOG
@@ -232,9 +238,11 @@ true
 #define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x
 #endif
 
+
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
 #define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N)
 #define LOG_FIRST(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::FIRST_N)
+#define LOG_TIMED(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::TIMED)
 
 #ifndef MODE_DEFAULT
 #define LOG_EVERY_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
@@ -443,9 +451,32 @@ class FirstNOccurrencesPolicy : public LogPolicy {
   bool is_n_occurences_reached = false;
 };
 
+using namespace std::chrono;
+
+class TimePolicy : public LogPolicy {
+ public:
+  explicit TimePolicy(int max) : LogPolicy(max) {};
+
+  inline void update() override {
+    now_ = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
+  }
+
+  inline bool shouldLog() override {
+    if (now_ >= last_ + (max_ * 1000000)) {
+      last_ = now_;
+      return true;
+    }
+    return false;
+  }
+ private:
+  long now_{0};
+  long last_{0};
+};
+
 enum PolicyType {
   FIRST_N,
-  EVERY_N
+  EVERY_N,
+  TIMED
 };
 
 class LogPolicyFactory {
@@ -454,6 +485,7 @@ class LogPolicyFactory {
     switch (policy_type) {
       case FIRST_N: return new FirstNOccurrencesPolicy(max);
       case EVERY_N: return new OccasionPolicy(max);
+      case TIMED: return new TimePolicy(max);
       default:abort();
     }
   }
@@ -527,6 +559,7 @@ class InternalPolicyLog : public InternalLog {
   int n_{};
   PolicyType policy_type_{};
 };
+
 #define LPP_GET_KEY() std::string(__FILE__) + std::to_string(__LINE__)
 
 #endif //LOG__LOG_H_
