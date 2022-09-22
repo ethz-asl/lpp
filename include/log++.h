@@ -363,7 +363,7 @@ class InternalLog {
   SeverityType severity_{};
   std::stringstream ss{};
 
-  ~InternalLog() {
+  virtual ~InternalLog() {
     if (!should_print_) {
       return;
     }
@@ -610,11 +610,14 @@ class InternalPolicyLog : public InternalLog {
   InternalPolicyLog(std::string key, int n, std::string severity, PolicyType policy_type) :
       severity_(std::move(severity)), key_(std::move(key)), n_(n), policy_type_(policy_type) {};
 
-  virtual ~InternalPolicyLog() {
-    InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, policy_type_);
+  ~InternalPolicyLog() override {
+    if (should_update_) {
+      InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, policy_type_);
+    }
   }
 
  protected:
+  bool should_update_{true};
   std::string severity_{};
   std::string key_{};
   int n_{};
@@ -627,6 +630,7 @@ class LppGlogExtensionLog : public InternalPolicyLog {
                       std::function<void(const std::string &str)> fn) :
       InternalPolicyLog(std::move(key), n, std::move(severity), policy_type), fn_(std::move(fn)) {
     should_print_ = false;
+    should_update_ = false; //Disable update in InternalPolicyLog destructor
   }
 
   ~LppGlogExtensionLog() override {
