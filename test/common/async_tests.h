@@ -15,11 +15,17 @@ enum CompareType {
   IS_SUBSTRING
 };
 
+enum StreamType {
+  STDOUT,
+  STDERR
+};
+
 struct AsyncTest {
   std::string class_name;
   std::string expected_output;
   std::function<void()> fn;
   CompareType compare_type;
+  StreamType stream_type;
 };
 
 extern std::vector<AsyncTest> generateTests();
@@ -61,14 +67,31 @@ class TestResult {
     }
   }
 
+  static inline void startCapture(StreamType stream_type) {
+    switch (stream_type) {
+      case STDOUT: testing::internal::CaptureStdout();
+        return;
+      case STDERR: testing::internal::CaptureStderr();
+        return;
+    }
+  }
+
+  static inline std::string stopCapture(StreamType stream_type) {
+    switch (stream_type) {
+      case STDOUT: return testing::internal::GetCapturedStdout();
+
+      case STDERR: return testing::internal::GetCapturedStderr();
+    }
+  }
+
   inline void startTimed(const AsyncTest &a) {
     bool test_status = true;
 
     for (int i = 0; i < 30; i++) {
       stdout_capture_mutex_.lock();
-      testing::internal::CaptureStdout();
+      startCapture(a.stream_type);
       a.fn();
-      std::string output = testing::internal::GetCapturedStdout();
+      std::string output = stopCapture(a.stream_type);
       stdout_capture_mutex_.unlock();
 
       if ((i == 0 || i % 4 == 0)) {
