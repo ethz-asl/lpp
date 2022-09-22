@@ -48,6 +48,11 @@ TEST(default_basic, glog_syntax_severity_error) {
   ASSERT_EQ(output[0], 'E');
 }
 
+TEST(default_basic, glog_syntax_severity_fatal) {
+  LOG_INIT(*test_argv);
+  ASSERT_TRUE(checkAbort([](){LOG(FATAL) << "xyz";}));
+}
+
 TEST(default_basic, lpp_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
@@ -93,7 +98,7 @@ TEST(default_basic, roslog_syntax_severity_info) {
   ROS_INFO_STREAM("" << "Test");
 }
 
-TEST(default_basic, roslog_syntax_severity_warn) {
+TEST(default_basic, roslog_syntax_severity_warning) {
   ROS_WARN("Test");
   ROS_WARN_STREAM("" << "Test");
 }
