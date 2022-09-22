@@ -70,6 +70,7 @@ if (GLOG_FOUND)
         ##### Default Tests #####
         set(DEFAULT_TESTS "test_default")
         add_executable(${DEFAULT_TESTS} test/test_entry_point.cpp
+                test/default/test_common.cc
                 test/default/test_default_basic.cc
                 test/default/test_default_every_n.cc
                 test/default/test_default_first_n.cc
