@@ -79,7 +79,7 @@ inline Init lppInit;
 #endif
 
 
-//! un-define macros to avoid conflicts
+//! un-define glog`s LOG macro to avoid conflicts
 #ifdef GLOG_SUPPORTED
 #undef LOG
 #endif
@@ -126,16 +126,32 @@ inline Init lppInit;
 #endif
 
 using namespace lpp::internal;
-//! Log init
-#if defined MODE_GLOG || defined MODE_DEFAULT
 
-//! If LOG_INIT is called more than once, do nothing.
-#define LOG_INIT(argv0) if (!lppInit.is_glog_initialized) { \
-google::InitGoogleLogging(argv0); lppInit.is_glog_initialized = true;} \
-lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
-#else
-#define LOG_INIT(argv0) lppInit.is_lpp_initialized = true
+/**
+ * Used to initialize Log++
+ *
+ * If called more than once, all further calls will be ignored.
+ * @param argv is used for GLOG if present, otherwise unused.
+ */
+inline void LOG_INIT(char* argv) {
+  // If LOG_INIT is called more than once, do nothing.
+  if (!lppInit.is_glog_initialized) {
+
+#if defined LPP_DEBUG && (defined MODE_ROSLOG || defined MODE_DEFAULT)
+    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
+      ros::console::notifyLoggerLevelsChanged();
+    }
 #endif
+
+#if defined MODE_GLOG || defined MODE_DEFAULT
+    google::InitGoogleLogging(argv);
+    lppInit.is_glog_initialized = true;
+    FLAGS_logtostderr = true;
+#endif
+    lppInit.is_lpp_initialized = true;
+  }
+}
+
 
 //! Hack to enable macro overloading. Used to overload glog's LOG() macro.
 #define CAT(A, B) A ## B
@@ -166,8 +182,18 @@ lppInit.is_lpp_initialized = true; FLAGS_logtostderr = true
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 
 #ifndef LOG_EVERY_T
-#define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in glog 0.6 or newer.") \
+#define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
 InternalPolicyLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED)
+#endif
+
+#ifndef DLOG_EVERY_T
+#define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_EVERY_T is a Log++ extension") \
+LppGlogExtensionLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED, [](const std::string str) {LOG_1(severity) << str;})
+#endif
+
+#ifndef DLOG_FIRST_N
+#define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
+LppGlogExtensionLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N, [](const std::string str) {LOG_1(severity) << str;})
 #endif
 #endif
 
@@ -241,7 +267,6 @@ true
 #define LOG_2(severity, x) InternalLog(#severity) << x
 #define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x
 #endif
-
 
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
 #define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N)
@@ -370,12 +395,14 @@ class InternalLog {
 #endif
   }
 
- private:
+ protected:
   bool should_print_{true};
+
+ private:
   static SeverityType getSeverityFromString(const std::string &str) {
     if (DEBUG.find(str) != DEBUG.end()) {
       return SeverityType::DEBUG;
-    }else if (INFO.find(str) != INFO.end()) {
+    } else if (INFO.find(str) != INFO.end()) {
       return SeverityType::INFO;
     } else if (WARNING.find(str) != WARNING.end()) {
       return SeverityType::WARN;
@@ -386,7 +413,7 @@ class InternalLog {
     }
     abort();
   }
-  inline static const std::set<std::string> DEBUG {"D"};
+  inline static const std::set<std::string> DEBUG{"D"};
   inline static const std::set<std::string> INFO{"I", "INFO"};
   inline static const std::set<std::string> WARNING{"W", "WARNING"};
   inline static const std::set<std::string> ERROR{"E", "ERROR"};
@@ -402,7 +429,9 @@ InternalLog &&operator<<(InternalLog &&wrap, T const &whatever) {
 class LogPolicy {
  public:
   virtual void update() = 0;
-  virtual bool shouldLog() = 0;
+  virtual bool shouldLog() const = 0;
+  //! This function should only change internal values of a LogPolicy and gets called before it gets logged.
+  virtual void log() {};
   virtual ~LogPolicy() = default;
  protected:
   explicit LogPolicy(int max) : max_(max) {}
@@ -426,7 +455,7 @@ class OccasionPolicy : public LogPolicy {
     counter_++;
   }
 
-  inline bool shouldLog() override {
+  inline bool shouldLog() const override {
     return should_log_;
   }
 
@@ -447,7 +476,7 @@ class FirstNOccurrencesPolicy : public LogPolicy {
     }
   }
 
-  inline bool shouldLog() override {
+  inline bool shouldLog() const override {
     return !is_n_occurences_reached;
   }
 
@@ -465,13 +494,17 @@ class TimePolicy : public LogPolicy {
     now_ = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
   }
 
-  inline bool shouldLog() override {
+  inline bool shouldLog() const override {
     if (now_ >= last_ + (max_ * 1000000)) {
-      last_ = now_;
       return true;
     }
     return false;
   }
+
+  void log() override {
+    last_ = now_;
+  }
+
  private:
   long now_{0};
   long last_{0};
@@ -522,14 +555,33 @@ class InternalLogCount {
                      const std::string &log_msg,
                      const std::string &severity_str,
                      PolicyType policy_type) {
+    updatePolicy(key, max, log_msg, severity_str, policy_type);
+    logIfReady(key);
+  }
+
+  inline void updatePolicy(const std::string &key,
+                           int max,
+                           const std::string &log_msg,
+                           const std::string &severity_str,
+                           PolicyType policy_type) {
     if (!keyExists(key)) {
       LogStatementData data(LogPolicyFactory::create(policy_type, max));
-
       data.msg = log_msg;
       data.severity_str = severity_str;
+      updateLogPolicyData(&data);
       occurences_.insert({key, data});
+    } else {
+      LogStatementData *data = &occurences_.at(key);
+      updateLogPolicyData(data);
     }
-    process(key);
+  }
+
+  inline bool shouldLog(const std::string &key) {
+    return occurences_.at(key).log_policy_->shouldLog();
+  }
+
+  inline void log(const std::string &key) {
+    occurences_.at(key).log_policy_->log();
   }
 
  private:
@@ -537,10 +589,14 @@ class InternalLogCount {
     return occurences_.find(key) != occurences_.end();
   }
 
-  inline void process(const std::string &key) {
-    LogStatementData *data = &occurences_.at(key);
+  static inline void updateLogPolicyData(LogStatementData *data) {
     data->log_policy_->update();
+  }
+
+  inline void logIfReady(const std::string &key) {
+    LogStatementData *data = &occurences_.at(key);
     if (data->log_policy_->shouldLog()) {
+      data->log_policy_->log();
       InternalLog(data->severity_str) << data->msg;
     }
   }
@@ -554,14 +610,35 @@ class InternalPolicyLog : public InternalLog {
   InternalPolicyLog(std::string key, int n, std::string severity, PolicyType policy_type) :
       severity_(std::move(severity)), key_(std::move(key)), n_(n), policy_type_(policy_type) {};
 
-  ~InternalPolicyLog() {
+  virtual ~InternalPolicyLog() {
     InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, policy_type_);
   }
- private:
+
+ protected:
   std::string severity_{};
   std::string key_{};
   int n_{};
   PolicyType policy_type_{};
+};
+
+class LppGlogExtensionLog : public InternalPolicyLog {
+ public:
+  LppGlogExtensionLog(std::string key, int n, std::string severity, PolicyType policy_type,
+                      std::function<void(const std::string &str)> fn) :
+      InternalPolicyLog(std::move(key), n, std::move(severity), policy_type), fn_(std::move(fn)) {
+    should_print_ = false;
+  }
+
+  ~LppGlogExtensionLog() override {
+    InternalLogCount::getInstance().updatePolicy(key_, n_, ss.str(), severity_, policy_type_);
+    if (InternalLogCount::getInstance().shouldLog(key_)) {
+      InternalLogCount::getInstance().log(key_);
+      fn_(ss.str());
+    }
+  }
+
+ private:
+  std::function<void(const std::string &str)> fn_;
 };
 
 #define LPP_GET_KEY() std::string(__FILE__) + std::to_string(__LINE__)
