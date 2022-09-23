@@ -78,6 +78,28 @@ TEST(default_LogFirstN, glog_syntax_severity_error) {
   }
 }
 
+TEST(default_LogFirstN, glog_syntax_severity_fatal) {
+  LOG_INIT(*test_argv);
+
+  std::function<void()> fn = []() {
+    for (int i = 0; i < 5; i++) {
+      std::string output = LPP_CAPTURE_STDERR(LOG_FIRST_N(ERROR, 3) << "Test" << 123);
+
+      if (i < 3) {
+
+        ASSERT_TRUE(isSubstring(output, "Test123"));
+        ASSERT_TRUE(isSubstring(output, "test_default_first_n.cc"));
+
+        ASSERT_EQ(output[0], 'E');
+      } else {
+        ASSERT_EQ(output, "");
+      }
+    }
+  };
+
+  checkAbort(fn);
+}
+
 TEST(default_LogFirstN, lpp_syntax_severity_debug) {
   for (int i = 0; i < 5; i++) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_FIRST(D, 3, "Test" << 123));
