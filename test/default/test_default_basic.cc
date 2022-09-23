@@ -6,6 +6,8 @@
 #include <gtest/gtest.h>
 #include <log++.h>
 
+using namespace lpp;
+
 TEST(default_basic, glog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
@@ -89,41 +91,72 @@ TEST(default_basic, lpp_syntax_severity_fatal) {
 }
 
 TEST(default_basic, roslog_syntax_severity_debug) {
-  std::string output1 = LPP_CAPTURE_STDOUT(ROS_DEBUG("Test"));
-  std::string output2 = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("Test"));
+  LOG_INIT(*test_argv);
 
-  ASSERT_EQ("\x1B[m[DEBUG] [.]: Test\x1B[m\n", removeNumbersFromString(output1));
-  ASSERT_EQ("\x1B[m[DEBUG] [.]: Test\x1B[m\n", removeNumbersFromString(output2));
+  std::string output1 = LPP_CAPTURE_STDOUT(ROS_DEBUG("Test"));
+  ASSERT_EQ(rostest::debug, removeNumbersFromString(output1));
+}
+
+TEST(default_basic, roslog_syntax_severity_debug_stream) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("Test"));
+  ASSERT_EQ(rostest::debug, removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_info) {
-  std::string output1 = LPP_CAPTURE_STDOUT(ROS_INFO("Test"));
-  std::string output2 = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("Test"));
+  LOG_INIT(*test_argv);
 
-  ASSERT_EQ("\x1B[m[ INFO] [.]: Test\x1B[m\n", removeNumbersFromString(output1));
-  ASSERT_EQ("\x1B[m[ INFO] [.]: Test\x1B[m\n", removeNumbersFromString(output2));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO("Test"));
+  ASSERT_EQ(rostest::info, removeNumbersFromString(output));
+}
+
+TEST(default_basic, roslog_syntax_severity_info_stream) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("Test"));
+  ASSERT_EQ(rostest::info, removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_warning) {
-  std::string output1 = LPP_CAPTURE_STDERR(ROS_WARN("Test"));
-  std::string output2 = LPP_CAPTURE_STDERR(ROS_WARN_STREAM("Test"));
+  LOG_INIT(*test_argv);
 
-  ASSERT_EQ("\x1B[m[ WARN] [.]: Test\x1B[m\n", removeNumbersFromString(output1));
-  ASSERT_EQ("\x1B[m[ WARN] [.]: Test\x1B[m\n", removeNumbersFromString(output2));
+  std::string output = LPP_CAPTURE_STDERR(ROS_WARN("Test"));
+  ASSERT_EQ(rostest::warning, removeNumbersFromString(output));
+}
+
+TEST(default_basic, roslog_syntax_severity_warning_stream) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_WARN_STREAM("Test"));
+  ASSERT_EQ(rostest::warning, removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_error) {
-  std::string output1 = LPP_CAPTURE_STDERR(ROS_ERROR("Test"));
-  std::string output2 = LPP_CAPTURE_STDERR(ROS_ERROR_STREAM("" << "Test"));
+  LOG_INIT(*test_argv);
 
-  ASSERT_EQ("\x1B[m[ERROR] [.]: Test\x1B[m\n", removeNumbersFromString(output1));
-  ASSERT_EQ("\x1B[m[ERROR] [.]: Test\x1B[m\n", removeNumbersFromString(output2));
+  std::string output = LPP_CAPTURE_STDERR(ROS_ERROR("Test"));
+  ASSERT_EQ(rostest::error, removeNumbersFromString(output));
+}
+
+TEST(default_basic, roslog_syntax_severity_error_stream) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_ERROR_STREAM("" << "Test"));
+  ASSERT_EQ(rostest::error, removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_fatal) {
-  std::string output1 = LPP_CAPTURE_STDERR(ROS_FATAL("Test"));
-  std::string output2 = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("" << "Test"));
+  LOG_INIT(*test_argv);
 
-  ASSERT_EQ("\x1B[m[FATAL] [.]: Test\x1B[m\n", removeNumbersFromString(output1));
-  ASSERT_EQ("\x1B[m[FATAL] [.]: Test\x1B[m\n", removeNumbersFromString(output2));
+  std::string output = LPP_CAPTURE_STDERR(ROS_FATAL("Test"));
+  ASSERT_EQ(rostest::fatal, removeNumbersFromString(output));
+
+}
+
+TEST(default_basic, roslog_syntax_severity_fatal_stream) {
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("" << "Test"));
+  ASSERT_EQ(rostest::fatal, removeNumbersFromString(output));
 }
