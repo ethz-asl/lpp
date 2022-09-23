@@ -71,4 +71,28 @@ inline bool checkAbort(const std::function<void()> &fn) {
   return ForkAndReap(&ws, fn) >= 0 && WIFSIGNALED(ws) && WTERMSIG(SIGABRT);
 }
 
+//! Ros testing utils
+inline static constexpr const char *ERROR_MESSAGE = "Base angle (%f) is less than the minimum angle (%f)";
+
+
+namespace lpp {
+namespace rostest{
+inline static const std::string debug = "\x1B[m[DEBUG] [.]: Test\x1B[m\n";
+inline static const std::string info = "\x1B[m[ INFO] [.]: Test\x1B[m\n";
+inline static const std::string warning = "\x1B[m[ WARN] [.]: Test\x1B[m\n";
+inline static const std::string error = "\x1B[m[ERROR] [.]: Test\x1B[m\n";
+inline static const std::string fatal = "\x1B[m[FATAL] [.]: Test\x1B[m\n";
+}
+
+
+namespace rosprintf {
+inline static const std::string debug = "\x1B[m[DEBUG] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+inline static const std::string info = "\x1B[m[ INFO] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+inline static const std::string warning = "\x1B[m[ WARN] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+inline static const std::string error = "\x1B[m[ERROR] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+inline static const std::string fatal = "\x1B[m[FATAL] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+}
+}
+
+
 #endif //LOG_TEST_TEST_UTILS_H_
