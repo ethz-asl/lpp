@@ -188,12 +188,12 @@ InternalPolicyLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED)
 
 #ifndef DLOG_EVERY_T
 #define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_EVERY_T is a Log++ extension") \
-LppGlogExtensionLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED, [](const std::string str) {LOG_1(severity) << str;})
+LppGlogExtensionLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED, [](const std::string& str) {LOG_1(severity) << str;})
 #endif
 
 #ifndef DLOG_FIRST_N
 #define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
-LppGlogExtensionLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N, [](const std::string str) {LOG_1(severity) << str;})
+LppGlogExtensionLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N, [](const std::string& str) {LOG_1(severity) << str;})
 #endif
 #endif
 
@@ -369,6 +369,8 @@ class InternalLog {
     }
 #if defined MODE_ROSLOG
     switch (severity_) {
+      case SeverityType::DEBUG:ROS_DEBUG_STREAM(ss.str());
+        break;
       case SeverityType::INFO:ROS_INFO_STREAM(ss.str());
         break;
       case SeverityType::WARN:ROS_WARN_STREAM(ss.str());
