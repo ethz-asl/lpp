@@ -6,91 +6,144 @@
 #include <test_utils.h>
 #include <log++.h>
 
-/**
- * Ros logging stdout/stderr capture doesn't work. Probably because of threading things.
- * At the moment, unittests only test if ros function calls are called  through Log++.
- */
+using namespace lpp;
 
-//! ################ GLOG ################
 TEST(roslog_basic, glog_syntax_severity_debug) {
   //TODO implement
   //DLOG(INFO) << "Test";
 }
 
 TEST(roslog_basic, glog_syntax_severity_info) {
-  LOG(INFO) << "Test";
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(LOG(INFO) << "Test123");
+  ASSERT_EQ(rostest::info, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, glog_syntax_severity_warning) {
-  LOG(WARNING) << "Test";
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(LOG(WARNING) << "Test");
+  ASSERT_EQ(rostest::warning, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, glog_syntax_severity_error) {
-  LOG(ERROR) << "Test";
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(LOG(ERROR) << "Test");
+  ASSERT_EQ(rostest::error, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, glog_syntax_severity_fatal) {
-  LOG(FATAL) << "Test";
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(LOG(FATAL) << "Test");
+  ASSERT_EQ(rostest::fatal, removeNumbersFromString(output));
 }
 
 //! ################ lpp ################
 TEST(roslog_basic, lpp_syntax_severity_debug) {
-  LOG(I, "" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(LOG(D, "" << "Test"));
+  ASSERT_EQ(rostest::debug, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, lpp_syntax_severity_info) {
-  LOG(I, "" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(LOG(I, "" << "Test"));
+  ASSERT_EQ(rostest::info, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, lpp_syntax_severity_warning) {
-  LOG(W, "" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(LOG(W, "" << "Test"));
+  ASSERT_EQ(rostest::warning, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, lpp_syntax_severity_error) {
-  LOG(E, "" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(LOG(E, "" << "Test"));
+  ASSERT_EQ(rostest::error, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, lpp_syntax_severity_fatal) {
-  LOG(F, "" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(LOG(F, "" << "Test"));
+  ASSERT_EQ(rostest::fatal, removeNumbersFromString(output));
 }
 
 //! ################ Roslog ################
 TEST(roslog_basic, roslog_syntax_severity_debug) {
-  ROS_DEBUG("Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG("Test"));
+  ASSERT_EQ(rostest::debug, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_debug_stream) {
-  ROS_DEBUG_STREAM("Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("Test"));
+  ASSERT_EQ(rostest::debug, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_info) {
-  ROS_INFO("Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO("Test"));
+  ASSERT_EQ(rostest::info, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_info_stream) {
-  ROS_INFO_STREAM("" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("" << "Test"));
+  ASSERT_EQ(rostest::info, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_warn) {
-  ROS_WARN("Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_WARN("Test"));
+  ASSERT_EQ(rostest::warning, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_warn_stream) {
- ROS_WARN_STREAM("" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_WARN_STREAM("" << "Test"));
+  ASSERT_EQ(rostest::warning, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_error) {
-  ROS_ERROR("Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_ERROR("Test"));
+  ASSERT_EQ(rostest::error, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_error_stream) {
-  ROS_ERROR_STREAM("" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_ERROR_STREAM("" << "Test"));
+  ASSERT_EQ(rostest::error, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_fatal) {
-  ROS_FATAL("Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_FATAL("Test"));
+  ASSERT_EQ(rostest::fatal, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, roslog_syntax_severity_fatal_stream) {
-  ROS_FATAL_STREAM("" << "Test");
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("" << "Test"));
+  ASSERT_EQ(rostest::fatal, removeNumbersFromString(output));
 }
