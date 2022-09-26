@@ -48,6 +48,7 @@
 
 #if __has_include(<ros/console.h>)
 #include <ros/console.h>
+#include <mutex>
 #define ROSLOG_SUPPORTED
 #endif
 
@@ -434,8 +435,7 @@ class LogPolicy {
  public:
   virtual void update() = 0;
   virtual bool shouldLog() const = 0;
-  //! This function should only change internal values of a LogPolicy and gets called before it gets logged.
-  virtual void log() {};
+  virtual void onLog() {};
   virtual ~LogPolicy() = default;
  protected:
   explicit LogPolicy(int max) : max_(max) {}
@@ -505,7 +505,7 @@ class TimePolicy : public LogPolicy {
     return false;
   }
 
-  void log() override {
+  void onLog() override {
     last_ = now_;
   }
 
@@ -559,8 +559,10 @@ class InternalLogCount {
                      const std::string &log_msg,
                      const std::string &severity_str,
                      PolicyType policy_type) {
-    updatePolicy(key, max, log_msg, severity_str, policy_type);
+    updatePolicy(key, max, log_msg, severity_str, policy_type); //
+    mtx_.lock();
     logIfReady(key);
+    mtx_.unlock();
   }
 
   inline void updatePolicy(const std::string &key,
@@ -568,6 +570,7 @@ class InternalLogCount {
                            const std::string &log_msg,
                            const std::string &severity_str,
                            PolicyType policy_type) {
+    mtx_.lock();
     if (!keyExists(key)) {
       LogStatementData data(LogPolicyFactory::create(policy_type, max));
       data.msg = log_msg;
@@ -578,14 +581,20 @@ class InternalLogCount {
       LogStatementData *data = &occurences_.at(key);
       updateLogPolicyData(data);
     }
+    mtx_.unlock();
   }
 
   inline bool shouldLog(const std::string &key) {
-    return occurences_.at(key).log_policy_->shouldLog();
+    mtx_.lock();
+    bool res = occurences_.at(key).log_policy_->shouldLog();
+    mtx_.unlock();
+    return res;
   }
 
   inline void log(const std::string &key) {
-    occurences_.at(key).log_policy_->log();
+    mtx_.lock();
+    occurences_.at(key).log_policy_->onLog();
+    mtx_.unlock();
   }
 
  private:
@@ -600,13 +609,14 @@ class InternalLogCount {
   inline void logIfReady(const std::string &key) {
     LogStatementData *data = &occurences_.at(key);
     if (data->log_policy_->shouldLog()) {
-      data->log_policy_->log();
+      data->log_policy_->onLog();
       InternalLog(data->severity_str) << data->msg;
     }
   }
 
   InternalLogCount() = default;
   std::unordered_map<std::string, LogStatementData> occurences_{};
+  std::mutex mtx_{};
 };
 
 class InternalPolicyLog : public InternalLog {
