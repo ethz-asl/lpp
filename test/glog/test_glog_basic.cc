@@ -52,6 +52,22 @@ TEST(glog_basic, glog_syntax_severity_error) {
   ASSERT_EQ(output[0], 'E');
 }
 
+TEST(glog_basic, glog_syntax_severity_fatal) {
+
+  LOG_INIT(*test_argv);
+
+  std::function<void()> fn = []() {
+    std::string output = LPP_CAPTURE_STDERR(LOG(FATAL) << "xyz");
+
+    ASSERT_TRUE(isSubstring(output, "xyz"));
+    ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+
+    ASSERT_EQ(output[0], 'F');
+  };
+
+  ASSERT_TRUE(checkAbort(fn));
+}
+
 
 //! ################ lpp ################
 
@@ -97,20 +113,21 @@ TEST(glog_basic, lpp_syntax_severity_error) {
   ASSERT_EQ(output[0], 'E');
 }
 
-//TODO https://stackoverflow.com/questions/55760359/is-it-possible-to-test-that-an-abort-routine-doesnt-return
-/*
-TEST(glog_lpp_syntax, lpp_fatal) {
-  FLAGS_logtostderr = true;
-  LOG_INIT(*test_argv)
+TEST(glog_basic, lpp_syntax_severity_fatal) {
+  LOG_INIT(*test_argv);
 
-  testing::internal::CaptureStderr();
-  LOG(F, "Test" << "123")
-  std::string output = testing::internal::GetCapturedStderr();
+  std::function<void()> fn = []() {
+    testing::internal::CaptureStderr();
+    LOG(F, "Test" << "123");
+    std::string output = testing::internal::GetCapturedStderr();
 
-  ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(output[0] == 'F');
+    ASSERT_TRUE(isSubstring(output, "Test123"));
+    ASSERT_TRUE(output[0] == 'F');
+  };
+
+  ASSERT_TRUE(checkAbort(fn));
 }
-*/
+
 
 //! ################ Roslog ################
 TEST(glog_basic, roslog_syntax_severity_debug) {
@@ -191,6 +208,32 @@ TEST(glog_basic, roslog_syntax_severity_error_stream) {
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
   ASSERT_EQ(output[0], 'E');
+}
+
+TEST(glog_basic, roslog_syntax_severity_fatal) {
+  LOG_INIT(*test_argv);
+
+  std::function<void()> fn = []() {
+  std::string output = LPP_CAPTURE_STDERR(ROS_FATAL("Test123"));
+  ASSERT_TRUE(isSubstring(output, "Test123"));
+  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+  ASSERT_EQ(output[0], 'F');
+  };
+
+  ASSERT_TRUE(checkAbort(fn));
+}
+
+TEST(glog_basic, roslog_syntax_severity_fatal_stream) {
+  LOG_INIT(*test_argv);
+
+  std::function<void()> fn = []() {
+      std::string output = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("Test" << 123));
+
+      ASSERT_TRUE(isSubstring(output, "Test123"));
+      ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+      ASSERT_EQ(output[0], 'F');
+  };
+  ASSERT_TRUE(checkAbort(fn));
 }
 
 #undef MODE_GLOG

@@ -133,3 +133,22 @@ TEST(glog_LogEveryN, glog_syntax_severity_error) {
     }
   }
 }
+
+TEST(glog_LogEveryN, glog_syntax_severity_fatal) {
+  LOG_INIT(*test_argv);
+
+  std::function<void()> fn = []() {
+    for (int i = 0; i < 5; i++) {
+      std::string output = LPP_CAPTURE_STDERR(LOG_EVERY_N(FATAL, 3) << "Test" << 123);
+
+      if (i % 3 == 0) {
+        ASSERT_TRUE(isSubstring(output, "Test123"));
+        ASSERT_TRUE(isSubstring(output, "test_glog_every_n.cc"));
+        ASSERT_EQ(output[0], 'E');
+      } else {
+        ASSERT_EQ(output, "");
+      }
+    }
+  };
+  ASSERT_TRUE(checkAbort(fn));
+}
