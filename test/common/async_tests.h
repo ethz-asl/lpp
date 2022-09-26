@@ -82,6 +82,7 @@ class TestResult {
 
       case STDERR: return testing::internal::GetCapturedStderr();
     }
+    abort();
   }
 
   inline void startTimed(const AsyncTest &a) {
