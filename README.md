@@ -50,7 +50,7 @@ target_compile_definitions(my_executable PRIVATE MODE_LPP)
 > **Note for glog:**
 >
 > - When using with **MODE_ROSLOG** or **MODE_LPP**, the macros DLOG(severity) and VLOG() will get converted
-    > to debug severity.
+> to debug severity.
 >
 > - When using with **MODE_GLOG**, the Log++ and Roslog debug macros LOG(D) and ROS_DEBUG() will get converted
 > to DLOG(INFO).
@@ -107,23 +107,10 @@ for (int i = 0; i < 10; i++) {
 ```
 
 # Roadmap
-- Implement debug logging
-  - Implement VLOG
-- Implement timed logging with log++ policy implementation
+- Implement VLOG
 - Implement ROS_INFO_NAMED()
-- Make log policies thread-safe
 - Test fatal severity
 - CMake flag to generate warnings if glog or roslog functions are used, to encourage consistency.
-- Resolve following glog limitations regarding debug mode:
-
-| Method           | DLOG | LOG |
-|------------------|------|-----|
-| LOG()            | x    | x   |
-| LOG_IF()         | x    | x   |
-| LOG_EVERY_N()    | x    | x   |
-| LOG_IF_EVERY_N() | x    | x   |
-| LOG_FIRST_N()    |      | x   |
-| LOG_EVERY_T()    |      | x   |
 
 
 # Testing
@@ -136,7 +123,7 @@ for (int i = 0; i < 10; i++) {
 
 Naming Convention:
 ```c++
-TEST(<MODE>_<LoggingMethod>, <mode>_syntax>_severity_<severity>) {
+TEST(<mode>_<LoggingMethod>, <mode>_syntax_severity_<severity>) {
   //Test logic
 }
 ```
@@ -144,6 +131,6 @@ TEST(<MODE>_<LoggingMethod>, <mode>_syntax>_severity_<severity>) {
 Testing convention for different test suites:
 
 - lpp: Test whole string with ASSERT_EQ().
-- glog: Test first char, isSubstring(log_message) and isSubstring(file_name), don't test fatal severity (at the moment).
-- roslog: Only test execution
-- Use LPP_CAPTURE macros to capture stdout/stderr in all modes.
+- glog: Test first char, isSubstring(log_message) and isSubstring(file_name).
+- roslog: Test whole string with removeNumbersFromString(log_message).
+- Use LPP_CAPTURE macros to suppress or capture stdout/stderr in all modes.
