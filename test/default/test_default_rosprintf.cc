@@ -66,6 +66,7 @@ TEST(default_rosprintf, ros_warn_once) {
 
 TEST(default_rosprintf, ros_warn_throttle) {
   LOG_INIT(*test_argv);
+
   std::string output = LPP_CAPTURE_STDERR(ROS_WARN_THROTTLE(1, ERROR_MESSAGE, 3.3, 5.5));
   ASSERT_EQ(rosprintf::warning, removeNumbersFromString(output));
 }
