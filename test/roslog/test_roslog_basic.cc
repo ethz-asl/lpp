@@ -9,8 +9,10 @@
 using namespace lpp;
 
 TEST(roslog_basic, glog_syntax_severity_debug) {
-  //TODO implement
-  //DLOG(INFO) << "Test";
+  LOG_INIT(*test_argv);
+
+  std::string output = LPP_CAPTURE_STDOUT(DLOG(INFO) << "Test");
+  ASSERT_EQ(rostest::debug, removeNumbersFromString(output));
 }
 
 TEST(roslog_basic, glog_syntax_severity_info) {

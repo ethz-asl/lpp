@@ -81,11 +81,15 @@ TEST(roslog_LogFirstN, lpp_syntax_severity_fatal) {
 TEST(roslog_LogFirstN, glog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
-  //TODO
-  /*
   for (int i = 0; i < 5; i++) {
-    DLOG_FIRST_N(INFO, 3) << "Test";
-  }*/
+    std::string output = LPP_CAPTURE_STDOUT(DLOG_FIRST_N(INFO, 3) << "Test");
+
+    if (i < 3) {
+      ASSERT_EQ(rostest::debug, removeNumbersFromString(output));
+    } else {
+      ASSERT_EQ("", removeNumbersFromString(output));
+    }
+  }
 }
 
 TEST(roslog_LogFirstN, glog_syntax_severity_info) {

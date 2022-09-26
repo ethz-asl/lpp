@@ -71,8 +71,6 @@ TEST(glog_LogFirstN, lpp_syntax_severity_error) {
 }
 
 TEST(glog_LogFirstN, glog_syntax_severity_debug) {
-  //TODO DLOG_FIRST_N does not exist in glog
-  /*
   LOG_INIT(*test_argv);
 
   for (int i = 0; i < 5; i++) {
@@ -85,7 +83,7 @@ TEST(glog_LogFirstN, glog_syntax_severity_debug) {
     } else {
       ASSERT_EQ(output, "");
     }
-  }*/
+  }
 }
 
 TEST(glog_LogFirstN, glog_syntax_severity_info) {

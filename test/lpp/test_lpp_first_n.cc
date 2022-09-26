@@ -67,17 +67,15 @@ TEST(lpp_LogFirstN, lpp_syntax_severity_fatal) {
 }
 
 TEST(lpp_LogFirstN, glog_syntax_severity_debug) {
-  //TODO DLOG_FIRST_N does not exist in glog
-  /*
   for (int i = 0; i < 5; i++) {
     std::string output = LPP_CAPTURE_STDOUT(DLOG_FIRST_N(INFO, 3) << "Test" << 123);
 
     if (i < 3) {
-      ASSERT_EQ(output, "INFO  Test123\n");
+      ASSERT_EQ(output, "DEBUG Test123\n");
     } else {
       ASSERT_EQ(output, "");
     }
-  }*/
+  }
 }
 
 TEST(lpp_LogFirstN, glog_syntax_severity_info) {
@@ -129,19 +127,17 @@ TEST(lpp_LogFirstN, glog_syntax_severity_fatal) {
 }
 
 TEST(lpp_LogFirstN, ros_debug_once) {
-  //TODO implement
-  /*
   LOG_INIT(*test_argv);
 
   for (int i = 0; i < 5; i++) {
     std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_ONCE("Test123"));
 
     if (i == 0) {
-      ASSERT_EQ(output, "INFO  Test123\n");
+      ASSERT_EQ(output, "DEBUG Test123\n");
     } else {
       ASSERT_EQ("", output);
     }
-  }*/
+  }
 }
 
 TEST(lpp_LogFirstN, ros_info_once) {

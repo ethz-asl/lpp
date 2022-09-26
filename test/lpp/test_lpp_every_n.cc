@@ -67,17 +67,15 @@ TEST(lpp_LogEveryN, lpp_syntax_severity_fatal) {
 }
 
 TEST(lpp_LogEveryN, glog_syntax_severity_debug) {
-  //TODO Implement
-  /*
   for (int i = 0; i < 5; i++) {
     std::string output = LPP_CAPTURE_STDOUT(DLOG_EVERY_N(INFO, 3) << "Test" << 123);
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, "DEBUG  Test123\n");
+      ASSERT_EQ(output, "DEBUG Test123\n");
     } else {
       ASSERT_EQ(output, "");
     }
-  }*/
+  }
 }
 
 TEST(lpp_LogEveryN, glog_syntax_severity_info) {

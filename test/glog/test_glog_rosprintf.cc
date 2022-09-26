@@ -6,6 +6,24 @@
 #include <test_utils.h>
 #include <log++.h>
 
+TEST(glog_rosprintf, ros_debug) {
+  LOG_INIT(*test_argv);
+
+  std::string c = LPP_CAPTURE_STDERR(ROS_DEBUG("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5));
+
+  ASSERT_TRUE(isSubstring(c, "Base angle (3.300000) is less than the minimum angle (5.500000)\n"));
+  ASSERT_TRUE(c[0] == 'I');
+}
+
+TEST(glog_rosprintf, ros_debug_once) {
+  LOG_INIT(*test_argv);
+
+  std::string c = LPP_CAPTURE_STDERR(ROS_DEBUG_ONCE("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5));
+
+  ASSERT_TRUE(isSubstring(c, "Base angle (3.300000) is less than the minimum angle (5.500000)\n"));
+  ASSERT_TRUE(c[0] == 'I');
+}
+
 TEST(glog_rosprintf, ros_info) {
   LOG_INIT(*test_argv);
 
@@ -58,4 +76,30 @@ TEST(glog_rosprintf, ros_error_once) {
 
   ASSERT_TRUE(isSubstring(c, "Base angle (3.300000) is less than the minimum angle (5.500000)\n"));
   ASSERT_TRUE(c[0] == 'E');
+}
+
+TEST(glog_rosprintf, ros_fatal) {
+  LOG_INIT(*test_argv);
+
+  std::function<void()> fn = []() {
+    std::string c = LPP_CAPTURE_STDERR(ROS_FATAL("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5));
+
+    ASSERT_TRUE(isSubstring(c, "Base angle (3.300000) is less than the minimum angle (5.500000)\n"));
+    ASSERT_TRUE(c[0] == 'E');
+  };
+
+  ASSERT_TRUE(checkAbort(fn));
+}
+
+TEST(glog_rosprintf, ros_fatal_once) {
+  LOG_INIT(*test_argv);
+
+  std::function<void()> fn = []() {
+    std::string c = LPP_CAPTURE_STDERR(ROS_FATAL_ONCE("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5));
+
+    ASSERT_TRUE(isSubstring(c, "Base angle (3.300000) is less than the minimum angle (5.500000)\n"));
+    ASSERT_TRUE(c[0] == 'E');
+  };
+
+  ASSERT_TRUE(checkAbort(fn));
 }

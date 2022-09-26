@@ -79,11 +79,17 @@ TEST(roslog_LogEveryN, lpp_syntax_severity_fatal) {
 }
 
 TEST(roslog_LogEveryN, glog_syntax_severity_debug) {
-  //TODO implement
-  /*
+  LOG_INIT(*test_argv);
+
   for (int i = 0; i < 5; i++) {
-    DLOG_EVERY_N(INFO, 3) << "Test";
-  }*/
+    std::string output = LPP_CAPTURE_STDOUT(DLOG_EVERY_N(INFO, 3) << "Test");
+
+    if (i % 3 == 0) {
+      ASSERT_EQ(rostest::debug, removeNumbersFromString(output));
+    } else {
+      ASSERT_EQ("", removeNumbersFromString(output));
+    }
+  }
 }
 
 TEST(roslog_LogEveryN, glog_syntax_severity_info) {

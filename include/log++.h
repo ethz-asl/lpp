@@ -133,7 +133,7 @@ using namespace lpp::internal;
  * If called more than once, all further calls will be ignored.
  * @param argv is used for GLOG if present, otherwise unused.
  */
-inline void LOG_INIT(char* argv) {
+inline void LOG_INIT(char *argv) {
   // If LOG_INIT is called more than once, do nothing.
   if (!lppInit.is_glog_initialized) {
 
@@ -269,14 +269,19 @@ true
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
-#define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N)
-#define LOG_FIRST(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::FIRST_N)
-#define LOG_TIMED(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::TIMED)
+#define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N) // NOLINT(bugprone-macro-parentheses)
+#define LOG_FIRST(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::FIRST_N) // NOLINT(bugprone-macro-parentheses)
+#define LOG_TIMED(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
+#endif
 
-#ifndef MODE_DEFAULT
+#if defined MODE_ROSLOG || defined MODE_LPP
 #define LOG_EVERY_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
 #define LOG_FIRST_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N)
-#endif
+
+#define DLOG(severity) InternalLog(SeverityType::DEBUG)
+#define DLOG_EVERY_N(severity, n) InternalPolicyLog(LPP_GET_KEY(), n, "D", PolicyType::EVERY_N)
+#define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
+InternalPolicyLog(LPP_GET_KEY(), n, "D", PolicyType::FIRST_N)
 #endif
 
 //! MODE_LPP
@@ -303,17 +308,14 @@ true
 #define ROS_FATAL_COND(cond, x) LOG_3(F, cond, x)
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_3(F, cond, x)
 
+#define ROS_DEBUG_ONCE(...) LOG_FIRST(D, 1, formatToString(__VA_ARGS__))
 #define ROS_INFO_ONCE(...) LOG_FIRST(I, 1, formatToString(__VA_ARGS__))
 #define ROS_WARN_ONCE(...) LOG_FIRST(W, 1, formatToString(__VA_ARGS__))
 #define ROS_ERROR_ONCE(...) LOG_FIRST(E, 1, formatToString(__VA_ARGS__))
 #define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, formatToString(__VA_ARGS__))
 
 #define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
-#endif
-
-#if defined MODE_LPP
 #define LOG_1(severity) InternalLog(#severity)
-#define DLOG(severity) InternalLog(SeverityType::DEBUG)
 #endif
 
 #if defined MODE_LPP || defined MODE_DEFAULT
