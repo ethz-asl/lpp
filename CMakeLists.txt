@@ -35,7 +35,8 @@ if (GLOG_FOUND)
                 test/glog/test_glog_basic.cc
                 test/glog/test_glog_every_n.cc
                 test/glog/test_glog_first_n.cc
-                test/glog/test_glog_rosprintf.cc)
+                test/glog/test_glog_rosprintf.cc
+                test/glog/test_glog_vlog.cc)
 
         target_include_directories(${GLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/glog )
         target_link_libraries(${GLOG_TESTS} glog gtest ${catkin_LIBRARIES})
@@ -48,7 +49,8 @@ if (GLOG_FOUND)
                 test/lpp/test_lpp_basic.cc
                 test/lpp/test_lpp_every_n.cc
                 test/lpp/test_lpp_first_n.cc
-                test/lpp/test_lpp_rosprintf.cc)
+                test/lpp/test_lpp_rosprintf.cc
+                test/lpp/test_lpp_vlog.cc)
 
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp )
         target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES})
@@ -61,7 +63,8 @@ if (GLOG_FOUND)
                 test/roslog/test_roslog_basic.cc
                 test/roslog/test_roslog_every_n.cc
                 test/roslog/test_roslog_first_n.cc
-                test/roslog/test_roslog_rosprintf.cc)
+                test/roslog/test_roslog_rosprintf.cc
+                test/roslog/test_roslog_vlog.cc)
 
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)
         target_link_libraries(${ROSLOG_TESTS} glog gtest ${catkin_LIBRARIES})
@@ -75,7 +78,8 @@ if (GLOG_FOUND)
                 test/default/test_default_every_n.cc
                 test/default/test_default_first_n.cc
                 test/default/test_default_rosprintf.cc
-                test/default/test_default_timed.cc)
+                test/default/test_default_timed.cc
+                test/default/test_default_vlog.cc)
 
         target_include_directories(${DEFAULT_TESTS} PRIVATE  ${LPP_INCLUDE_DIRECTORIES} test/default)
         target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES})

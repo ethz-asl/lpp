@@ -39,6 +39,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <chrono>
+#include <mutex>
 
 //! Check if libraries are available at compile time and include required headers
 #if __has_include(<glog/logging.h>)
@@ -48,7 +49,6 @@
 
 #if __has_include(<ros/console.h>)
 #include <ros/console.h>
-#include <mutex>
 #define ROSLOG_SUPPORTED
 #endif
 
@@ -283,6 +283,12 @@ true
 #define DLOG_EVERY_N(severity, n) InternalPolicyLog(LPP_GET_KEY(), n, "D", PolicyType::EVERY_N)
 #define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
 InternalPolicyLog(LPP_GET_KEY(), n, "D", PolicyType::FIRST_N)
+
+#define VLOG(verboselevel) LOG_IF(INFO, VLOG_IS_ON(verboselevel))
+#ifndef GLOG_SUPPORTED
+extern int32_t FLAGS_v;
+#define VLOG_IS_ON(verboselevel) FLAGS_v <= verboselevel ? true : false
+#endif
 #endif
 
 //! MODE_LPP
