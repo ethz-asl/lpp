@@ -186,18 +186,18 @@ inline void LOG_INIT(char *argv) {
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 
 #ifndef LOG_EVERY_T
-#define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
-InternalPolicyLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED)
+#define LOG_EVERY_T(severity, t) LPP_ASSERT_GLOG(severity); LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
+InternalPolicyLog(LPP_GET_KEY(), t, severity, PolicyType::TIMED)
 #endif
 
 #ifndef DLOG_EVERY_T
-#define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_EVERY_T is a Log++ extension") \
-LppGlogExtensionLog(LPP_GET_KEY(), t, #severity, PolicyType::TIMED, [](const std::string& str) {LOG_1(severity) << str;})
+#define DLOG_EVERY_T(severity, t) LPP_ASSERT_GLOG(severity); LPP_WARN("DLOG_EVERY_T is a Log++ extension") \
+LppGlogExtensionLog(LPP_GET_KEY(), t, severity, PolicyType::TIMED, [](const std::string& str) {LOG_1(severity) << str;})
 #endif
 
 #ifndef DLOG_FIRST_N
-#define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
-LppGlogExtensionLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N, [](const std::string& str) {LOG_1(severity) << str;})
+#define DLOG_FIRST_N(severity, n) LPP_ASSERT_GLOG(severity); LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
+LppGlogExtensionLog(LPP_GET_KEY(), n, severity, PolicyType::FIRST_N, [](const std::string& str) {LOG_1(severity) << str;})
 #endif
 #endif
 
@@ -205,28 +205,28 @@ LppGlogExtensionLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N, [](const s
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
 
-#define LOG_2(severity, x) \
-if      (strcmp(#severity, "I") == 0 || strcmp(#severity, "D") == 0) {LOG_1(INFO) << x;}        \
-else if (strcmp(#severity, "W") == 0) {LOG_1(WARNING) << x;}     \
-else if (strcmp(#severity, "E") == 0) {LOG_1(ERROR) << x;}       \
-else if (strcmp(#severity, "F") == 0) {LOG_1(FATAL) << x;}       \
+#define LOG_2(severity, x) LPP_ASSERT_LPP(severity);                \
+if      (severity == I || severity == D) {LOG_1(INFO) << x;}        \
+else if (severity == W) {LOG_1(WARNING) << x;}     \
+else if (severity == E) {LOG_1(ERROR) << x;}       \
+else if (severity == F) {LOG_1(FATAL) << x;}       \
 true
 
 //Add true at the end to make semicolons mandatory. Compiles to nothing.
 #define LOG_3(severity, cond, x) if (cond) { LOG_2(severity, x);} true
-#define LOG_EVERY(severity, n, x) \
-if      (strcmp(#severity, "I") == 0) {LOG_EVERY_N(INFO, n) << x;}        \
-else if (strcmp(#severity, "W") == 0) {LOG_EVERY_N(WARNING, n) << x;}     \
-else if (strcmp(#severity, "E") == 0) {LOG_EVERY_N(ERROR, n) << x;}       \
-else if (strcmp(#severity, "F") == 0) {LOG_EVERY_N(FATAL, n) << x;}       \
-else if (strcmp(#severity, "D") == 0) {DLOG_EVERY_N(INFO, n) << x;}       \
+#define LOG_EVERY(severity, n, x) LPP_ASSERT_LPP(severity); \
+if      (severity == I) {LOG_EVERY_N(INFO, n) << x;}        \
+else if (severity == W) {LOG_EVERY_N(WARNING, n) << x;}     \
+else if (severity == E) {LOG_EVERY_N(ERROR, n) << x;}       \
+else if (severity == F) {LOG_EVERY_N(FATAL, n) << x;}       \
+else if (severity == D) {DLOG_EVERY_N(INFO, n) << x;}       \
 true
 
-#define LOG_FIRST(severity, n, x) \
-if      (strcmp(#severity, "I") == 0 || strcmp(#severity, "D") == 0) {LOG_FIRST_N(INFO, n) << x;}        \
-else if (strcmp(#severity, "W") == 0) {LOG_FIRST_N(WARNING, n) << x;}     \
-else if (strcmp(#severity, "E") == 0) {LOG_FIRST_N(ERROR, n) << x;}       \
-else if (strcmp(#severity, "F") == 0) {LOG_FIRST_N(FATAL, n) << x;}       \
+#define LOG_FIRST(severity, n, x) LPP_ASSERT_LPP(severity); \
+if      (severity == I || severity == D) {LOG_FIRST_N(INFO, n) << x;}        \
+else if (severity == W) {LOG_FIRST_N(WARNING, n) << x;}     \
+else if (severity == E) {LOG_FIRST_N(ERROR, n) << x;}       \
+else if (severity == F) {LOG_FIRST_N(FATAL, n) << x;}       \
 true
 
 #ifndef MODE_DEFAULT
@@ -265,29 +265,29 @@ true
 
 //! MODE_ROSLOG
 #ifdef MODE_ROSLOG
-#define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
+#define LOG_IF(severity, cond) LPP_ASSERT_GLOG(severity); if (cond) InternalLog(severity)
 
-#define LOG_1(severity) InternalLog(#severity)
-#define LOG_2(severity, x) InternalLog(#severity) << x
-#define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x
+#define LOG_1(severity) LPP_ASSERT_GLOG(severity); InternalLog(severity)
+#define LOG_2(severity, x) LPP_ASSERT_LPP(severity); InternalLog(severity) << x
+#define LOG_3(severity, cond, x) LPP_ASSERT_LPP(severity); if (cond) InternalLog(severity) << x
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
-#define LOG_EVERY(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::EVERY_N) // NOLINT(bugprone-macro-parentheses)
-#define LOG_FIRST(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::FIRST_N) // NOLINT(bugprone-macro-parentheses)
-#define LOG_TIMED(severity, n, x) InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, #severity, PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
+#define LOG_EVERY(severity, n, x) LPP_ASSERT_LPP(severity); InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, severity, PolicyType::EVERY_N) // NOLINT(bugprone-macro-parentheses)
+#define LOG_FIRST(severity, n, x) LPP_ASSERT_LPP(severity); InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, severity, PolicyType::FIRST_N) // NOLINT(bugprone-macro-parentheses)
+#define LOG_TIMED(severity, n, x) LPP_ASSERT_LPP(severity); InternalLogCount::getInstance().update(LPP_GET_KEY(), n, InternalLog() << x, severity, PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP
-#define LOG_EVERY_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::EVERY_N)
-#define LOG_FIRST_N(severity, n)  InternalPolicyLog(LPP_GET_KEY(), n, #severity, PolicyType::FIRST_N)
+#define LOG_EVERY_N(severity, n) LPP_ASSERT_LPP(severity); InternalPolicyLog(LPP_GET_KEY(), n, severity, PolicyType::EVERY_N)
+#define LOG_FIRST_N(severity, n) LPP_ASSERT_LPP(severity); InternalPolicyLog(LPP_GET_KEY(), n, severity, PolicyType::FIRST_N)
 
-#define DLOG(severity) InternalLog(SeverityType::DEBUG)
-#define DLOG_EVERY_N(severity, n) InternalPolicyLog(LPP_GET_KEY(), n, "D", PolicyType::EVERY_N)
-#define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
-InternalPolicyLog(LPP_GET_KEY(), n, "D", PolicyType::FIRST_N)
+#define DLOG(severity) LPP_ASSERT_GLOG(severity); InternalLog(SeverityType::DEBUG)
+#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(severity); InternalPolicyLog(LPP_GET_KEY(), n, SeverityType::DEBUG, PolicyType::EVERY_N)
+#define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(severity); \
+InternalPolicyLog(LPP_GET_KEY(), n, SeverityType::DEBUG, PolicyType::FIRST_N)
 
-#define LOG_STRING(severity, ptr) InternalGlogLogStringLog(#severity, ptr)
+#define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(severity); InternalGlogLogStringLog(severity, ptr)
 
 #define VLOG(verboselevel) LOG_IF(INFO, VLOG_IS_ON(verboselevel))
 #ifndef GLOG_SUPPORTED
@@ -350,6 +350,30 @@ inline std::string formatToString(const char *f, Args... args) {
 inline std::string formatToString(const char *str) {
   return str;
 }
+//TODO operator overload
+enum class BaseSeverity {
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR,
+  FATAL
+};
+
+enum class LppSeverity {
+  D,
+  I,
+  W,
+  E,
+  F
+};
+
+enum class GlogSeverity {
+  DEBUG,
+  INFO,
+  WARNING,
+  ERROR,
+  FATAL
+};
 
 enum SeverityType {
   DEBUG, D = 0,
@@ -367,9 +391,6 @@ class InternalLog {
   };
 
   explicit InternalLog(SeverityType severity_type) : severity_(severity_type) {}
-  explicit InternalLog(const std::string &severity) {
-    severity_ = getSeverityFromString(severity);
-  }
 
   InternalLog(InternalLog const &log) : severity_(log.severity_) {
     ss << log.ss.str();
@@ -563,14 +584,6 @@ class InternalLogCount {
   inline void update(const std::string &key,
                      int max,
                      const InternalLog &internal_log,
-                     const std::string& severity_str,
-                     PolicyType policy_type) {
-    update(key, max, internal_log.ss.str(), InternalLog::getSeverityFromString(severity_str), policy_type);
-  }
-
-  inline void update(const std::string &key,
-                     int max,
-                     const InternalLog &internal_log,
                      const SeverityType severity_type,
                      PolicyType policy_type) {
     update(key, max, internal_log.ss.str(), severity_type, policy_type);
@@ -651,8 +664,8 @@ class InternalLogCount {
  */
 class InternalGlogLogStringLog : public InternalLog {
  public:
-  InternalGlogLogStringLog(const std::string& severity, std::vector<std::string>* vecptr):
-  vecptr_(vecptr), InternalLog(getSeverityFromString(severity)) {
+  InternalGlogLogStringLog(SeverityType severity_type, std::vector<std::string>* vecptr):
+  vecptr_(vecptr), InternalLog(severity_type) {
     if (vecptr != nullptr) {
       should_print_ = false;
     }
@@ -677,6 +690,12 @@ class InternalPolicyLog : public InternalLog {
     should_print_ = false;
   };
 
+  InternalPolicyLog(std::string key, int n, SeverityType severity_type, PolicyType policy_type) :
+      key_(std::move(key)), n_(n), policy_type_(policy_type),
+      InternalLog(severity_type) {
+    should_print_ = false;
+  };
+
   ~InternalPolicyLog() override {
     if (should_update_) {
       InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, policy_type_);
@@ -692,9 +711,9 @@ class InternalPolicyLog : public InternalLog {
 
 class LppGlogExtensionLog : public InternalPolicyLog {
  public:
-  LppGlogExtensionLog(std::string key, int n, const std::string& severity, PolicyType policy_type,
+  LppGlogExtensionLog(std::string key, int n, SeverityType severity_type, PolicyType policy_type,
                       std::function<void(const std::string &str)> fn) :
-      InternalPolicyLog(std::move(key), n, severity, policy_type), fn_(std::move(fn)) {
+      InternalPolicyLog(std::move(key), n, severity_type, policy_type), fn_(std::move(fn)) {
     should_print_ = false;
     should_update_ = false; //Disable update in InternalPolicyLog destructor
   }
