@@ -154,6 +154,8 @@ inline void LOG_INIT(char *argv) {
   }
 }
 
+#define LPP_ASSERT_LPP(x) static_assert((x) == D || (x) == I || (x) == W || (x) == E || (x) == F, "Unknown severity level")
+#define LPP_ASSERT_GLOG(x) static_assert((x) == INFO || (x) == WARNING || (x) == ERROR || (x) == FATAL, "Unknown severity level")
 
 //! Hack to enable macro overloading. Used to overload glog's LOG() macro.
 #define CAT(A, B) A ## B
@@ -324,13 +326,13 @@ extern int32_t FLAGS_v;
 #define ROS_ERROR_ONCE(...) LOG_FIRST(E, 1, formatToString(__VA_ARGS__))
 #define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, formatToString(__VA_ARGS__))
 
-#define LOG_IF(severity, cond) if (cond) InternalLog(#severity)
-#define LOG_1(severity) InternalLog(#severity)
+#define LOG_IF(severity, cond) LPP_ASSERT_GLOG(severity); if (cond) InternalLog(severity)
+#define LOG_1(severity) LPP_ASSERT_GLOG(severity); InternalLog(severity)
 #endif
 
 #if defined MODE_LPP || defined MODE_DEFAULT
-#define LOG_2(severity, x) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
-#define LOG_3(severity, cond, x) if (cond) InternalLog(#severity) << x // NOLINT(bugprone-macro-parentheses)
+#define LOG_2(severity, x) LPP_ASSERT_LPP(severity); InternalLog(severity) << x // NOLINT(bugprone-macro-parentheses)
+#define LOG_3(severity, cond, x) LPP_ASSERT_LPP(severity); if (cond) InternalLog(severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
 
 //! function which composes a string with the same text that would be printed if format was used on printf(3)
@@ -350,11 +352,11 @@ inline std::string formatToString(const char *str) {
 }
 
 enum SeverityType {
-  DEBUG,
-  INFO,
-  WARN,
-  ERROR,
-  FATAL
+  DEBUG, D = 0,
+  INFO, I = 1,
+  WARNING, W = 2,
+  ERROR, E = 3,
+  FATAL, F = 4
 };
 
 //! Internal log class
@@ -372,6 +374,23 @@ class InternalLog {
   InternalLog(InternalLog const &log) : severity_(log.severity_) {
     ss << log.ss.str();
   }
+
+  static SeverityType getSeverityFromString(const std::string &str) {
+    if (DEBUG.find(str) != DEBUG.end()) {
+      return SeverityType::DEBUG;
+    } else if (INFO.find(str) != INFO.end()) {
+      return SeverityType::INFO;
+    } else if (WARNING.find(str) != WARNING.end()) {
+      return SeverityType::WARNING;
+    } else if (ERROR.find(str) != ERROR.end()) {
+      return SeverityType::ERROR;
+    } else if (FATAL.find(str) != FATAL.end()) {
+      return SeverityType::FATAL;
+    }
+    std::cout << "Severity " << str << " not found.";
+    abort();
+  }
+
   SeverityType severity_{};
   std::stringstream ss{};
 
@@ -385,7 +404,7 @@ class InternalLog {
         break;
       case SeverityType::INFO:ROS_INFO_STREAM(ss.str());
         break;
-      case SeverityType::WARN:ROS_WARN_STREAM(ss.str());
+      case SeverityType::WARNING:ROS_WARN_STREAM(ss.str());
         break;
       case SeverityType::ERROR:ROS_ERROR_STREAM(ss.str());
         break;
@@ -399,7 +418,7 @@ class InternalLog {
         break;
       case SeverityType::INFO:std::cout << "INFO  " << ss.str() << std::endl;
         break;
-      case SeverityType::WARN:std::cout << "WARN  " << ss.str() << std::endl;
+      case SeverityType::WARNING:std::cout << "WARN  " << ss.str() << std::endl;
         break;
       case SeverityType::ERROR:std::cout << "ERROR " << ss.str() << std::endl;
         break;
@@ -411,22 +430,6 @@ class InternalLog {
 
  protected:
   bool should_print_{true};
-
-
-  static SeverityType getSeverityFromString(const std::string &str) {
-    if (DEBUG.find(str) != DEBUG.end()) {
-      return SeverityType::DEBUG;
-    } else if (INFO.find(str) != INFO.end()) {
-      return SeverityType::INFO;
-    } else if (WARNING.find(str) != WARNING.end()) {
-      return SeverityType::WARN;
-    } else if (ERROR.find(str) != ERROR.end()) {
-      return SeverityType::ERROR;
-    } else if (FATAL.find(str) != FATAL.end()) {
-      return SeverityType::FATAL;
-    }
-    abort();
-  }
  private:
   inline static const std::set<std::string> DEBUG{"D"};
   inline static const std::set<std::string> INFO{"I", "INFO"};
@@ -543,10 +546,11 @@ class LogPolicyFactory {
 };
 
 struct LogStatementData {
-  explicit LogStatementData(LogPolicy *log_policy) : log_policy_(log_policy) {}
+  LogStatementData(LogPolicy *log_policy, SeverityType severity_type)
+  : log_policy_(log_policy), severity_type_(severity_type) {}
   LogPolicy *log_policy_;
   std::string msg{};
-  std::string severity_str;
+  SeverityType severity_type_;
 };
 
 class InternalLogCount {
@@ -559,17 +563,26 @@ class InternalLogCount {
   inline void update(const std::string &key,
                      int max,
                      const InternalLog &internal_log,
-                     const std::string &severity_str,
+                     const std::string& severity_str,
                      PolicyType policy_type) {
-    update(key, max, internal_log.ss.str(), severity_str, policy_type);
+    update(key, max, internal_log.ss.str(), InternalLog::getSeverityFromString(severity_str), policy_type);
+  }
+
+  inline void update(const std::string &key,
+                     int max,
+                     const InternalLog &internal_log,
+                     const SeverityType severity_type,
+                     PolicyType policy_type) {
+    update(key, max, internal_log.ss.str(), severity_type, policy_type);
   }
 
   inline void update(const std::string &key,
                      int max,
                      const std::string &log_msg,
-                     const std::string &severity_str,
+                     const SeverityType severity_type,
                      PolicyType policy_type) {
-    updatePolicy(key, max, log_msg, severity_str, policy_type); //
+
+    updatePolicy(key, max, log_msg, severity_type, policy_type); //
     mtx_.lock();
     logIfReady(key);
     mtx_.unlock();
@@ -578,13 +591,12 @@ class InternalLogCount {
   inline void updatePolicy(const std::string &key,
                            int max,
                            const std::string &log_msg,
-                           const std::string &severity_str,
+                           SeverityType severity_type,
                            PolicyType policy_type) {
     mtx_.lock();
     if (!keyExists(key)) {
-      LogStatementData data(LogPolicyFactory::create(policy_type, max));
+      LogStatementData data(LogPolicyFactory::create(policy_type, max), severity_type);
       data.msg = log_msg;
-      data.severity_str = severity_str;
       updateLogPolicyData(&data);
       occurences_.insert({key, data});
     } else {
@@ -620,7 +632,7 @@ class InternalLogCount {
     LogStatementData *data = &occurences_.at(key);
     if (data->log_policy_->shouldLog()) {
       data->log_policy_->onLog();
-      InternalLog(data->severity_str) << data->msg;
+      InternalLog(data->severity_type_) << data->msg;
     }
   }
 
@@ -659,8 +671,11 @@ class InternalGlogLogStringLog : public InternalLog {
 
 class InternalPolicyLog : public InternalLog {
  public:
-  InternalPolicyLog(std::string key, int n, std::string severity, PolicyType policy_type) :
-      severity_(std::move(severity)), key_(std::move(key)), n_(n), policy_type_(policy_type) {};
+  InternalPolicyLog(std::string key, int n, const std::string& severity, PolicyType policy_type) :
+  key_(std::move(key)), n_(n), policy_type_(policy_type),
+  InternalLog(getSeverityFromString(severity)) {
+    should_print_ = false;
+  };
 
   ~InternalPolicyLog() override {
     if (should_update_) {
@@ -670,7 +685,6 @@ class InternalPolicyLog : public InternalLog {
 
  protected:
   bool should_update_{true};
-  std::string severity_{};
   std::string key_{};
   int n_{};
   PolicyType policy_type_{};
@@ -678,9 +692,9 @@ class InternalPolicyLog : public InternalLog {
 
 class LppGlogExtensionLog : public InternalPolicyLog {
  public:
-  LppGlogExtensionLog(std::string key, int n, std::string severity, PolicyType policy_type,
+  LppGlogExtensionLog(std::string key, int n, const std::string& severity, PolicyType policy_type,
                       std::function<void(const std::string &str)> fn) :
-      InternalPolicyLog(std::move(key), n, std::move(severity), policy_type), fn_(std::move(fn)) {
+      InternalPolicyLog(std::move(key), n, severity, policy_type), fn_(std::move(fn)) {
     should_print_ = false;
     should_update_ = false; //Disable update in InternalPolicyLog destructor
   }
