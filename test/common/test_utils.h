@@ -11,7 +11,14 @@
 extern char **test_argv;
 
 inline static bool isSubstring(const std::string &string, const std::string &substring) {
-  return (string.find(substring) != std::string::npos);
+  bool res = (string.find(substring) != std::string::npos);
+
+  if(!res) {
+    std::cout << "   String: " << string << std::endl;
+    std::cout << "Substring: " << substring << std::endl;
+  }
+
+  return res;
 }
 
 inline static std::string removeNumbersFromString(std::string str) {
