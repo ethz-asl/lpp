@@ -22,15 +22,15 @@ std::vector<AsyncTest> generateTests() {
   {"default_timed_glog_syntax_severity_fatal_Test","Test123",[]() { LOG_EVERY_T(FATAL, 1) << "Test" << 123; }, IS_SUBSTRING, STDOUT},
 
   {"default_timed_ros_syntax_severity_debug_Test", "Test123", []() {ROS_DEBUG_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDOUT},
-  {"default_timed_ros_syntax_severity_debug_stream_Test", "Test123", []() {ROS_DEBUG_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDOUT},
+  {"default_timed_ros_syntax_severity_debug_stream_Test", "Test123", []() {ROS_DEBUG_STREAM_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDOUT},
   {"default_timed_ros_syntax_severity_info_Test", "Test123", []() {ROS_INFO_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDOUT},
   {"default_timed_ros_syntax_severity_info_stream_Test", "Test123", []() {ROS_INFO_STREAM_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDOUT},
   {"default_timed_ros_syntax_severity_warning_Test", "Test123", []() {ROS_WARN_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
-  {"default_timed_ros_syntax_severity_warning_stream_Test", "Test123", []() {ROS_WARN_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
+  {"default_timed_ros_syntax_severity_warning_stream_Test", "Test123", []() {ROS_WARN_STREAM_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
   {"default_timed_ros_syntax_severity_error_Test", "Test123", []() {ROS_ERROR_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
-  {"default_timed_ros_syntax_severity_error_stream_Test", "Test123", []() {ROS_ERROR_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
+  {"default_timed_ros_syntax_severity_error_stream_Test", "Test123", []() {ROS_ERROR_STREAM_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
   {"default_timed_ros_syntax_severity_fatal_Test", "Test123", []() {ROS_FATAL_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
-  {"default_timed_ros_syntax_severity_fatal_stream_Test", "Test123", []() {ROS_FATAL_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
+  {"default_timed_ros_syntax_severity_fatal_stream_Test", "Test123", []() {ROS_FATAL_STREAM_THROTTLE(1, "Test123"); }, IS_SUBSTRING, STDERR},
   };
 }
 

@@ -133,7 +133,7 @@ TEST(glog_basic, lpp_syntax_severity_fatal) {
 TEST(glog_basic, roslog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDERR( ROS_DEBUG("Test123"));
+  std::string output = LPP_CAPTURE_STDERR(ROS_DEBUG("Test123"));
 
   ASSERT_TRUE(isSubstring(output, "Test123"));
   ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
@@ -214,10 +214,10 @@ TEST(glog_basic, roslog_syntax_severity_fatal) {
   LOG_INIT(*test_argv);
 
   std::function<void()> fn = []() {
-  std::string output = LPP_CAPTURE_STDERR(ROS_FATAL("Test123"));
-  ASSERT_TRUE(isSubstring(output, "Test123"));
-  ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
-  ASSERT_EQ(output[0], 'F');
+    std::string output = LPP_CAPTURE_STDERR(ROS_FATAL("Test123"));
+    ASSERT_TRUE(isSubstring(output, "Test123"));
+    ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+    ASSERT_EQ(output[0], 'F');
   };
 
   ASSERT_TRUE(checkAbort(fn));
@@ -227,13 +227,11 @@ TEST(glog_basic, roslog_syntax_severity_fatal_stream) {
   LOG_INIT(*test_argv);
 
   std::function<void()> fn = []() {
-      std::string output = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("Test" << 123));
+    std::string output = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("Test" << 123));
 
-      ASSERT_TRUE(isSubstring(output, "Test123"));
-      ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
-      ASSERT_EQ(output[0], 'F');
+    ASSERT_TRUE(isSubstring(output, "Test123"));
+    ASSERT_TRUE(isSubstring(output, "test_glog_basic.cc"));
+    ASSERT_EQ(output[0], 'F');
   };
   ASSERT_TRUE(checkAbort(fn));
 }
-
-#undef MODE_GLOG
