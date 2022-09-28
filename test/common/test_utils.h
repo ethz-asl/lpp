@@ -99,6 +99,14 @@ inline static const std::string warning = "\x1B[m[ WARN] [.]: Base angle (.) is 
 inline static const std::string error = "\x1B[m[ERROR] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
 inline static const std::string fatal = "\x1B[m[FATAL] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
 }
+
+
+namespace logstr {
+inline static const std::string info = "\x1B[m[ INFO] [.]: LOG_STRING: collected info\x1B[m\n";
+inline static const std::string warning = "\x1B[m[ WARN] [.]: LOG_STRING: collected warn\x1B[m\n";
+inline static const std::string error = "\x1B[m[ERROR] [.]: LOG_STRING: collected error\x1B[m\n";
+inline static const std::string fatal = "\x1B[m[FATAL] [.]: LOG_STRING: collected fatal\x1B[m\n";
+}
 }
 
 

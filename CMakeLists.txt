@@ -35,6 +35,7 @@ if (GLOG_FOUND)
                 test/glog/test_glog_basic.cc
                 test/glog/test_glog_every_n.cc
                 test/glog/test_glog_first_n.cc
+                test/glog/test_glog_log_string.cc
                 test/glog/test_glog_rosprintf.cc
                 test/glog/test_glog_vlog.cc)
 
@@ -49,6 +50,7 @@ if (GLOG_FOUND)
                 test/lpp/test_lpp_basic.cc
                 test/lpp/test_lpp_every_n.cc
                 test/lpp/test_lpp_first_n.cc
+                test/lpp/test_lpp_log_string.cc
                 test/lpp/test_lpp_rosprintf.cc
                 test/lpp/test_lpp_vlog.cc)
 
@@ -63,6 +65,7 @@ if (GLOG_FOUND)
                 test/roslog/test_roslog_basic.cc
                 test/roslog/test_roslog_every_n.cc
                 test/roslog/test_roslog_first_n.cc
+                test/roslog/test_roslog_log_string.cc
                 test/roslog/test_roslog_rosprintf.cc
                 test/roslog/test_roslog_vlog.cc)
 
@@ -77,6 +80,7 @@ if (GLOG_FOUND)
                 test/default/test_default_basic.cc
                 test/default/test_default_every_n.cc
                 test/default/test_default_first_n.cc
+                test/default/test_default_log_string.cc
                 test/default/test_default_rosprintf.cc
                 test/default/test_default_timed.cc
                 test/default/test_default_vlog.cc)

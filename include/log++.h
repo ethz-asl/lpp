@@ -94,6 +94,7 @@ inline Init lppInit;
 #undef VLOG
 #undef DLOG
 #undef DLOG_EVERY_N
+#undef LOG_STRING
 #endif
 
 #if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG && !defined MODE_DEFAULT
@@ -284,6 +285,8 @@ true
 #define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
 InternalPolicyLog(LPP_GET_KEY(), n, "D", PolicyType::FIRST_N)
 
+#define LOG_STRING(severity, ptr) InternalGlogLogStringLog(#severity, ptr)
+
 #define VLOG(verboselevel) LOG_IF(INFO, VLOG_IS_ON(verboselevel))
 #ifndef GLOG_SUPPORTED
 extern int32_t FLAGS_v;
@@ -409,7 +412,7 @@ class InternalLog {
  protected:
   bool should_print_{true};
 
- private:
+
   static SeverityType getSeverityFromString(const std::string &str) {
     if (DEBUG.find(str) != DEBUG.end()) {
       return SeverityType::DEBUG;
@@ -424,6 +427,7 @@ class InternalLog {
     }
     abort();
   }
+ private:
   inline static const std::set<std::string> DEBUG{"D"};
   inline static const std::set<std::string> INFO{"I", "INFO"};
   inline static const std::set<std::string> WARNING{"W", "WARNING"};
@@ -624,6 +628,34 @@ class InternalLogCount {
   std::unordered_map<std::string, LogStatementData> occurences_{};
   std::mutex mtx_{};
 };
+
+/**
+ * @extends InternalLog
+ * Class to process LOG_STRING() macro.
+ *
+ * LOG_STRING() should log if the vector pointer is NULL,
+ * otherwise the message must not be logged and the string
+ * is stored in the vector.
+ */
+class InternalGlogLogStringLog : public InternalLog {
+ public:
+  InternalGlogLogStringLog(const std::string& severity, std::vector<std::string>* vecptr):
+  vecptr_(vecptr), InternalLog(getSeverityFromString(severity)) {
+    if (vecptr != nullptr) {
+      should_print_ = false;
+    }
+  };
+
+  ~InternalGlogLogStringLog() override {
+    if (vecptr_ != nullptr) {
+      vecptr_->push_back(ss.str());
+    }
+  }
+
+ private:
+  std::vector<std::string>* vecptr_;
+};
+
 
 class InternalPolicyLog : public InternalLog {
  public:
