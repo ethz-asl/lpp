@@ -83,7 +83,8 @@ if (GLOG_FOUND)
                 test/default/test_default_log_string.cc
                 test/default/test_default_rosprintf.cc
                 test/default/test_default_timed.cc
-                test/default/test_default_vlog.cc)
+                test/default/test_default_vlog.cc
+                test/default/test_severity_conversions.cc)
 
         target_include_directories(${DEFAULT_TESTS} PRIVATE  ${LPP_INCLUDE_DIRECTORIES} test/default)
         target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES})
