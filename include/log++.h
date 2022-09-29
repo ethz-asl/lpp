@@ -81,13 +81,13 @@ inline Init lppInit;
 #endif
 
 
-//! un-define glog`s LOG macro to avoid conflicts
+//! Un-define glog`s LOG macro to avoid conflicts
 #ifdef GLOG_SUPPORTED
 #undef LOG
 #endif
 
 
-//! Redefine log methods
+//! Un-define log methods for redefinition
 #if defined GLOG_SUPPORTED && !defined MODE_GLOG && !defined MODE_DEFAULT
 #undef LOG_IF
 #undef LOG_EVERY_N
@@ -351,29 +351,29 @@ inline std::string formatToString(const char *f, Args... args) {
 inline std::string formatToString(const char *str) {
   return str;
 }
-//TODO operator overload
+
 enum class BaseSeverity {
-  DEBUG = 0,
-  INFO = 1,
-  WARN = 2,
-  ERROR = 3,
-  FATAL = 4
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR,
+  FATAL
 };
 
 enum class LppSeverity {
-  D = 0,
-  I = 1,
-  W = 2,
-  E = 3,
-  F = 4
+  D,
+  I,
+  W,
+  E,
+  F
 };
 
 enum class GlogSeverity {
-  DEBUG = 0,
-  INFO = 1,
-  WARNING = 2,
-  ERROR = 3,
-  FATAL = 4
+  DEBUG,
+  INFO,
+  WARNING,
+  ERROR,
+  FATAL
 };
 
 inline BaseSeverity toBase(LppSeverity lpp_severity) {
