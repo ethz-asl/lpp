@@ -9,7 +9,8 @@ include_directories(include)
 find_package(glog)
 find_package(catkin REQUIRED COMPONENTS roscpp)
 
-add_executable(Log++ src/main.cpp)
+add_executable(Log++ src/demo.cpp)
+target_compile_definitions(Log++ PRIVATE MODE_LPP)
 
 if (catkin_FOUND)
     include_directories(${catkin_INCLUDE_DIRS})
