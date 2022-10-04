@@ -4,22 +4,26 @@ project(Log++)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
-include_directories(include)
-
 find_package(glog)
 find_package(catkin REQUIRED COMPONENTS roscpp)
 
-add_executable(Log++ src/demo.cpp)
-target_compile_definitions(Log++ PRIVATE MODE_LPP)
+add_library(Log++ include/log++.h)
+# Because there are no src files, set the linker language explicitly
+set_target_properties(Log++ PROPERTIES LINKER_LANGUAGE CXX)
+
+add_executable(lpp_demo src/demo.cpp)
+target_compile_definitions(lpp_demo PRIVATE MODE_LPP)
 
 if (catkin_FOUND)
     include_directories(${catkin_INCLUDE_DIRS})
-    target_link_libraries(Log++ ${catkin_LIBRARIES})
+    target_link_libraries(lpp_demo ${catkin_LIBRARIES})
 endif ()
 
 if (GLOG_FOUND)
-    target_link_libraries(Log++ glog)
+    target_link_libraries(lpp_demo glog)
 endif ()
+
+################## Testing ##################
 
 # All logging frameworks are required for unittests
 if (GLOG_FOUND)
