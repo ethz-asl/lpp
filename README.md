@@ -9,9 +9,7 @@
 - Header only
 - Recommended to use with C++17, but also works with C++11 when compiling with GCC.
 
-## Usage
-
-The `log++.h` header must be included in every file containing log functions:
+## Example
 
 `src/demo.cpp`
 ```c++
