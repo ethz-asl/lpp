@@ -290,7 +290,7 @@ InternalPolicyLog(LPP_GET_KEY(), n, BaseSeverity::DEBUG, PolicyType::FIRST_N)
 
 #define LOG_STRING(severity, ptr) InternalGlogLogStringLog(toBase(GlogSeverity::severity), ptr)
 
-#define VLOG(verboselevel) LOG_IF(INFO, VLOG_IS_ON(verboselevel))
+#define VLOG(verboselevel) InternalCondLog(BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
 #ifndef GLOG_SUPPORTED
 extern int32_t FLAGS_v;
 #define VLOG_IS_ON(verboselevel) FLAGS_v <= verboselevel ? true : false
@@ -467,6 +467,16 @@ InternalLog &&operator<<(InternalLog &&wrap, T const &whatever) {
   wrap.ss << whatever;
   return std::move(wrap);
 }
+
+//! Used for glog's VLOG macro
+class InternalCondLog : public InternalLog {
+public:
+  explicit InternalCondLog(BaseSeverity severity, bool cond)
+      : InternalLog(severity) {
+    should_print_ = cond;
+  }
+};
+
 
 class LogPolicy {
  public:

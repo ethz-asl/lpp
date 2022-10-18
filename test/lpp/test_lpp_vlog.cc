@@ -11,7 +11,7 @@ TEST(lpp_vlog, glog_syntax_severity_v1) {
   FLAGS_v = 3;
 
   std::string output = LPP_CAPTURE_STDOUT(VLOG(1) << "Test" << 123);
-  ASSERT_EQ(output, "INFO  Test123\n");
+  ASSERT_EQ(output, "DEBUG Test123\n");
 }
 
 TEST(lpp_vlog, glog_syntax_severity_v3) {
@@ -19,7 +19,7 @@ TEST(lpp_vlog, glog_syntax_severity_v3) {
   FLAGS_v = 3;
 
   std::string output = LPP_CAPTURE_STDOUT(VLOG(3) << "Test123");
-  ASSERT_EQ(output, "INFO  Test123\n");
+  ASSERT_EQ(output, "DEBUG Test123\n");
 }
 
 TEST(lpp_vlog, glog_syntax_severity_v5) {

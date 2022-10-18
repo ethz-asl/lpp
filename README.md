@@ -112,10 +112,10 @@ target_link_libraries(my_executable Log++)
 > **Note for glog:**
 >
 > - When using with **MODE_ROSLOG** or **MODE_LPP**, the macros DLOG(severity) and VLOG() will get converted
-    > to info severity.
+> to debug severity.
 >
 > - When using with **MODE_GLOG**, the Log++ and Roslog debug macros LOG(D) and ROS_DEBUG() will get converted
-    > to DLOG(INFO).
+> to DLOG(INFO).
 >
 > - Fatal log messages call abort(). This is only glog-specific.
 
