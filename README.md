@@ -94,10 +94,15 @@ target_link_libraries(my_executable Log++)
 
 3. To update Log++ to the latest commit, execute following commands:
 
-(From submodule directory)
+From submodule directory
 ```shell
 $ git pull origin master
 git add .
+```
+
+From parent directory
+```shell
+$ git add path/to/submodule_dir
 ```
 
 # Usage
