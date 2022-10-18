@@ -60,6 +60,7 @@ Output with MODE_ROSLOG:
 
 ## Installation
 
+### Option 1: Copy the header
 1. Copy the header file `include/log++.h` to your project.
 
 2. Add the following line to `CMakeLists.txt` to select the desired mode for...
@@ -75,6 +76,20 @@ add_compile_definitions(MODE_LPP)
 
 ```cmake
 target_compile_definitions(my_executable PRIVATE MODE_LPP) 
+```
+
+### Option 2: Add Log++ as a submodule
+1. Add Log++ as a submodule with following command:
+```shell
+   $ git submodule add https://github.com/ethz-asl/lpp.git
+```
+
+2. Use Log++ like this in `CMakeLists.txt`:
+
+```cmake
+add_subdirectory(my_submodule_dir/lpp)
+add_executable(my_executable main.cpp)
+target_link_libraries(my_executable Log++)
 ```
 
 # Usage
