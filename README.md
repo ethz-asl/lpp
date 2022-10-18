@@ -97,7 +97,6 @@ target_link_libraries(my_executable Log++)
 From submodule directory
 ```shell
 $ git pull origin master
-git add .
 ```
 
 From parent directory
