@@ -92,6 +92,14 @@ add_executable(my_executable main.cpp)
 target_link_libraries(my_executable Log++)
 ```
 
+3. To update Log++ to the latest commit, execute following commands:
+
+(From submodule directory)
+```shell
+$ git pull origin master
+git add .
+```
+
 # Usage
 
 ## Modes
