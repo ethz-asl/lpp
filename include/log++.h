@@ -42,13 +42,18 @@
 #include <mutex>
 #include <functional>
 
-//! Check if libraries are available at compile time and include required headers
-#if __has_include(<glog/logging.h>)
+#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT
+#define MODE_DEFAULT
+#warning "No mode defined. Selected MODE_DEFAULT";
+#endif
+
+//! Check if libraries are available and needed at compile time and include required headers
+#if __has_include(<glog/logging.h>) && (defined MODE_DEFAULT || defined MODE_GLOG)
 #include <glog/logging.h>
 #define GLOG_SUPPORTED
 #endif
 
-#if __has_include(<ros/console.h>)
+#if __has_include(<ros/console.h>) && (defined MODE_DEFAULT || defined MODE_ROSLOG)
 #include <ros/console.h>
 #define ROSLOG_SUPPORTED
 #endif
@@ -147,9 +152,11 @@ inline void LOG_INIT(char *argv) {
 #endif
 
 #if defined MODE_GLOG || defined MODE_DEFAULT
+#ifdef GLOG_SUPPORTED
     google::InitGoogleLogging(argv);
-    lppInit.is_glog_initialized = true;
     FLAGS_logtostderr = true;
+    lppInit.is_glog_initialized = true;
+#endif
 #endif
     lppInit.is_lpp_initialized = true;
   }
@@ -290,11 +297,11 @@ InternalPolicyLog(LPP_GET_KEY(), n, BaseSeverity::DEBUG, PolicyType::FIRST_N)
 
 #define LOG_STRING(severity, ptr) InternalGlogLogStringLog(toBase(GlogSeverity::severity), ptr)
 
-#define VLOG(verboselevel) InternalCondLog(BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
 #ifndef GLOG_SUPPORTED
-extern int32_t FLAGS_v;
-#define VLOG_IS_ON(verboselevel) FLAGS_v <= verboselevel ? true : false
+inline static int32_t FLAGS_v;
+#define VLOG_IS_ON(verboselevel) FLAGS_v >= (verboselevel) ? true : false
 #endif
+#define VLOG(verboselevel) InternalCondLog(BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
 #endif
 
 //! MODE_LPP
@@ -336,7 +343,7 @@ extern int32_t FLAGS_v;
 #define LOG_3(severity, cond, x) if (cond) InternalLog(LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
 
-//! function which composes a string with the same text that would be printed if format was used on printf(3)
+//! Composes a string with the same text that would be printed if format was used on printf(3)
 template<typename... Args>
 inline std::string formatToString(const char *f, Args... args) {
   size_t sz = snprintf(nullptr, 0, f, args...);
