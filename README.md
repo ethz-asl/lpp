@@ -25,8 +25,9 @@ int main(int argc, char **argv) {
   return 0;
 }
 ```
+### Output with different flags
 
-Output with MODE_DEFAULT:
+- MODE_DEFAULT:
 
 ```shell
 INFO  Foo: 5
@@ -34,7 +35,7 @@ INFO  Foo: 5
 I0929 11:57:28.151427 1360708 main.cpp:8] Foo: 5
 ```
 
-Output with MODE_LPP:
+- MODE_LPP:
 
 ```shell
 INFO  Foo: 5
@@ -42,7 +43,7 @@ INFO  Foo: 5
 INFO  Foo: 5
 ```
 
-Output with MODE_GLOG:
+- MODE_GLOG:
 
 ```shell
 I0929 11:57:50.238454 1360823 main.cpp:6] Foo: 5
@@ -50,7 +51,7 @@ I0929 11:57:50.238514 1360823 main.cpp:7] Foo: 5
 I0929 11:57:50.238536 1360823 main.cpp:8] Foo: 5
 ```
 
-Output with MODE_ROSLOG:
+- MODE_ROSLOG:
 
 ```shell
 [ INFO] [1664445486.584182057]: Foo: 5
