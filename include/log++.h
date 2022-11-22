@@ -318,7 +318,7 @@ inline static int32_t FLAGS_v;
 #define ROS_FATAL_STREAM(x) LOG_2(F, x)
 
 #define ROS_DEBUG_COND(cond, x) LOG_3(D, cond, x)
-#define ROS_DEBUG_STREAM_COND(cond, x) LOG_3(I, cond, x)
+#define ROS_DEBUG_STREAM_COND(cond, x) LOG_3(D, cond, x)
 #define ROS_INFO_COND(cond, x) LOG_3(I, cond, x)
 #define ROS_INFO_STREAM_COND(cond, x) LOG_3(I, cond, x)
 #define ROS_WARN_COND(cond, x) LOG_3(W, cond, x)

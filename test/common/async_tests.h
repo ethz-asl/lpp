@@ -45,9 +45,14 @@ class TestResult {
    */
   inline bool get(const std::string &test_name) {
     test_result_mutex_.lock();
+    LOG_INIT(*test_argv);
     if (!started_) {
       started_ = true;
       startAll();
+    }
+
+    if (test_results.find(test_name) == test_results.end()) {
+      return false;
     }
 
     bool res = test_results.at(test_name);
