@@ -1,5 +1,9 @@
 # Log++ Logging framework
 
+
+![](docs/Log++.png)
+***
+
 ## Features
 
 - Framework to standardize ros and glog output at compile time.
@@ -70,6 +74,8 @@ I0929 11:57:50.238536 1360823 main.cpp:8] Foo: 5
 
 ```cmake
 # Valid modes are: MODE_LPP MODE_GLOG MODE_ROSLOG MODE_DEFAULT
+# Use add_definitions(-DMODE_LPP) if cmake version <= 3.11
+
 add_compile_definitions(MODE_LPP)
 ```
 
@@ -85,7 +91,7 @@ target_compile_definitions(my_executable PRIVATE MODE_LPP)
    $ git submodule add https://github.com/ethz-asl/lpp.git
 ```
 
-2. Use Log++ like this in `CMakeLists.txt`:
+2. Add following lines in `CMakeLists.txt`
 
 ```cmake
 add_subdirectory(my_submodule_dir/lpp)
@@ -93,7 +99,7 @@ add_executable(my_executable main.cpp)
 target_link_libraries(my_executable Log++)
 ```
 
-3. To update Log++ to the latest commit, execute following commands:
+3. To update Log++ to the latest commit, execute the following commands:
 
 From submodule directory
 ```shell
@@ -130,23 +136,11 @@ $ git add path/to/submodule_dir
 > - When using with **MODE_GLOG**, the Log++ and Roslog debug macros LOG(D) and ROS_DEBUG() will get converted
 > to DLOG(INFO).
 >
-> - Fatal log messages call abort(). This is only glog-specific.
-
-## Miscellaneous
-
-To keep the possibility to add or remove Log++ later, it is best practice to include Log++ like this:
-
-```c++
-#if __has_include("log++.h")
-#include "log++.h"
-#else
-#include <glog/logging.h>
-#endif
-```
+> - Fatal log messages call abort(). (glog only)
 
 ## Log++ Syntax
 
-Log++ provides its own log functions, if you want to use Log++ as the base logging framework
+Log++ provides its own logging functions, if you want to use Log++ as the base logging framework
 
 ### Default logging
 
@@ -188,14 +182,26 @@ for (int i = 0; i < 10; i++) {
 
 ## Overview of logging methods
 
-| Method                 | Log++           | Glog                   | ROS                       | 
-|------------------------|-----------------|------------------------|---------------------------|
-| Default logging        | LOG(I)          | LOG(INFO)              | ROS_INFO()                |
-| Conditional logging    | LOG(I, COND)    | LOG_IF(INFO, COND)     | ROS_INFO_COND()           |
-| Occasional logging     | LOG_EVERY(I, N) | LOG_EVERY_N(INFO, N)   | -                         |
-| Timed logging          | LOG_TIMED(I, T) | LOG_EVERY_T(INFO, T)   | ROS_INFO_THROTTLE()       |
-| First N occurrences    | LOG_FIRST(I, N) | LOG_FIRST_N(INFO, N)   | ROS_INFO_ONCE() (only 1)  |
-| Log to vector\<string> | -               | LOG_STRING(INFO, &vec) | -                         |
+| Method                      | Log++                | Glog                          | ROS                         | 
+|-----------------------------|----------------------|-------------------------------|-----------------------------|
+| Default logging             | LOG(I, str)          | LOG(INFO) << str              | ROS_INFO(str)               |
+| Conditional logging         | LOG(I, cond, str)    | LOG_IF(INFO, cond) << str     | ROS_INFO_COND(cond, str)    |
+| Occasional logging          | LOG_EVERY(I, n, str) | LOG_EVERY_N(INFO, n) << str   | -                           |
+| Timed logging               | LOG_TIMED(I, t, str) | LOG_EVERY_T(INFO, t) << str   | ROS_INFO_THROTTLE(t, str)   |
+| First N occurrences         | LOG_FIRST(I, n, str) | LOG_FIRST_N(INFO, n) << str   | ROS_INFO_ONCE(str) (only 1) |
+| Log to std::vector\<string> | -                    | LOG_STRING(INFO, &vec) << str | -                           |
+
+## Miscellaneous
+
+If you want to keep the possibility to add or remove Log++ later, it is best practice to include Log++ like this:
+
+```c++
+#if __has_include("log++.h")
+#include "log++.h"
+#else
+#include <glog/logging.h>
+#endif
+```
 
 # Roadmap
 - Implement ROS_INFO_NAMED()
@@ -215,10 +221,3 @@ TEST(<mode>_<LoggingMethod>, <mode>_syntax_severity_<severity>) {
   //Test logic
 }
 ```
-
-Notes for test suites:
-
-- lpp: Test whole string with ASSERT_EQ()
-- glog: Test first char, isSubstring(log_message) and isSubstring(file_name)
-- roslog: Test whole string with removeNumbersFromString(log_message)
-- All: Use LPP_CAPTURE macros to suppress or capture stdout/stderr
