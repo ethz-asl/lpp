@@ -1,7 +1,7 @@
 # Log++ Logging framework
 
 
-![](docs/Log++.png)
+![](docs/Log++.svg)
 ***
 
 ## Features
