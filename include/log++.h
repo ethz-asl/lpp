@@ -63,15 +63,52 @@
 #define LPP_DEBUG
 #endif
 
+enum class BaseSeverity {
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR,
+  FATAL
+};
+
 //! Initialization logic
 namespace lpp {
 namespace internal {
 
 class Init {
  public:
-  bool is_lpp_initialized = false;
-  bool is_glog_initialized = false;
+  bool lpp_initialized = false;
+  bool glog_initialized = false;
 };
+
+class Logging {
+ public:
+  inline void call(BaseSeverity severity, const std::string& str) {
+    fn_(severity, str);
+  }
+
+  inline void setLoggingFunction(const std::function<void(BaseSeverity, const std::string &)> &fn) {
+    fn_ = fn;
+  }
+
+ private:
+  std::function<void(BaseSeverity, const std::string &)> fn_ = [](BaseSeverity severity, const std::string &str) {
+    switch (severity) {
+      case BaseSeverity::DEBUG:std::cout << "DEBUG " << str << std::endl;
+        return;
+      case BaseSeverity::INFO:std::cout << "INFO  " << str << std::endl;
+        return;
+      case BaseSeverity::WARN:std::cout << "WARN  " << str << std::endl;
+        return;
+      case BaseSeverity::ERROR:std::cout << "ERROR " << str << std::endl;
+        return;
+      case BaseSeverity::FATAL:std::cout << "FATAL " << str << std::endl;
+        return;
+    }
+  };
+};
+
+inline static Logging logging;
 inline static Init lppInit;
 }
 }
@@ -141,9 +178,15 @@ using namespace lpp::internal;
  * If called more than once, all further calls will be ignored.
  * @param argv is used for GLOG if present, otherwise unused.
  */
-inline void LOG_INIT(char *argv) {
+inline void LOG_INIT(char *argv, const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
-  if (!lppInit.is_glog_initialized) {
+  if (!lppInit.glog_initialized || !lppInit.lpp_initialized) {
+
+#if defined MODE_LPP
+    if (callback != nullptr) {
+      logging.setLoggingFunction(callback);
+    }
+#endif
 
 #if defined LPP_DEBUG && (defined MODE_ROSLOG || defined MODE_DEFAULT)
     if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
@@ -155,10 +198,10 @@ inline void LOG_INIT(char *argv) {
 #ifdef GLOG_SUPPORTED
     google::InitGoogleLogging(argv);
     FLAGS_logtostderr = true;
-    lppInit.is_glog_initialized = true;
+    lppInit.glog_initialized = true;
 #endif
 #endif
-    lppInit.is_lpp_initialized = true;
+    lppInit.lpp_initialized = true;
   }
 }
 
@@ -359,14 +402,6 @@ inline std::string formatToString(const char *str) {
   return str;
 }
 
-enum class BaseSeverity {
-  DEBUG,
-  INFO,
-  WARN,
-  ERROR,
-  FATAL
-};
-
 enum class LppSeverity {
   D,
   I,
@@ -428,18 +463,7 @@ class InternalLog {
     }
 #endif
 #if defined MODE_LPP || defined MODE_DEFAULT
-    switch (severity_) {
-      case BaseSeverity::DEBUG:std::cout << "DEBUG " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::INFO:std::cout << "INFO  " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::WARN:std::cout << "WARN  " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::ERROR:std::cout << "ERROR " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::FATAL:std::cout << "FATAL " << ss.str() << std::endl;
-        break;
-    }
+    lpp::internal::logging.call(severity_, ss.str());
 #endif
   }
 
