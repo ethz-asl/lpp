@@ -182,7 +182,7 @@ for (int i = 0; i < 10; i++) {
 ```
 
 ### Log output customization
-Log++ also allows you to customize the log output with a callback function in 
+Log++ also allows you to customize the log output with a callback function when using
 MODE_LPP:
 
 ```c++
