@@ -72,7 +72,7 @@ class Init {
   bool is_lpp_initialized = false;
   bool is_glog_initialized = false;
 };
-inline Init lppInit;
+inline static Init lppInit;
 }
 }
 
@@ -406,22 +406,6 @@ class InternalLog {
     ss << log.ss.str();
   }
 
-  static BaseSeverity getSeverityFromString(const std::string &str) {
-    if (DEBUG.find(str) != DEBUG.end()) {
-      return BaseSeverity::DEBUG;
-    } else if (INFO.find(str) != INFO.end()) {
-      return BaseSeverity::INFO;
-    } else if (WARNING.find(str) != WARNING.end()) {
-      return BaseSeverity::WARN;
-    } else if (ERROR.find(str) != ERROR.end()) {
-      return BaseSeverity::ERROR;
-    } else if (FATAL.find(str) != FATAL.end()) {
-      return BaseSeverity::FATAL;
-    }
-    std::cout << "Severity " << str << " not found.";
-    abort();
-  }
-
   BaseSeverity severity_{};
   std::stringstream ss{};
 
@@ -461,12 +445,6 @@ class InternalLog {
 
  protected:
   bool should_print_{true};
- private:
-  inline static const std::set<std::string> DEBUG{"D"};
-  inline static const std::set<std::string> INFO{"I", "INFO"};
-  inline static const std::set<std::string> WARNING{"W", "WARNING"};
-  inline static const std::set<std::string> ERROR{"E", "ERROR"};
-  inline static const std::set<std::string> FATAL{"F", "FATAL"};
 };
 
 template<typename T>
@@ -704,12 +682,6 @@ class InternalGlogLogStringLog : public InternalLog {
 
 class InternalPolicyLog : public InternalLog {
  public:
-  InternalPolicyLog(std::string key, int n, const std::string& severity, PolicyType policy_type) :
-  key_(std::move(key)), n_(n), policy_type_(policy_type),
-  InternalLog(getSeverityFromString(severity)) {
-    should_print_ = false;
-  };
-
   InternalPolicyLog(std::string key, int n, BaseSeverity base_severity, PolicyType policy_type) :
       key_(std::move(key)), n_(n), policy_type_(policy_type),
       InternalLog(base_severity) {
