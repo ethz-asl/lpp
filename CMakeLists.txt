@@ -91,6 +91,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/custom/test_lpp_custom_basic.cc
                 test/lpp/custom/test_lpp_custom_every_n.cc
                 test/lpp/custom/test_lpp_custom_first_n.cc
+                test/lpp/custom/test_lpp_custom_log_string.cc
                 )
 
         target_include_directories(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
