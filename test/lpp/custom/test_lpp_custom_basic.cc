@@ -5,31 +5,16 @@
 #include <gtest/gtest.h>
 #include <test_utils.h>
 #include <log++.h>
+#include "callback.h"
 
 using namespace lpp::custom;
-
-void logCallback(BaseSeverity severity, const std::string& str) {
-
-  std::string severity_str;
-  switch (severity) {
-
-    case BaseSeverity::DEBUG:severity_str="debug"; break;
-    case BaseSeverity::INFO:severity_str="info"; break;
-    case BaseSeverity::WARN:severity_str="warning"; break;
-    case BaseSeverity::ERROR:severity_str="error"; break;
-    case BaseSeverity::FATAL:severity_str="fatal"; break;
-  }
-
-
-  std::cout << "Log++ [" << severity_str << "] " << str << std::endl;
-}
 
 //! LPP syntax
 
 TEST(lpp_custom_basic, lpp_syntax_severity_debug) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(D, "test"));
+  std::string output = LPP_CAPTURE_STDOUT(LOG(D, "test" << 123));
 
   ASSERT_EQ(output, debug);
 }
@@ -37,7 +22,7 @@ TEST(lpp_custom_basic, lpp_syntax_severity_debug) {
 TEST(lpp_custom_basic, lpp_syntax_severity_info) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(I, "test"));
+  std::string output = LPP_CAPTURE_STDOUT(LOG(I, "test" << 123));
 
   ASSERT_EQ(output, info);
 }
@@ -45,7 +30,7 @@ TEST(lpp_custom_basic, lpp_syntax_severity_info) {
 TEST(lpp_custom_basic, lpp_syntax_severity_warning) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(W, "test"));
+  std::string output = LPP_CAPTURE_STDOUT(LOG(W, "test" << 123));
 
   ASSERT_EQ(output, warning);
 }
@@ -53,7 +38,7 @@ TEST(lpp_custom_basic, lpp_syntax_severity_warning) {
 TEST(lpp_custom_basic, lpp_syntax_severity_error) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(E, "test"));
+  std::string output = LPP_CAPTURE_STDOUT(LOG(E, "test" << 123));
 
   ASSERT_EQ(output, error);
 }
@@ -61,7 +46,7 @@ TEST(lpp_custom_basic, lpp_syntax_severity_error) {
 TEST(lpp_custom_basic, lpp_syntax_severity_fatal) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(F, "test"));
+  std::string output = LPP_CAPTURE_STDOUT(LOG(F, "test" << 123));
 
   ASSERT_EQ(output, fatal);
 }
@@ -71,7 +56,7 @@ TEST(lpp_custom_basic, lpp_syntax_severity_fatal) {
 TEST(lpp_custom_basic, glog_syntax_severity_debug) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(DLOG(INFO) << "test";);
+  std::string output = LPP_CAPTURE_STDOUT(DLOG(INFO) << "test" << 123;);
 
   ASSERT_EQ(output, debug);
 }
@@ -79,7 +64,7 @@ TEST(lpp_custom_basic, glog_syntax_severity_debug) {
 TEST(lpp_custom_basic, glog_syntax_severity_info) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(INFO) << "test";);
+  std::string output = LPP_CAPTURE_STDOUT(LOG(INFO) << "test" << 123;);
 
   ASSERT_EQ(output, info);
 }
@@ -87,7 +72,7 @@ TEST(lpp_custom_basic, glog_syntax_severity_info) {
 TEST(lpp_custom_basic, glog_syntax_severity_warning) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(WARNING) << "test";);
+  std::string output = LPP_CAPTURE_STDOUT(LOG(WARNING) << "test" << 123;);
 
   ASSERT_EQ(output, warning);
 }
@@ -95,7 +80,7 @@ TEST(lpp_custom_basic, glog_syntax_severity_warning) {
 TEST(lpp_custom_basic, glog_syntax_severity_error) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(ERROR) << "test";);
+  std::string output = LPP_CAPTURE_STDOUT(LOG(ERROR) << "test" << 123;);
 
   ASSERT_EQ(output, error);
 }
@@ -103,81 +88,80 @@ TEST(lpp_custom_basic, glog_syntax_severity_error) {
 TEST(lpp_custom_basic, glog_syntax_severity_fatal) {
   LOG_INIT(*test_argv, logCallback);
 
-  std::string output = LPP_CAPTURE_STDOUT(LOG(FATAL) << "test";);
+  std::string output = LPP_CAPTURE_STDOUT(LOG(FATAL) << "test" << 123;);
 
   ASSERT_EQ(output, fatal);
 }
 
 
 //! Roslog syntax
-
 TEST(lpp_custom_basic, roslog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG("test123"));
   ASSERT_EQ(output, debug);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_debug_stream) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("test" << 123));
   ASSERT_EQ(output, debug);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_info) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO("test123"));
   ASSERT_EQ(output, info);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_info_stream) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("test" << 123));
   ASSERT_EQ(output, info);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_warning) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_WARN("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_WARN("test123"));
   ASSERT_EQ(output, warning);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_warning_stream) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_WARN_STREAM("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_WARN_STREAM("test" << 123));
   ASSERT_EQ(output, warning);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_error) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_ERROR("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_ERROR("test123"));
   ASSERT_EQ(output, error);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_error_stream) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_ERROR_STREAM("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_ERROR_STREAM("test" << 123));
   ASSERT_EQ(output, error);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_fatal) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_FATAL("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_FATAL("test123"));
   ASSERT_EQ(output, fatal);
 }
 
 TEST(lpp_custom_basic, roslog_syntax_severity_fatal_stream) {
   LOG_INIT(*test_argv);
 
-  std::string output = LPP_CAPTURE_STDOUT(ROS_FATAL_STREAM("test"));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_FATAL_STREAM("test" << 123));
   ASSERT_EQ(output, fatal);
 }
 
