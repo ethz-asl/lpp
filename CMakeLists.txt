@@ -14,7 +14,13 @@ else ()
 endif ()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
+
+get_directory_property(hasParent PARENT_DIRECTORY)
+if(hasParent)
+        set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
+else()
+        set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()
 
 find_package(glog)
 find_package(catkin REQUIRED COMPONENTS roscpp)
