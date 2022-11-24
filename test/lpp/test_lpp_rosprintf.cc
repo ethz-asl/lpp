@@ -6,63 +6,64 @@
 #include <test_utils.h>
 #include <log++.h>
 
+using namespace lpp::testing;
+
 TEST(lpp_rosprintf, ros_info) {
   LOG_INIT(*test_argv);
 
   testing::internal::CaptureStdout();
-  ROS_INFO("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+  ROS_INFO(ERROR_MESSAGE, 3.3, 5.5);
   std::string c = testing::internal::GetCapturedStdout();
 
-  ASSERT_EQ(c, "INFO  Base angle (3.300000) is less than the minimum angle (5.500000)\n");
+  ASSERT_EQ(c, "INFO  " + EXPECTED_ERROR_MESSAGE);
 }
 
 TEST(lpp_rosprintf, ros_info_once) {
   LOG_INIT(*test_argv);
 
   testing::internal::CaptureStdout();
-  ROS_INFO_ONCE("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+  ROS_INFO_ONCE(ERROR_MESSAGE, 3.3, 5.5);
   std::string c = testing::internal::GetCapturedStdout();
 
-  ASSERT_EQ(c, "INFO  Base angle (3.300000) is less than the minimum angle (5.500000)\n");
-
+  ASSERT_EQ(c, "INFO  " + EXPECTED_ERROR_MESSAGE);
 }
 
 TEST(lpp_rosprintf, ros_warn) {
   LOG_INIT(*test_argv);
 
   testing::internal::CaptureStdout();
-  ROS_WARN("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+  ROS_WARN(ERROR_MESSAGE, 3.3, 5.5);
   std::string c = testing::internal::GetCapturedStdout();
 
-  ASSERT_EQ(c, "WARN  Base angle (3.300000) is less than the minimum angle (5.500000)\n");
+  ASSERT_EQ(c, "WARN  " + EXPECTED_ERROR_MESSAGE);
 }
 
 TEST(lpp_rosprintf, ros_warn_once) {
   LOG_INIT(*test_argv);
 
   testing::internal::CaptureStdout();
-  ROS_WARN_ONCE("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+  ROS_WARN_ONCE(ERROR_MESSAGE, 3.3, 5.5);
   std::string c = testing::internal::GetCapturedStdout();
 
-  ASSERT_EQ(c, "WARN  Base angle (3.300000) is less than the minimum angle (5.500000)\n");
+  ASSERT_EQ(c, "WARN  " + EXPECTED_ERROR_MESSAGE);
 }
 
 TEST(lpp_rosprintf, ros_error) {
   LOG_INIT(*test_argv);
 
   testing::internal::CaptureStdout();
-  ROS_ERROR("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+  ROS_ERROR(ERROR_MESSAGE, 3.3, 5.5);
   std::string c = testing::internal::GetCapturedStdout();
 
-  ASSERT_EQ(c, "ERROR Base angle (3.300000) is less than the minimum angle (5.500000)\n");
+  ASSERT_EQ(c, "ERROR " + EXPECTED_ERROR_MESSAGE);
 }
 
 TEST(lpp_rosprintf, ros_error_once) {
   LOG_INIT(*test_argv);
 
   testing::internal::CaptureStdout();
-  ROS_ERROR_ONCE("Base angle (%f) is less than the minimum angle (%f)", 3.3, 5.5);
+  ROS_ERROR_ONCE(ERROR_MESSAGE, 3.3, 5.5);
   std::string c = testing::internal::GetCapturedStdout();
 
-  ASSERT_EQ(c, "ERROR Base angle (3.300000) is less than the minimum angle (5.500000)\n");
+  ASSERT_EQ(c, "ERROR "  + EXPECTED_ERROR_MESSAGE);
 }

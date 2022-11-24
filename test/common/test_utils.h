@@ -79,7 +79,13 @@ inline bool checkAbort(const std::function<void()> &fn) {
 }
 
 //! Ros testing utils
+namespace lpp {
+namespace testing {
+
 inline static constexpr const char *ERROR_MESSAGE = "Base angle (%f) is less than the minimum angle (%f)";
+inline static const std::string EXPECTED_ERROR_MESSAGE = "Base angle (3.300000) is less than the minimum angle (5.500000)\n";
+}
+}
 
 
 namespace lpp {

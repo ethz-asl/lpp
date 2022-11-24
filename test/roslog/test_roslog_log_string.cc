@@ -6,7 +6,7 @@
 #include <log++.h>
 #include <test_utils.h>
 
-using namespace lpp;
+using namespace lpp::logstr;
 
 TEST(roslog_log_string, severity_info) {
   LOG_INIT(*test_argv);
@@ -26,7 +26,7 @@ TEST(roslog_log_string, severity_info_null) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG_STRING(INFO, nullptr) << "LOG_STRING: " << "collected info");
-  ASSERT_EQ(removeNumbersFromString(output), logstr::info);
+  ASSERT_EQ(removeNumbersFromString(output), info);
 }
 
 TEST(roslog_log_string, severity_warning) {
@@ -47,7 +47,7 @@ TEST(roslog_log_string, severity_warning_null) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(LOG_STRING(WARNING, nullptr) << "LOG_STRING: " << "collected warn");
-  ASSERT_EQ(removeNumbersFromString(output), logstr::warning);
+  ASSERT_EQ(removeNumbersFromString(output), warning);
 }
 
 TEST(roslog_log_string, severity_error) {
@@ -68,7 +68,7 @@ TEST(roslog_log_string, severity_error_null) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(LOG_STRING(ERROR, nullptr) << "LOG_STRING: " << "collected error");
-  ASSERT_EQ(removeNumbersFromString(output), logstr::error);
+  ASSERT_EQ(removeNumbersFromString(output), error);
 }
 
 TEST(roslog_log_string, severity_fatal) {
@@ -89,5 +89,5 @@ TEST(roslog_log_string, severity_fatal_null) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(LOG_STRING(FATAL, nullptr) << "LOG_STRING: " << "collected fatal");
-  ASSERT_EQ(removeNumbersFromString(output), logstr::fatal);
+  ASSERT_EQ(removeNumbersFromString(output), fatal);
 }
