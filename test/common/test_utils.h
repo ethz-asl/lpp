@@ -107,6 +107,14 @@ inline static const std::string warning = "\x1B[m[ WARN] [.]: LOG_STRING: collec
 inline static const std::string error = "\x1B[m[ERROR] [.]: LOG_STRING: collected error\x1B[m\n";
 inline static const std::string fatal = "\x1B[m[FATAL] [.]: LOG_STRING: collected fatal\x1B[m\n";
 }
+
+namespace custom{
+inline static const std::string debug = "Log++ [debug] test\n";
+inline static const std::string info = "Log++ [info] test\n";
+inline static const std::string warning = "Log++ [warning] test\n";
+inline static const std::string error = "Log++ [error] test\n";
+inline static const std::string fatal = "Log++ [fatal] test\n";
+}
 }
 
 

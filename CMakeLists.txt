@@ -84,6 +84,17 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${LPP_TESTS} PRIVATE MODE_LPP)
 
+        ##### Log++ Custom Output Tests #####
+        set(LPP_TESTS_CUSTOM "test_lpp_custom")
+        add_executable(${LPP_TESTS_CUSTOM}
+                test/test_entry_point.cpp
+                test/lpp/custom/test_lpp_custom_basic.cc
+                )
+
+        target_include_directories(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
+        target_link_libraries(${LPP_TESTS_CUSTOM} glog gtest ${catkin_LIBRARIES})
+        target_compile_definitions(${LPP_TESTS_CUSTOM} PRIVATE MODE_LPP)
+
         ##### Roslog Tests #####
         set(ROSLOG_TESTS "test_roslog")
         add_executable(${ROSLOG_TESTS} test/test_entry_point.cpp
