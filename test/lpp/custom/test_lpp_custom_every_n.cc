@@ -15,7 +15,7 @@ TEST(lpp_custom_LogEveryN, lpp_syntax_severity_debug) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(D, 3, "test" << 123));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, debug);
+      ASSERT_EQ(output, debug + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -28,7 +28,7 @@ TEST(lpp_custom_LogEveryN, lpp_syntax_severity_info) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(I, 3, "test" << 123));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, info);
+      ASSERT_EQ(output, info + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -41,7 +41,7 @@ TEST(lpp_custom_LogEveryN, lpp_syntax_severity_warning) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(W, 3, "test" << 123));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, warning);
+      ASSERT_EQ(output, warning + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -54,7 +54,7 @@ TEST(lpp_custom_LogEveryN, lpp_syntax_severity_error) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(E, 3, "test" << 123));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, error);
+      ASSERT_EQ(output, error + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -67,7 +67,7 @@ TEST(lpp_custom_LogEveryN, lpp_syntax_severity_fatal) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(F, 3, "test" << 123));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, fatal);
+      ASSERT_EQ(output, fatal + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -80,7 +80,7 @@ TEST(lpp_custom_LogEveryN, glog_syntax_severity_debug) {
     std::string output = LPP_CAPTURE_STDOUT(DLOG_EVERY_N(INFO, 3) << "test" << 123);
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, debug);
+      ASSERT_EQ(output, debug + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -93,7 +93,7 @@ TEST(lpp_custom_LogEveryN, glog_syntax_severity_info) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY_N(INFO, 3) << "test" << 123);
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, info);
+      ASSERT_EQ(output, info + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -106,7 +106,7 @@ TEST(lpp_custom_LogEveryN, glog_syntax_severity_warning) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY_N(WARNING, 3) << "test" << 123);
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, warning);
+      ASSERT_EQ(output, warning + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -119,7 +119,7 @@ TEST(lpp_custom_LogEveryN, glog_syntax_severity_error) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY_N(ERROR, 3) << "test" << 123);
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, error);
+      ASSERT_EQ(output, error + test123);
     } else {
       ASSERT_EQ(output, "");
     }
@@ -132,7 +132,7 @@ TEST(lpp_custom_LogEveryN, glog_syntax_severity_fatal) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY_N(FATAL, 3) << "test" << 123);
 
     if (i % 3 == 0) {
-      ASSERT_EQ(output, fatal);
+      ASSERT_EQ(output, fatal + test123);
     } else {
       ASSERT_EQ(output, "");
     }

@@ -27,7 +27,7 @@ TEST(lpp_log_string, severity_info_null) {
   LOG_INIT(*test_argv, logCallback);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG_STRING(INFO, nullptr) << "test" << 123);
-  ASSERT_EQ(output, info);
+  ASSERT_EQ(output, info + test123);
 }
 
 TEST(lpp_log_string, severity_warning) {
@@ -48,7 +48,7 @@ TEST(lpp_log_string, severity_warning_null) {
   LOG_INIT(*test_argv, logCallback);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG_STRING(WARNING, nullptr) << "test" << 123);
-  ASSERT_EQ(output, warning);
+  ASSERT_EQ(output, warning + test123);
 }
 
 TEST(lpp_log_string, severity_error) {
@@ -69,7 +69,7 @@ TEST(lpp_log_string, severity_error_null) {
   LOG_INIT(*test_argv, logCallback);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG_STRING(ERROR, nullptr) << "test" << 123);
-  ASSERT_EQ(output, error);
+  ASSERT_EQ(output, error + test123);
 }
 
 TEST(lpp_log_string, severity_fatal) {
@@ -90,5 +90,5 @@ TEST(lpp_log_string, severity_fatal_null) {
   LOG_INIT(*test_argv, logCallback);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG_STRING(FATAL, nullptr) << "test" << 123);
-  ASSERT_EQ(output, fatal);
+  ASSERT_EQ(output, fatal + test123);
 }
