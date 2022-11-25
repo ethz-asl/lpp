@@ -21,8 +21,6 @@ else
   echo "catkin found"
 fi
 
-exit
-
 export DEBIAN_FRONTEND=noninteractive
 sudo apt install -y libgoogle-glog-dev 
 BUILD_DIR=cmake-build
