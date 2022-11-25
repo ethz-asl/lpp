@@ -11,18 +11,17 @@ if [ "$CATKIN_PATH" = "" ]; then
 
     source /opt/ros/noetic/setup.bash
 
-    sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
-    sudo apt install python3-catkin-tools
+    sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools libgoogle-glog-dev
 
     sudo rosdep init
     rosdep update
 
 else
+  sudo apt install -y libgoogle-glog-dev
   echo "catkin found"
 fi
 
 export DEBIAN_FRONTEND=noninteractive
-sudo apt install -y libgoogle-glog-dev 
 BUILD_DIR=cmake-build
 mkdir $BUILD_DIR
 cmake CMakeLists.txt -B $BUILD_DIR/
