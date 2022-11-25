@@ -1,4 +1,3 @@
-
 CATKIN_PATH="$(which catkin)"
 
 if [ "$CATKIN_PATH" = "" ]; then
