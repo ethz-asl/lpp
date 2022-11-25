@@ -16,4 +16,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Run build script
-      run: ./ci/scripts/run_build_ubuntu20_04.sh
+      run: ./.github/scripts/run_build_ubuntu20_04.sh
