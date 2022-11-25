@@ -1,0 +1,19 @@
+name: C++ Ubuntu 18.04
+
+on:
+  push:
+    branches: 
+    - "master"
+    - "feature/ci"
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Run build script
+      run: ./.github/scripts/run_build_ubuntu18_04.sh
