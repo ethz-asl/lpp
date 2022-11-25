@@ -1,5 +1,3 @@
-#!/bin/bash -e
-
 CATKIN_PATH="$(which catkin)"
 
 if [ "$CATKIN_PATH" = "" ]; then
