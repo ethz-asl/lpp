@@ -14,7 +14,15 @@ else ()
 endif ()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
+
+get_directory_property(hasParent PARENT_DIRECTORY)
+
+# Set LPP_INCLUDE_DIRS in the top level CMake
+if(hasParent)
+        set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
+else()
+        set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include)
+endif()
 
 find_package(glog)
 find_package(catkin REQUIRED COMPONENTS roscpp)
@@ -77,6 +85,21 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
         target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${LPP_TESTS} PRIVATE MODE_LPP)
+
+        ##### Log++ Custom Output Tests #####
+        set(LPP_TESTS_CUSTOM "test_lpp_custom")
+        add_executable(${LPP_TESTS_CUSTOM}
+                test/test_entry_point.cpp
+                test/lpp/custom/test_lpp_custom_basic.cc
+                test/lpp/custom/test_lpp_custom_every_n.cc
+                test/lpp/custom/test_lpp_custom_first_n.cc
+                test/lpp/custom/test_lpp_custom_log_string.cc
+                test/lpp/custom/test_lpp_custom_rosprintf.cc
+                test/lpp/custom/test_lpp_custom_vlog.cc)
+
+        target_include_directories(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
+        target_link_libraries(${LPP_TESTS_CUSTOM} glog gtest ${catkin_LIBRARIES})
+        target_compile_definitions(${LPP_TESTS_CUSTOM} PRIVATE MODE_LPP)
 
         ##### Roslog Tests #####
         set(ROSLOG_TESTS "test_roslog")

@@ -70,16 +70,52 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "modernize-concat-nested-namespaces" // Keep compatibility with C++11
 
-//! Initialization logic
 namespace lpp {
 namespace internal {
+enum class BaseSeverity {
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR,
+  FATAL
+};
 
+//! Initialization logic
 class Init {
  public:
-  bool is_lpp_initialized = false;
-  bool is_glog_initialized = false;
+  bool lpp_initialized = false;
+  bool glog_initialized = false;
 };
-inline Init lppInit;
+
+class Logging {
+ public:
+  inline void call(BaseSeverity severity, const std::string& str) {
+    fn_(severity, str);
+  }
+
+  inline void setLoggingFunction(const std::function<void(BaseSeverity, const std::string &)> &fn) {
+    fn_ = fn;
+  }
+
+ private:
+  std::function<void(BaseSeverity, const std::string &)> fn_ = [](BaseSeverity severity, const std::string &str) {
+    switch (severity) {
+      case BaseSeverity::DEBUG:std::cout << "DEBUG " << str << std::endl;
+        return;
+      case BaseSeverity::INFO:std::cout << "INFO  " << str << std::endl;
+        return;
+      case BaseSeverity::WARN:std::cout << "WARN  " << str << std::endl;
+        return;
+      case BaseSeverity::ERROR:std::cout << "ERROR " << str << std::endl;
+        return;
+      case BaseSeverity::FATAL:std::cout << "FATAL " << str << std::endl;
+        return;
+    }
+  };
+};
+
+inline static Logging logging;
+inline static Init lppInit;
 }
 }
 
@@ -140,15 +176,23 @@ inline Init lppInit;
 #undef ROS_FATAL_ONCE
 #endif
 
+using namespace lpp::internal;
+
 /**
  * Used to initialize Log++
  *
  * If called more than once, all further calls will be ignored.
  * @param argv is used for GLOG if present, otherwise unused.
  */
-inline void LOG_INIT(char *argv) {
+inline void LOG_INIT(char *argv, const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
-  if (!LPP_INTL::lppInit.is_glog_initialized) {
+  if (!lppInit.glog_initialized || !lppInit.lpp_initialized) {
+
+#if defined MODE_LPP
+    if (callback != nullptr) {
+      logging.setLoggingFunction(callback);
+    }
+#endif
 
 #if defined LPP_DEBUG && (defined MODE_ROSLOG || defined MODE_DEFAULT)
     if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
@@ -160,10 +204,10 @@ inline void LOG_INIT(char *argv) {
 #ifdef GLOG_SUPPORTED
     google::InitGoogleLogging(argv);
     FLAGS_logtostderr = true;
-    LPP_INTL::lppInit.is_glog_initialized = true;
+    lppInit.glog_initialized = true;
 #endif
 #endif
-    LPP_INTL::lppInit.is_lpp_initialized = true;
+    lppInit.lpp_initialized = true;
   }
 }
 
@@ -367,14 +411,6 @@ inline std::string formatToString(const char *str) {
   return str;
 }
 
-enum class BaseSeverity {
-  DEBUG,
-  INFO,
-  WARN,
-  ERROR,
-  FATAL
-};
-
 enum class LppSeverity {
   D,
   I,
@@ -414,22 +450,6 @@ class InternalLog {
     ss << log.ss.str();
   }
 
-  static BaseSeverity getSeverityFromString(const std::string &str) {
-    if (DEBUG.find(str) != DEBUG.end()) {
-      return BaseSeverity::DEBUG;
-    } else if (INFO.find(str) != INFO.end()) {
-      return BaseSeverity::INFO;
-    } else if (WARNING.find(str) != WARNING.end()) {
-      return BaseSeverity::WARN;
-    } else if (ERROR.find(str) != ERROR.end()) {
-      return BaseSeverity::ERROR;
-    } else if (FATAL.find(str) != FATAL.end()) {
-      return BaseSeverity::FATAL;
-    }
-    std::cout << "Severity " << str << " not found.";
-    abort();
-  }
-
   BaseSeverity severity_{};
   std::stringstream ss{};
 
@@ -452,29 +472,12 @@ class InternalLog {
     }
 #endif
 #if defined MODE_LPP || defined MODE_DEFAULT
-    switch (severity_) {
-      case BaseSeverity::DEBUG:std::cout << "DEBUG " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::INFO:std::cout << "INFO  " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::WARN:std::cout << "WARN  " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::ERROR:std::cout << "ERROR " << ss.str() << std::endl;
-        break;
-      case BaseSeverity::FATAL:std::cout << "FATAL " << ss.str() << std::endl;
-        break;
-    }
+    lpp::internal::logging.call(severity_, ss.str());
 #endif
   }
 
  protected:
   bool should_print_{true};
- private:
-  inline static const std::set<std::string> DEBUG{"D"};
-  inline static const std::set<std::string> INFO{"I", "INFO"};
-  inline static const std::set<std::string> WARNING{"W", "WARNING"};
-  inline static const std::set<std::string> ERROR{"E", "ERROR"};
-  inline static const std::set<std::string> FATAL{"F", "FATAL"};
 };
 
 template<typename T>
@@ -713,12 +716,6 @@ class InternalGlogLogStringLog : public InternalLog {
 
 class InternalPolicyLog : public InternalLog {
  public:
-  InternalPolicyLog(std::string key, int n, const std::string& severity, PolicyType policy_type) :
-  key_(std::move(key)), n_(n), policy_type_(policy_type),
-  InternalLog(getSeverityFromString(severity)) {
-    should_print_ = false;
-  };
-
   InternalPolicyLog(std::string key, int n, BaseSeverity base_severity, PolicyType policy_type) :
       key_(std::move(key)), n_(n), policy_type_(policy_type),
       InternalLog(base_severity) {
