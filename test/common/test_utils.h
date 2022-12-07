@@ -6,6 +6,7 @@
 #define LOG_TEST_TEST_UTILS_H_
 
 #include <string>
+#include <functional>
 #include <gtest/gtest.h>
 
 extern char **test_argv;
