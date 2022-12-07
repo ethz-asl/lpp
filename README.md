@@ -8,6 +8,7 @@
 
 - Framework to standardize ros and glog output at compile time.
 - Uses ros/glog's native log calls depending on selected mode.
+- Customize log output
 - All log calls are thread-safe.
 - Lightweight with performance in mind
 - Header only
@@ -88,7 +89,7 @@ target_compile_definitions(my_executable PRIVATE MODE_LPP)
 ### Option 2: Add Log++ as a submodule
 1. Add Log++ as a submodule with following command:
 ```shell
-   $ git submodule add https://github.com/ethz-asl/lpp.git
+$ git submodule add git@github.com:ethz-asl/lpp.git
 ```
 
 2. Add following lines in `CMakeLists.txt`
@@ -180,6 +181,21 @@ for (int i = 0; i < 10; i++) {
 }
 ```
 
+### Log output customization
+Log++ also allows you to customize the log output with a callback function when using
+MODE_LPP:
+
+```c++
+void logCallback(BaseSeverity severity, const std::string& str) {
+  std::cout << str << std::endl;
+}
+
+int main(int argc, char **argv) {
+  LOG_INIT(argv[0], logCallback);
+  ...
+}
+```
+
 ## Overview of logging methods
 
 | Method                      | Log++                | Glog                          | ROS                         | 
@@ -204,8 +220,8 @@ If you want to keep the possibility to add or remove Log++ later, it is best pra
 ```
 
 # Roadmap
-- Implement ROS_INFO_NAMED()
-- Customizable Log++ output
+- Implement ROS_INFO_NAMED() etc.
+- Improve namespaces
 
 # Testing
 
