@@ -184,7 +184,7 @@ using namespace lpp::internal;
  * If called more than once, all further calls will be ignored.
  * @param argv is used for GLOG if present, otherwise unused.
  */
-inline void LOG_INIT(char *argv, const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
+inline void LOG_INIT([[maybe_unused]] char *argv, const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
   if (!lppInit.glog_initialized || !lppInit.lpp_initialized) {
 
@@ -499,7 +499,7 @@ public:
 class LogPolicy {
  public:
   virtual void update() = 0;
-  virtual bool shouldLog() const = 0;
+  [[nodiscard]] virtual bool shouldLog() const = 0;
   virtual void onLog() {};
   virtual ~LogPolicy() = default;
  protected:
@@ -524,7 +524,7 @@ class OccasionPolicy : public LogPolicy {
     counter_++;
   }
 
-  inline bool shouldLog() const override {
+  [[nodiscard]] inline bool shouldLog() const override {
     return should_log_;
   }
 
@@ -545,7 +545,7 @@ class FirstNOccurrencesPolicy : public LogPolicy {
     }
   }
 
-  inline bool shouldLog() const override {
+  [[nodiscard]] inline bool shouldLog() const override {
     return !is_n_occurences_reached;
   }
 
@@ -563,7 +563,7 @@ class TimePolicy : public LogPolicy {
     now_ = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
   }
 
-  inline bool shouldLog() const override {
+  [[nodiscard]] inline bool shouldLog() const override {
     if (now_ >= last_ + (max_ * 1000000)) {
       return true;
     }
