@@ -16,6 +16,8 @@ endif ()
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 get_directory_property(hasParent PARENT_DIRECTORY)
+
+# Set LPP_INCLUDE_DIRS in the top level CMake
 if(hasParent)
         set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
 else()
