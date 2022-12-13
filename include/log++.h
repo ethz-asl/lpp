@@ -47,13 +47,13 @@
 #warning "No mode defined. Selected MODE_DEFAULT";
 #endif
 
-//! Check if libraries are available and needed at compile time and include required headers
-#if __has_include(<glog/logging.h>) && (defined MODE_DEFAULT || defined MODE_GLOG)
+//! Check if libraries are available at compile time and include required headers
+#if __has_include(<glog/logging.h>)
 #include <glog/logging.h>
 #define GLOG_SUPPORTED
 #endif
 
-#if __has_include(<ros/console.h>) && (defined MODE_DEFAULT || defined MODE_ROSLOG)
+#if __has_include(<ros/console.h>)
 #include <ros/console.h>
 #define ROSLOG_SUPPORTED
 #endif
