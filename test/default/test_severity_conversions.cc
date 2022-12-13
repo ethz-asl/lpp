@@ -7,6 +7,7 @@
 
 
 TEST(default_enum_conversions, LppToBase) {
+  using namespace lpp::internal;
   ASSERT_EQ(toBase(LppSeverity::D), BaseSeverity::DEBUG);
   ASSERT_EQ(toBase(LppSeverity::I), BaseSeverity::INFO);
   ASSERT_EQ(toBase(LppSeverity::W), BaseSeverity::WARN);
@@ -15,6 +16,7 @@ TEST(default_enum_conversions, LppToBase) {
 }
 
 TEST(default_enum_conversions, GlogToBase) {
+  using namespace lpp::internal;
   ASSERT_EQ(toBase(GlogSeverity::DEBUG), BaseSeverity::DEBUG);
   ASSERT_EQ(toBase(GlogSeverity::INFO), BaseSeverity::INFO);
   ASSERT_EQ(toBase(GlogSeverity::WARNING), BaseSeverity::WARN);
