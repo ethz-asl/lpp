@@ -48,12 +48,12 @@ endif ()
 ################## Testing ##################
 
 if (NOT LPP_BUILD_TESTS)
-        message("-- Skip Log++ tests")
+        message(STATUS "-- Skip Log++ tests")
 endif()
 # All logging frameworks are required for unittests
 if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
 
-        message("-- Found glog and catkin: Log++ tests will be built")
+        message(STATUS "-- Found glog and catkin: Log++ tests will be built")
         ##### Common includes #####
         set(LPP_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/test/common)
 
@@ -71,6 +71,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${GLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/glog)
         target_link_libraries(${GLOG_TESTS} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${GLOG_TESTS} PRIVATE MODE_GLOG)
+        target_compile_options(${GLOG_TESTS} PRIVATE "-fcompare-debug-second")
 
         ##### Log++ Tests #####
         set(LPP_TESTS "test_lpp")
@@ -85,6 +86,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
         target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${LPP_TESTS} PRIVATE MODE_LPP)
+        target_compile_options(${LPP_TESTS} PRIVATE "-fcompare-debug-second")
 
         ##### Log++ Custom Output Tests #####
         set(LPP_TESTS_CUSTOM "test_lpp_custom")
@@ -100,6 +102,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
         target_link_libraries(${LPP_TESTS_CUSTOM} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${LPP_TESTS_CUSTOM} PRIVATE MODE_LPP)
+        target_compile_options(${LPP_TESTS_CUSTOM} PRIVATE "-fcompare-debug-second")
 
         ##### Roslog Tests #####
         set(ROSLOG_TESTS "test_roslog")
@@ -114,6 +117,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)
         target_link_libraries(${ROSLOG_TESTS} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${ROSLOG_TESTS} PRIVATE MODE_ROSLOG)
+        target_compile_options(${ROSLOG_TESTS} PRIVATE "-fcompare-debug-second")
 
         ##### Default Tests #####
         set(DEFAULT_TESTS "test_default")
@@ -131,4 +135,5 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${DEFAULT_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/default)
         target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES})
         target_compile_definitions(${DEFAULT_TESTS} PRIVATE MODE_DEFAULT)
+        target_compile_options(${DEFAULT_TESTS} PRIVATE "-fcompare-debug-second")
 endif ()
