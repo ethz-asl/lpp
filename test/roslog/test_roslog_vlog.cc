@@ -8,7 +8,7 @@
 
 using namespace lpp::rostest;
 
-TEST(lpp_vlog, glog_syntax_severity_v1) {
+TEST(roslog_vlog, glog_syntax_severity_v1) {
   LOG_INIT(*test_argv);
   FLAGS_v = 3;
 
@@ -16,7 +16,7 @@ TEST(lpp_vlog, glog_syntax_severity_v1) {
   ASSERT_EQ(debug, removeNumbersFromString(output));
 }
 
-TEST(lpp_vlog, glog_syntax_severity_v3) {
+TEST(roslog_vlog, glog_syntax_severity_v3) {
   LOG_INIT(*test_argv);
   FLAGS_v = 3;
 
@@ -24,10 +24,58 @@ TEST(lpp_vlog, glog_syntax_severity_v3) {
   ASSERT_EQ(debug, removeNumbersFromString(output));
 }
 
-TEST(lpp_vlog, glog_syntax_severity_v5) {
+TEST(roslog_vlog, glog_syntax_severity_v5) {
   LOG_INIT(*test_argv);
   FLAGS_v = 3;
 
   std::string output = LPP_CAPTURE_STDOUT(VLOG(5) << "Test123");
+  ASSERT_EQ(output, "");
+}
+
+TEST(roslog_vlog, glog_syntax_severity_if_v1) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  std::string output = LPP_CAPTURE_STDOUT(VLOG_IF(1, true) << "Test123");
+  ASSERT_EQ(debug, removeNumbersFromString(output));
+}
+
+TEST(roslog_vlog, glog_syntax_severity_if_v3) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  std::string output = LPP_CAPTURE_STDOUT(VLOG_IF(1, true) << "Test123");
+  ASSERT_EQ(debug, removeNumbersFromString(output));
+}
+
+TEST(roslog_vlog, glog_syntax_severity_if_v5) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  std::string output = LPP_CAPTURE_STDOUT(VLOG_IF(5, true) << "Test123");
+  ASSERT_EQ(output, "");
+}
+
+TEST(roslog_vlog, glog_syntax_severity_ifnot_v1) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  std::string output = LPP_CAPTURE_STDOUT(VLOG_IF(1, false) << "Test123");
+  ASSERT_EQ(output, "");
+}
+
+TEST(roslog_vlog, glog_syntax_severity_ifnot_v3) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  std::string output = LPP_CAPTURE_STDOUT(VLOG_IF(3, false) << "Test123");
+  ASSERT_EQ(output, "");
+}
+
+TEST(roslog_vlog, glog_syntax_severity_ifnot_v5) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  std::string output = LPP_CAPTURE_STDOUT(VLOG_IF(5, false) << "Test123");
   ASSERT_EQ(output, "");
 }

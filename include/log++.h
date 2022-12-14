@@ -141,6 +141,7 @@ inline static Init lppInit;
 #undef LOG_EVERY_N
 #undef LOG_FIRST_N
 #undef VLOG
+#undef VLOG_IF
 #undef DLOG
 #undef DLOG_EVERY_N
 #undef LOG_STRING
@@ -351,6 +352,7 @@ inline static int32_t FLAGS_v;
 #define VLOG_IS_ON(verboselevel) FLAGS_v >= (verboselevel) ? true : false
 #endif
 #define VLOG(verboselevel) LPP_INTL::InternalCondLog(LPP_INTL::BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
+#define VLOG_IF(verboselevel, condition) if (condition) VLOG(verboselevel)
 #endif
 
 //! MODE_LPP
