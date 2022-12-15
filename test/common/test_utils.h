@@ -40,6 +40,9 @@ return testing::internal::GetCapturedStdout();}()
 #define LPP_CAPTURE_STDERR(x) []() {testing::internal::CaptureStderr(); x; \
 return testing::internal::GetCapturedStderr();}()
 
+//! Get file name from __FILE__ macro
+#define LPP_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+
 inline int ForkAndReap(int *Ws, const std::function<void()> &fn) {
   pid_t pid = fork();
   if (fork() < 0) {
