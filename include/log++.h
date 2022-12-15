@@ -140,8 +140,11 @@ inline static Init lppInit;
 #undef LOG_IF
 #undef LOG_EVERY_N
 #undef LOG_FIRST_N
+#undef LOG_IF_EVERY_N
 #undef VLOG
+#undef VLOG_EVERY_N
 #undef VLOG_IF
+#undef VLOG_IF_EVERY_N
 #undef DLOG
 #undef DLOG_EVERY_N
 #undef LOG_STRING
@@ -338,6 +341,7 @@ true
 
 #if defined MODE_ROSLOG || defined MODE_LPP
 #define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
+#define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
 #define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
 
 #define DLOG(severity) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalLog(LPP_INTL::BaseSeverity::DEBUG)
@@ -351,8 +355,11 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 inline static int32_t FLAGS_v;
 #define VLOG_IS_ON(verboselevel) FLAGS_v >= (verboselevel) ? true : false
 #endif
+
 #define VLOG(verboselevel) LPP_INTL::InternalCondLog(LPP_INTL::BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
+#define VLOG_EVERY_N(verboselevel, n) if (VLOG_IS_ON(verboselevel)) LOG_EVERY_N(DEBUG, n)
 #define VLOG_IF(verboselevel, condition) if (condition) VLOG(verboselevel)
+#define VLOG_IF_EVERY_N(verboselevel, condition, n) if (VLOG_IS_ON(verboselevel) && condition) LOG_EVERY_N(DEBUG, n)
 #endif
 
 //! MODE_LPP

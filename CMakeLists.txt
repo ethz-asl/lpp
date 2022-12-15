@@ -126,6 +126,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/default/test_default_basic.cc
                 test/default/test_default_every_n.cc
                 test/default/test_default_first_n.cc
+                test/default/test_default_if_every_n.cc
                 test/default/test_default_log_string.cc
                 test/default/test_default_rosprintf.cc
                 test/default/test_default_timed.cc
