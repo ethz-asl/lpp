@@ -1,5 +1,4 @@
-# Stop the script if any command fails
-set -e
+#!/bin/bash -e
 
 CATKIN_PATH="$(which catkin)"
 
