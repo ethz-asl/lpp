@@ -79,3 +79,85 @@ TEST(roslog_vlog, glog_syntax_severity_ifnot_v5) {
   std::string output = LPP_CAPTURE_STDOUT(VLOG_IF(5, false) << "Test123");
   ASSERT_EQ(output, "");
 }
+
+TEST(roslog_vlog, glog_syntax_every_n_severity_v1) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  for (int i = 0; i < 5; i++) {
+    std::string output = LPP_CAPTURE_STDOUT(VLOG_EVERY_N(1, 3) << "Test" << 123);
+
+    if (i % 3 == 0) {
+      ASSERT_EQ(debug, removeNumbersFromString(output));
+    } else {
+      ASSERT_EQ(output, "");
+    }
+  }
+}
+
+TEST(roslog_vlog, glog_syntax_every_n_severity_v3) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  for (int i = 0; i < 5; i++) {
+    std::string output = LPP_CAPTURE_STDOUT(VLOG_EVERY_N(3, 3) << "Test" << 123);
+
+    if (i % 3 == 0) {
+      ASSERT_EQ(debug, removeNumbersFromString(output));
+    } else {
+      ASSERT_EQ(output, "");
+    }
+  }
+}
+
+TEST(roslog_vlog, glog_syntax_every_n_severity_v5) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  for (int i = 0; i < 5; i++) {
+    std::string output = LPP_CAPTURE_STDOUT(VLOG_EVERY_N(5, 3) << "Test" << 123);
+    ASSERT_EQ(output, "");
+  }
+}
+
+TEST(roslog_vlog, glog_syntax_if_every_n_severity_v1) {
+  for (int i = 0; i < 5; i++) {
+    testing::internal::CaptureStdout();
+    VLOG_IF_EVERY_N(1, i <= 3, 3) << "Test" << 123;
+    std::string output = testing::internal::GetCapturedStdout();
+
+    if (i <= 3 && i % 3 == 0) {
+      ASSERT_EQ(debug, removeNumbersFromString(output));
+    } else {
+      ASSERT_EQ(output, "");
+    }
+  }
+}
+
+TEST(roslog_vlog, glog_syntax_if_every_n_severity_v3) {
+  for (int i = 0; i < 5; i++) {
+    testing::internal::CaptureStdout();
+    VLOG_IF_EVERY_N(3, i <= 3, 3) << "Test" << 123;
+    std::string output = testing::internal::GetCapturedStdout();
+
+    if (i <= 3 && i % 3 == 0) {
+      ASSERT_EQ(debug, removeNumbersFromString(output));
+    } else {
+      ASSERT_EQ(output, "");
+    }
+  }
+}
+
+TEST(roslog_vlog, glog_syntax_if_every_n_severity_v5) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
+  for (int i = 0; i < 5; i++) {
+    testing::internal::CaptureStdout();
+    VLOG_IF_EVERY_N(5, i <= 3, 3) << "Test" << 123;
+    std::string output = testing::internal::GetCapturedStdout();
+
+    ASSERT_EQ(output, "");
+  }
+}
+
