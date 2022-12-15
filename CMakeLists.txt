@@ -64,6 +64,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/glog/test_glog_basic.cc
                 test/glog/test_glog_every_n.cc
                 test/glog/test_glog_first_n.cc
+                test/glog/test_glog_if_every_n.cc
                 test/glog/test_glog_log_string.cc
                 test/glog/test_glog_rosprintf.cc
                 test/glog/test_glog_vlog.cc)
