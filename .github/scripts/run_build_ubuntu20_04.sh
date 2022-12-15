@@ -1,3 +1,6 @@
+# Stop the script if any command fails
+set -e
+
 CATKIN_PATH="$(which catkin)"
 
 if [ "$CATKIN_PATH" = "" ]; then
@@ -23,14 +26,23 @@ fi
 
 export DEBIAN_FRONTEND=noninteractive
 BUILD_DIR=cmake-build
-mkdir $BUILD_DIR
+
+if test -d "$BUILD_DIR"; then
+  rm -r $BUILD_DIR
+else
+  mkdir $BUILD_DIR
+fi
+
+
 cmake CMakeLists.txt -B $BUILD_DIR/
 cd $BUILD_DIR || exit
 cmake --build . --target test_default -- -j 6
 cmake --build . --target test_glog -- -j 6
 cmake --build . --target test_lpp -- -j 6
+cmake --build . --target test_lpp_custom -- -j 6
 cmake --build . --target test_roslog -- -j 6
 ./test_default
 ./test_roslog
 ./test_lpp
+./test_lpp_custom
 ./test_roslog
