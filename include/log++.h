@@ -147,6 +147,7 @@ inline static Init lppInit;
 #undef VLOG_IF_EVERY_N
 #undef DLOG
 #undef DLOG_EVERY_N
+#undef DLOG_IF_EVERY_N
 #undef LOG_STRING
 #endif
 
@@ -348,8 +349,8 @@ true
 #define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); \
 LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
-
-#define LOG_STRING(severity, ptr) LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
+#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+#define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
 
 #ifndef GLOG_SUPPORTED
 inline static int32_t FLAGS_v;
