@@ -198,14 +198,15 @@ int main(int argc, char **argv) {
 
 ## Overview of logging methods
 
-| Method                      | Log++                | Glog                          | ROS                         | 
-|-----------------------------|----------------------|-------------------------------|-----------------------------|
-| Default logging             | LOG(I, str)          | LOG(INFO) << str              | ROS_INFO(str)               |
-| Conditional logging         | LOG(I, cond, str)    | LOG_IF(INFO, cond) << str     | ROS_INFO_COND(cond, str)    |
-| Occasional logging          | LOG_EVERY(I, n, str) | LOG_EVERY_N(INFO, n) << str   | -                           |
-| Timed logging               | LOG_TIMED(I, t, str) | LOG_EVERY_T(INFO, t) << str   | ROS_INFO_THROTTLE(t, str)   |
-| First N occurrences         | LOG_FIRST(I, n, str) | LOG_FIRST_N(INFO, n) << str   | ROS_INFO_ONCE(str) (only 1) |
-| Log to std::vector\<string> | -                    | LOG_STRING(INFO, &vec) << str | -                           |
+| Method                         | Log++                | Glog                                 | ROS                         | 
+|--------------------------------|----------------------|--------------------------------------|-----------------------------|
+| Default logging                | LOG(I, str)          | LOG(INFO) << str                     | ROS_INFO(str)               |
+| Conditional logging            | LOG(I, cond, str)    | LOG_IF(INFO, cond) << str            | ROS_INFO_COND(cond, str)    |
+| Occasional logging             | LOG_EVERY(I, n, str) | LOG_EVERY_N(INFO, n) << str          | -                           |
+| Conditional occasional logging | -                    | LOG_IF_EVERY_N(INFO, cond, n) << str | -                           |
+| Timed logging                  | LOG_TIMED(I, t, str) | LOG_EVERY_T(INFO, t) << str          | ROS_INFO_THROTTLE(t, str)   |
+| First N occurrences            | LOG_FIRST(I, n, str) | LOG_FIRST_N(INFO, n) << str          | ROS_INFO_ONCE(str) (only 1) |
+| Log to std::vector\<string>    | -                    | LOG_STRING(INFO, &vec) << str        | -                           |
 
 ## Miscellaneous
 
