@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(Log++)
+project(lpp)
 
 # Don't build tests when using as a submodule
 if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
@@ -29,16 +29,30 @@ find_package(catkin REQUIRED COMPONENTS roscpp)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-add_library(Log++ ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h)
+if(catkin_FOUND)
+        catkin_package(
+                INCLUDE_DIRS include
+                LIBRARIES lpp
+                CATKIN_DEPENDS roscpp
+        )
+endif()
+add_library(lpp ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h)
 # As there are no src files, set the linker language explicitly
-set_target_properties(Log++ PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(lpp PROPERTIES LINKER_LANGUAGE CXX)
 
 add_executable(lpp_demo ${CMAKE_CURRENT_SOURCE_DIR}/src/demo.cpp)
 target_compile_definitions(lpp_demo PRIVATE MODE_LPP)
 
 if (catkin_FOUND)
+        set(catkin_INCLUDE_DIRS ${catkin_INCLUDE_DIRS} ${LPP_INCLUDE_DIRS})
         include_directories(${catkin_INCLUDE_DIRS})
         target_link_libraries(lpp_demo ${catkin_LIBRARIES})
+
+        install(TARGETS lpp
+                ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+                LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+                RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+                )
 endif ()
 
 if (GLOG_FOUND)
@@ -48,12 +62,12 @@ endif ()
 ################## Testing ##################
 
 if (NOT LPP_BUILD_TESTS)
-        message(STATUS "-- Skip Log++ tests")
+        message(STATUS "Skip Log++ tests")
 endif()
 # All logging frameworks are required for unittests
 if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
 
-        message(STATUS "-- Found glog and catkin: Log++ tests will be built")
+        message(STATUS "Found glog and catkin: Log++ tests will be built")
         ##### Common includes #####
         set(LPP_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/test/common)
 
