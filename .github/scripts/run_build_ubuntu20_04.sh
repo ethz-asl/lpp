@@ -30,7 +30,7 @@ cmake --build . --target test_default -- -j 6
 cmake --build . --target test_glog -- -j 6
 cmake --build . --target test_lpp -- -j 6
 cmake --build . --target test_roslog -- -j 6
-cd ~/catkin_ws/devel/lib/lpp/
+cd devel/lib/lpp
 ./test_default
 ./test_roslog
 ./test_lpp
