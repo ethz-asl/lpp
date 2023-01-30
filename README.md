@@ -112,6 +112,19 @@ From parent directory
 $ git add path/to/submodule_dir
 ```
 
+
+### Option 3: Build as catkin package
+1. Clone the package into the catkin workspace
+
+```shell
+$ git clone git@github.com:ethz-asl/lpp.git
+```
+
+2. Build package
+```shell
+$ catkin build lpp
+```
+
 # Usage
 
 ## Modes
@@ -207,21 +220,8 @@ int main(int argc, char **argv) {
 | First N occurrences         | LOG_FIRST(I, n, str) | LOG_FIRST_N(INFO, n) << str   | ROS_INFO_ONCE(str) (only 1) |
 | Log to std::vector\<string> | -                    | LOG_STRING(INFO, &vec) << str | -                           |
 
-## Miscellaneous
-
-If you want to keep the possibility to add or remove Log++ later, it is best practice to include Log++ like this:
-
-```c++
-#if __has_include("log++.h")
-#include "log++.h"
-#else
-#include <glog/logging.h>
-#endif
-```
-
-# Roadmap
+## TODOs
 - Implement ROS_INFO_NAMED() etc.
-- Improve namespaces
 
 # Testing
 
