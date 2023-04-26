@@ -78,6 +78,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/glog/test_glog_basic.cc
                 test/glog/test_glog_every_n.cc
                 test/glog/test_glog_first_n.cc
+                test/glog/test_glog_if_every_n.cc
                 test/glog/test_glog_log_string.cc
                 test/glog/test_glog_rosprintf.cc
                 test/glog/test_glog_vlog.cc)
@@ -93,6 +94,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/test_lpp_basic.cc
                 test/lpp/test_lpp_every_n.cc
                 test/lpp/test_lpp_first_n.cc
+                test/lpp/test_lpp_if_every_n.cc
                 test/lpp/test_lpp_log_string.cc
                 test/lpp/test_lpp_rosprintf.cc
                 test/lpp/test_lpp_vlog.cc)
@@ -109,6 +111,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/custom/test_lpp_custom_basic.cc
                 test/lpp/custom/test_lpp_custom_every_n.cc
                 test/lpp/custom/test_lpp_custom_first_n.cc
+                test/lpp/custom/test_lpp_custom_if_every_n.cc
                 test/lpp/custom/test_lpp_custom_log_string.cc
                 test/lpp/custom/test_lpp_custom_rosprintf.cc
                 test/lpp/custom/test_lpp_custom_vlog.cc)
@@ -124,6 +127,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/roslog/test_roslog_basic.cc
                 test/roslog/test_roslog_every_n.cc
                 test/roslog/test_roslog_first_n.cc
+                test/roslog/test_roslog_if_every_n.cc
                 test/roslog/test_roslog_log_string.cc
                 test/roslog/test_roslog_rosprintf.cc
                 test/roslog/test_roslog_vlog.cc)
@@ -140,6 +144,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/default/test_default_basic.cc
                 test/default/test_default_every_n.cc
                 test/default/test_default_first_n.cc
+                test/default/test_default_if_every_n.cc
                 test/default/test_default_log_string.cc
                 test/default/test_default_rosprintf.cc
                 test/default/test_default_timed.cc
