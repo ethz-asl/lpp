@@ -346,8 +346,16 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 
 #define LOG_STRING(severity, ptr) LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
 
-//! Replace google FLAGS_v if MODE_ROSLOG or MODE_LPP is used
+/**
+ * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
+ * if glog is installed but not linked to lpp.
+ */
 inline static int32_t LPP_FLAGS_v;
+
+#ifdef GLOG_SUPPORTED
+#define FLAGS_v LPP_FLAGS_v
+#endif
+
 #undef VLOG_IS_ON
 #define VLOG_IS_ON(verboselevel) LPP_FLAGS_v >= (verboselevel) ? true : false
 #define VLOG(verboselevel) LPP_INTL::InternalCondLog(LPP_INTL::BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
