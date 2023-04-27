@@ -356,7 +356,7 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
  * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
  * if glog is installed but not linked to lpp.
  */
-inline static int32_t LPP_FLAGS_v;
+[[maybe_unused]] inline static int32_t LPP_FLAGS_v;
 
 #ifdef GLOG_SUPPORTED
 #define FLAGS_v LPP_FLAGS_v
