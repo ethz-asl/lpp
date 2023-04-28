@@ -47,6 +47,22 @@
 #warning "No mode defined. Selected MODE_DEFAULT";
 #endif
 
+/**
+ * @brief Terminates compilation if more than one mode is defined
+ *
+ * To suppress potentially multiple thousands lines of errors,
+ * all modes except MODE_DEFAULT gets undefined in this case.
+ *
+ * Defining MODE_DEFAULT will prevent errors from being generated for each logging function that is called.
+ */
+#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_DEFAULT) > 1
+#undef MODE_LPP
+#undef MODE_GLOG
+#undef MODE_ROSLOG
+#define MODE_DEFAULT
+#error "More than one mode is defined"
+#endif
+
 //! Check if libraries are available at compile time and include required headers
 #if __has_include(<glog/logging.h>)
 #include <glog/logging.h>
