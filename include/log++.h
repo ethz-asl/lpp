@@ -352,11 +352,19 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
 
-#ifndef GLOG_SUPPORTED
-inline static int32_t FLAGS_v;
-#define VLOG_IS_ON(verboselevel) FLAGS_v >= (verboselevel) ? true : false
+/**
+ * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
+ * if glog is installed but not linked to lpp.
+ */
+[[maybe_unused]] inline static int32_t LPP_FLAGS_v;
+
+#ifdef GLOG_SUPPORTED
+#define FLAGS_v LPP_FLAGS_v
 #endif
 
+
+#undef VLOG_IS_ON
+#define VLOG_IS_ON(verboselevel) LPP_FLAGS_v >= (verboselevel) ? true : false
 #define VLOG(verboselevel) LPP_INTL::InternalCondLog(LPP_INTL::BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
 #define VLOG_EVERY_N(verboselevel, n) if (VLOG_IS_ON(verboselevel)) LOG_EVERY_N(DEBUG, n)
 #define VLOG_IF(verboselevel, condition) if (condition) VLOG(verboselevel)
