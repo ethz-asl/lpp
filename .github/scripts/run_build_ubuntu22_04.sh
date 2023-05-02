@@ -3,7 +3,7 @@ CATKIN_PATH="$(which catkin)"
 if [ "$CATKIN_PATH" = "" ]; then
     echo "Installing ros noetic"
 
-    git clone git@github.com:lucasw/ros_from_src.git
+    git clone https://github.com/lucasw/ros_from_src.git
     mkdir build
     cd build
     ROSCONSOLE=https://github.com/ros/rosconsole ../ros_from_src/git_clone.sh
