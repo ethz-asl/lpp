@@ -1,17 +1,17 @@
 CATKIN_PATH="$(which catkin)"
 
 if [ "$CATKIN_PATH" = "" ]; then
-    echo "Installing ros melodic"
+    echo "Installing ros noetic"
 
     sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
     sudo apt install curl
     curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -
     sudo apt update
-    sudo apt install ros-melodic-ros-base
+    sudo apt install ros-noetic-ros-base
 
-    source /opt/ros/melodic/setup.bash
+    source /opt/ros/noetic/setup.bash
 
-    sudo apt install python-rosdep python-rosinstall python-rosinstall-generator python-wstool build-essential python-catkin-tools libgoogle-glog-dev
+    sudo apt install python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools libgoogle-glog-dev
 
     sudo rosdep init
     rosdep update
@@ -31,7 +31,6 @@ else
 fi
 
 
-mkdir $BUILD_DIR
 cmake CMakeLists.txt -B $BUILD_DIR/
 cd $BUILD_DIR || exit
 cmake --build . --target test_default -- -j 6
