@@ -41,6 +41,7 @@
 #include <chrono>
 #include <mutex>
 #include <functional>
+#include <memory>
 
 #if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT
 #define MODE_DEFAULT
@@ -70,7 +71,6 @@
 #endif
 
 #if __has_include(<ros/console.h>)
-#include <memory>
 #include <ros/console.h>
 #define ROSLOG_SUPPORTED
 #endif
