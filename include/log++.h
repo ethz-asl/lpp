@@ -70,6 +70,7 @@
 #endif
 
 #if __has_include(<ros/console.h>)
+#include <memory>
 #include <ros/console.h>
 #define ROSLOG_SUPPORTED
 #endif
@@ -619,22 +620,24 @@ enum PolicyType {
   TIMED
 };
 
+typedef std::shared_ptr<LogPolicy> LogPolicyPtr;
+
 class LogPolicyFactory {
  public:
-  static LogPolicy *create(PolicyType policy_type, int max) {
+  static LogPolicyPtr create(PolicyType policy_type, int max) {
     switch (policy_type) {
-      case FIRST_N: return new FirstNOccurrencesPolicy(max);
-      case EVERY_N: return new OccasionPolicy(max);
-      case TIMED: return new TimePolicy(max);
-      default:abort();
+    case FIRST_N: return std::make_shared<FirstNOccurrencesPolicy>(max);
+    case EVERY_N: return std::make_shared<OccasionPolicy>(max);
+    case TIMED: return std::make_shared<TimePolicy>(max);
+    default:abort();
     }
   }
 };
 
 struct LogStatementData {
-  LogStatementData(LogPolicy *log_policy, BaseSeverity severity_type)
-  : log_policy_(log_policy), severity_type_(severity_type) {}
-  LogPolicy *log_policy_;
+  LogStatementData(LogPolicyPtr log_policy, BaseSeverity severity_type)
+  : log_policy_(std::move(log_policy)), severity_type_(severity_type) {}
+  LogPolicyPtr log_policy_;
   std::string msg{};
   BaseSeverity severity_type_;
 };
