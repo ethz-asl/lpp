@@ -43,7 +43,7 @@
 #include <functional>
 #include <memory>
 
-#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT
+#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT && !defined MODE_NOLOG
 #define MODE_DEFAULT
 #warning "No mode defined. Selected MODE_DEFAULT";
 #endif
@@ -56,10 +56,11 @@
  *
  * Defining MODE_DEFAULT will prevent errors from being generated for each logging function that is called.
  */
-#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_DEFAULT) > 1
+#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_DEFAULT) + defined(MODE_NOLOG) > 1
 #undef MODE_LPP
 #undef MODE_GLOG
 #undef MODE_ROSLOG
+#undef MODE_NOLOG
 #define MODE_DEFAULT
 #error "More than one mode is defined"
 #endif
@@ -425,6 +426,22 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #if defined MODE_LPP || defined MODE_DEFAULT
 #define LOG_2(severity, x) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
 #define LOG_3(severity, cond, x) if (cond) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
+#endif
+
+
+//! MODE_NOLOG
+
+#ifdef MODE_NOLOG
+#define DLOG(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define LOG_1(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+
+#define LOG_2(severity, x) (void) LPP_INTL::LppSeverity::severity; InternalLog() << x
+
+#define ROS_DEBUG_STREAM(x) (void) x
+#define ROS_INFO_STREAM(x) (void) x
+#define ROS_WARN_STREAM(x) (void) x
+#define ROS_ERROR_STREAM(x) (void) x
+#define ROS_FATAL_STREAM(x) (void) x
 #endif
 
 namespace lpp {
