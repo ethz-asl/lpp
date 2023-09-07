@@ -197,6 +197,17 @@ inline static Init lppInit;
 #undef ROS_WARN_ONCE
 #undef ROS_ERROR_ONCE
 #undef ROS_FATAL_ONCE
+
+#undef ROS_DEBUG_THROTTLE
+#undef ROS_DEBUG_STREAM_THROTTLE
+#undef ROS_INFO_THROTTLE
+#undef ROS_INFO_STREAM_THROTTLE
+#undef ROS_WARN_THROTTLE
+#undef ROS_WARN_STREAM_THROTTLE
+#undef ROS_ERROR_THROTTLE
+#undef ROS_ERROR_STREAM_THROTTLE
+#undef ROS_FATAL_THROTTLE
+#undef ROS_FATAL_STREAM_THROTTLE
 #endif
 
 using namespace lpp::internal;
@@ -437,6 +448,7 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define LOG_2(severity, x) (void) LPP_INTL::LppSeverity::severity; InternalLog() << x
 #define LOG_EVERY(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
 #define LOG_FIRST(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
+#define LOG_TIMED(severity, t, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(t)>); InternalLog()
 
 //glog
 #define LOG_1(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
@@ -452,6 +464,8 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define VLOG_IF(verboselevel, condition) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value); InternalLog()
 #define VLOG_EVERY_N(verboselevel, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_integral_v<decltype(n)>); InternalLog()
 #define VLOG_IF_EVERY_N(verboselevel, condition, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
+#define DLOG_EVERY_T(severity, t) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+#define LOG_EVERY_T(severity, t) DLOG_EVERY_T(severity, t)
 
 //ros
 #define ROS_DEBUG(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
@@ -471,6 +485,17 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define ROS_WARN_ONCE(...) LOG_2(W, LPP_INTL::emptyString(__VA_ARGS__))
 #define ROS_ERROR_ONCE(...) LOG_2(E, LPP_INTL::emptyString(__VA_ARGS__))
 #define ROS_FATAL_ONCE(...) LOG_2(F, LPP_INTL::emptyString(__VA_ARGS__))
+
+#define ROS_DEBUG_THROTTLE(t, x) static_assert(std::is_integral_v<decltype(t)>); LPP_INTL::emptyString(x)
+#define ROS_DEBUG_STREAM_THROTTLE(t, x) static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+#define ROS_INFO_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_INFO_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
+#define ROS_WARN_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_WARN_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
+#define ROS_ERROR_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_ERROR_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
+#define ROS_FATAL_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_FATAL_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
 #endif
 
 namespace lpp {
