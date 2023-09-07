@@ -449,22 +449,38 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define LOG_STRING(severity, ptr) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(ptr), std::vector<std::string>*>::value || std::is_same<decltype(ptr), std::nullptr_t>::value); InternalLog()
 
 //ros
+#define ROS_DEBUG(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_INFO(...) LOG_2(I, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_WARN(...) LOG_2(W, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_ERROR(...) LOG_2(E, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_FATAL(...) LOG_2(F, LPP_INTL::emptyString(__VA_ARGS__))
+
 #define ROS_DEBUG_STREAM(x) (void) x
 #define ROS_INFO_STREAM(x) (void) x
 #define ROS_WARN_STREAM(x) (void) x
 #define ROS_ERROR_STREAM(x) (void) x
 #define ROS_FATAL_STREAM(x) (void) x
 
-#define ROS_DEBUG_ONCE(x) (void) x
-#define ROS_INFO_ONCE(x) (void) x
-#define ROS_WARN_ONCE(x) (void) x
-#define ROS_ERROR_ONCE(x) (void) x
-#define ROS_FATAL_ONCE(x) (void) x
+#define ROS_DEBUG_ONCE(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_INFO_ONCE(...) LOG_2(I, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_WARN_ONCE(...) LOG_2(W, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_ERROR_ONCE(...) LOG_2(E, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_FATAL_ONCE(...) LOG_2(F, LPP_INTL::emptyString(__VA_ARGS__))
 #endif
 
 namespace lpp {
 namespace internal {
+#ifdef MODE_NOLOG
+//! Used to disable logging for printf(3) like syntax
+template<typename... Args>
+constexpr inline std::string_view emptyString([[maybe_unused]] const char *f, [[maybe_unused]] Args... args) {
+  return "";
+}
 
+[[maybe_unused]] constexpr std::string_view emptyString([[maybe_unused]] const char *str) {
+  return "";
+}
+#endif
 //! Composes a string with the same text that would be printed if format was used on printf(3)
 template<typename... Args>
 inline std::string formatToString(const char *f, Args... args) {
