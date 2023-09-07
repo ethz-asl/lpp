@@ -159,9 +159,8 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         ##### Nolog Tests #####
         set(NOLOG_TESTS "test_nolog")
         add_executable(${NOLOG_TESTS} test/test_entry_point.cpp
-                #test/nolog/test_common.cc
                 test/nolog/test_nolog_basic.cc
-                #test/nolog/test_nolog_every_n.cc
+                test/nolog/test_nolog_every_n.cc
                 #test/nolog/test_nolog_first_n.cc
                 #test/nolog/test_nolog_if_every_n.cc
                 #test/nolog/test_nolog_log_string.cc

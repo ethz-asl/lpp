@@ -432,7 +432,11 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 //! MODE_NOLOG
 
 #ifdef MODE_NOLOG
+#define LOG_EVERY(severity, n, x) (void) LPP_INTL::LppSeverity::severity; InternalLog()
+
 #define DLOG(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define DLOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define LOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
 #define LOG_1(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
 
 #define LOG_2(severity, x) (void) LPP_INTL::LppSeverity::severity; InternalLog() << x
