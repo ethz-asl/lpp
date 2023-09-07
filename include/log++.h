@@ -444,7 +444,8 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define LOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
 #define DLOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
 #define LOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
-
+#define DLOG_IF_EVERY_N(severity, cond, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(cond), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
+#define LOG_IF_EVERY_N(severity, cond, n) DLOG_IF_EVERY_N(severity, cond, n)
 
 //ros
 #define ROS_DEBUG_STREAM(x) (void) x
