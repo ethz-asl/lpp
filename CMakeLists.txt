@@ -166,7 +166,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/nolog/test_nolog_log_string.cc
                 test/nolog/test_nolog_rosprintf.cc
                 #test/nolog/test_nolog_timed.cc
-                #test/nolog/test_nolog_vlog.cc
+                test/nolog/test_nolog_vlog.cc
                 #test/nolog/test_severity_conversions.cc
         )
 

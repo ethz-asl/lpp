@@ -358,6 +358,18 @@ true
 #define LOG_TIMED(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
 #endif
 
+#if defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
+/**
+ * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
+ * if glog is installed but not linked to lpp.
+ */
+[[maybe_unused]] inline static int32_t LPP_FLAGS_v;
+
+#ifdef GLOG_SUPPORTED
+#define FLAGS_v LPP_FLAGS_v
+#endif //GLOG_SUPPORTED
+#endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
+
 #if defined MODE_ROSLOG || defined MODE_LPP
 #define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
 #define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
@@ -369,17 +381,6 @@ true
 LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
 #define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
-
-/**
- * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
- * if glog is installed but not linked to lpp.
- */
-[[maybe_unused]] inline static int32_t LPP_FLAGS_v;
-
-#ifdef GLOG_SUPPORTED
-#define FLAGS_v LPP_FLAGS_v
-#endif
-
 
 #undef VLOG_IS_ON
 #define VLOG_IS_ON(verboselevel) LPP_FLAGS_v >= (verboselevel) ? true : false
@@ -447,6 +448,10 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define DLOG_IF_EVERY_N(severity, cond, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(cond), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
 #define LOG_IF_EVERY_N(severity, cond, n) DLOG_IF_EVERY_N(severity, cond, n)
 #define LOG_STRING(severity, ptr) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(ptr), std::vector<std::string>*>::value || std::is_same<decltype(ptr), std::nullptr_t>::value); InternalLog()
+#define VLOG(verboselevel) static_assert(std::is_integral_v<decltype(verboselevel)>); InternalLog()
+#define VLOG_IF(verboselevel, condition) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value); InternalLog()
+#define VLOG_EVERY_N(verboselevel, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_integral_v<decltype(n)>); InternalLog()
+#define VLOG_IF_EVERY_N(verboselevel, condition, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
 
 //ros
 #define ROS_DEBUG(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
