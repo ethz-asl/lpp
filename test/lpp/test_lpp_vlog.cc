@@ -120,6 +120,9 @@ TEST(lpp_vlog, glog_syntax_every_n_severity_v5) {
 }
 
 TEST(lpp_vlog, glog_syntax_if_every_n_severity_v1) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
   for (int i = 0; i < 5; i++) {
     testing::internal::CaptureStdout();
     VLOG_IF_EVERY_N(1, i <= 3, 3) << "Test" << 123;
@@ -134,6 +137,9 @@ TEST(lpp_vlog, glog_syntax_if_every_n_severity_v1) {
 }
 
 TEST(lpp_vlog, glog_syntax_if_every_n_severity_v3) {
+  LOG_INIT(*test_argv);
+  FLAGS_v = 3;
+
   for (int i = 0; i < 5; i++) {
     testing::internal::CaptureStdout();
     VLOG_IF_EVERY_N(3, i <= 3, 3) << "Test" << 123;
