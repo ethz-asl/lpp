@@ -510,6 +510,10 @@ constexpr inline std::string_view emptyString([[maybe_unused]] const char *f, [[
 [[maybe_unused]] constexpr std::string_view emptyString([[maybe_unused]] const char *str) {
   return "";
 }
+
+[[maybe_unused]] constexpr std::string_view emptyString([[maybe_unused]] const std::string& str) {
+  return "";
+}
 #endif
 //! Composes a string with the same text that would be printed if format was used on printf(3)
 template<typename... Args>
