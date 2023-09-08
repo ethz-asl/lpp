@@ -474,11 +474,11 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define ROS_ERROR(...) LOG_2(E, LPP_INTL::emptyString(__VA_ARGS__))
 #define ROS_FATAL(...) LOG_2(F, LPP_INTL::emptyString(__VA_ARGS__))
 
-#define ROS_DEBUG_STREAM(x) (void) x
-#define ROS_INFO_STREAM(x) (void) x
-#define ROS_WARN_STREAM(x) (void) x
-#define ROS_ERROR_STREAM(x) (void) x
-#define ROS_FATAL_STREAM(x) (void) x
+#define ROS_DEBUG_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_INFO_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_WARN_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_ERROR_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_FATAL_STREAM(x) LPP_INTL::emptyString(x)
 
 #define ROS_DEBUG_ONCE(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
 #define ROS_INFO_ONCE(...) LOG_2(I, LPP_INTL::emptyString(__VA_ARGS__))
