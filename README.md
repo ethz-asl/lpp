@@ -133,6 +133,7 @@ $ catkin build lpp
 - **MODE_GLOG:** Google Logging output. Calls abort() if it logs a fatal error.
 - **MODE_ROSLOG:** ROS Logging output.
 - **MODE_DEFAULT:** Disables Logging standardization. Messages are logged according to their framework.
+- **MODE_NOLOG:** Disables Logging completely. Useful for unittests or in some cases for release builds.
 
 ## How severity levels should be used
 

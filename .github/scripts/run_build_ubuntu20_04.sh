@@ -37,10 +37,12 @@ cmake --build . --target test_default -- -j 6
 cmake --build . --target test_glog -- -j 6
 cmake --build . --target test_lpp -- -j 6
 cmake --build . --target test_lpp_custom -- -j 6
+cmake --build . --target test_nolog -- -j 6
 cmake --build . --target test_roslog -- -j 6
 cd devel/lib/lpp
 ./test_default
-./test_roslog
+./test_glog
 ./test_lpp
 ./test_lpp_custom
+./test_nolog
 ./test_roslog

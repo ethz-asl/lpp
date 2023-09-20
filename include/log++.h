@@ -43,7 +43,7 @@
 #include <functional>
 #include <memory>
 
-#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT
+#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT && !defined MODE_NOLOG
 #define MODE_DEFAULT
 #warning "No mode defined. Selected MODE_DEFAULT";
 #endif
@@ -56,10 +56,11 @@
  *
  * Defining MODE_DEFAULT will prevent errors from being generated for each logging function that is called.
  */
-#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_DEFAULT) > 1
+#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_DEFAULT) + defined(MODE_NOLOG) > 1
 #undef MODE_LPP
 #undef MODE_GLOG
 #undef MODE_ROSLOG
+#undef MODE_NOLOG
 #define MODE_DEFAULT
 #error "More than one mode is defined"
 #endif
@@ -196,6 +197,17 @@ inline static Init lppInit;
 #undef ROS_WARN_ONCE
 #undef ROS_ERROR_ONCE
 #undef ROS_FATAL_ONCE
+
+#undef ROS_DEBUG_THROTTLE
+#undef ROS_DEBUG_STREAM_THROTTLE
+#undef ROS_INFO_THROTTLE
+#undef ROS_INFO_STREAM_THROTTLE
+#undef ROS_WARN_THROTTLE
+#undef ROS_WARN_STREAM_THROTTLE
+#undef ROS_ERROR_THROTTLE
+#undef ROS_ERROR_STREAM_THROTTLE
+#undef ROS_FATAL_THROTTLE
+#undef ROS_FATAL_STREAM_THROTTLE
 #endif
 
 using namespace lpp::internal;
@@ -357,6 +369,18 @@ true
 #define LOG_TIMED(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
 #endif
 
+#if defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
+/**
+ * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
+ * if glog is installed but not linked to lpp.
+ */
+[[maybe_unused]] inline static int32_t LPP_FLAGS_v;
+
+#ifdef GLOG_SUPPORTED
+#define FLAGS_v LPP_FLAGS_v
+#endif //GLOG_SUPPORTED
+#endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
+
 #if defined MODE_ROSLOG || defined MODE_LPP
 #define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
 #define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
@@ -368,17 +392,6 @@ true
 LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
 #define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
-
-/**
- * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
- * if glog is installed but not linked to lpp.
- */
-[[maybe_unused]] inline static int32_t LPP_FLAGS_v;
-
-#ifdef GLOG_SUPPORTED
-#define FLAGS_v LPP_FLAGS_v
-#endif
-
 
 #undef VLOG_IS_ON
 #define VLOG_IS_ON(verboselevel) LPP_FLAGS_v >= (verboselevel) ? true : false
@@ -427,9 +440,81 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define LOG_3(severity, cond, x) if (cond) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
 
+
+//! MODE_NOLOG
+
+#ifdef MODE_NOLOG
+//lpp
+#define LOG_2(severity, x) (void) LPP_INTL::LppSeverity::severity; InternalLog() << x
+#define LOG_EVERY(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
+#define LOG_FIRST(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
+#define LOG_TIMED(severity, t, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+
+//glog
+#define LOG_1(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define DLOG(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define DLOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define LOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define DLOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
+#define LOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
+#define DLOG_IF_EVERY_N(severity, cond, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(cond), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
+#define LOG_IF_EVERY_N(severity, cond, n) DLOG_IF_EVERY_N(severity, cond, n)
+#define LOG_STRING(severity, ptr) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(ptr), std::vector<std::string>*>::value || std::is_same<decltype(ptr), std::nullptr_t>::value); InternalLog()
+#define VLOG(verboselevel) static_assert(std::is_integral_v<decltype(verboselevel)>); InternalLog()
+#define VLOG_IF(verboselevel, condition) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value); InternalLog()
+#define VLOG_EVERY_N(verboselevel, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_integral_v<decltype(n)>); InternalLog()
+#define VLOG_IF_EVERY_N(verboselevel, condition, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
+#define DLOG_EVERY_T(severity, t) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+#define LOG_EVERY_T(severity, t) DLOG_EVERY_T(severity, t)
+
+//ros
+#define ROS_DEBUG(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_INFO(...) LOG_2(I, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_WARN(...) LOG_2(W, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_ERROR(...) LOG_2(E, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_FATAL(...) LOG_2(F, LPP_INTL::emptyString(__VA_ARGS__))
+
+#define ROS_DEBUG_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_INFO_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_WARN_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_ERROR_STREAM(x) LPP_INTL::emptyString(x)
+#define ROS_FATAL_STREAM(x) LPP_INTL::emptyString(x)
+
+#define ROS_DEBUG_ONCE(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_INFO_ONCE(...) LOG_2(I, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_WARN_ONCE(...) LOG_2(W, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_ERROR_ONCE(...) LOG_2(E, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_FATAL_ONCE(...) LOG_2(F, LPP_INTL::emptyString(__VA_ARGS__))
+
+#define ROS_DEBUG_THROTTLE(t, x) static_assert(std::is_integral_v<decltype(t)>); LPP_INTL::emptyString(x)
+#define ROS_DEBUG_STREAM_THROTTLE(t, x) static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+#define ROS_INFO_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_INFO_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
+#define ROS_WARN_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_WARN_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
+#define ROS_ERROR_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_ERROR_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
+#define ROS_FATAL_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
+#define ROS_FATAL_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
+#endif
+
 namespace lpp {
 namespace internal {
+#ifdef MODE_NOLOG
+//! Used to disable logging for printf(3) like syntax
+template<typename... Args>
+constexpr inline std::string_view emptyString([[maybe_unused]] const char *f, [[maybe_unused]] Args... args) {
+  return "";
+}
 
+[[maybe_unused]] constexpr std::string_view emptyString([[maybe_unused]] const char *str) {
+  return "";
+}
+
+[[maybe_unused]] constexpr std::string_view emptyString([[maybe_unused]] const std::string& str) {
+  return "";
+}
+#endif
 //! Composes a string with the same text that would be printed if format was used on printf(3)
 template<typename... Args>
 inline std::string formatToString(const char *f, Args... args) {

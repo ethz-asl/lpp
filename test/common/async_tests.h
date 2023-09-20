@@ -44,7 +44,7 @@ class TestResult {
    * @return true on success otherwise false
    */
   inline bool get(const std::string &test_name) {
-    test_result_mutex_.lock();
+    std::scoped_lock<std::mutex> lock(test_result_mutex_);
     LOG_INIT(*test_argv);
     if (!started_) {
       started_ = true;
@@ -56,7 +56,6 @@ class TestResult {
     }
 
     bool res = test_results.at(test_name);
-    test_result_mutex_.unlock();
     return res;
   }
 
