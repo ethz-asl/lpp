@@ -30,6 +30,9 @@ jobs:
     - name: Install GCC version ${{ matrix.config.gcc}}
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa -y && sudo apt update && sudo apt install -y gcc-${{ matrix.config.gcc}} g++-${{ matrix.config.gcc}} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.config.gcc}} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.config.gcc}}
 
+    - name: Install ROS dependencies
+      run: sudo apt install -y ros-noetic-rosbash
+
     - name: Install catkin tools
       run: sudo apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools
 
