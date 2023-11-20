@@ -1,5 +1,3 @@
-name: C++ Ubuntu 20.04
-
 on:
   pull_request:
     branches:
@@ -12,10 +10,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {rosdistro: 'noetic', container: 'ros:noetic-ros-base-focal', gcc: '9'}
-          - {rosdistro: 'noetic', container: 'ros:noetic-ros-base-focal', gcc: '10'}
-    container: ${{ matrix.config.container }}
-
+          - {rosdistro: 'noetic', gcc: '9'}
+          - {rosdistro: 'noetic', gcc: '10'}
+    container: ros:${{ matrix.config.rosdistro }}-ros-base-focal
+    name: ROS ${{ matrix.config.rosdistro }} - GCC ${{ matrix.config.gcc }}
     steps:
     - uses: actions/checkout@v3
       name: Checkout lpp
