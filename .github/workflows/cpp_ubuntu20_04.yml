@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        rosdistro: ['noetic']
+        rosdistro: ['noetic', 'melodic']
         gcc: ['8', '9', '10']
     container: ros:${{ matrix.rosdistro }}-ros-base-focal
     name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }}
