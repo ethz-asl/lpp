@@ -1,3 +1,4 @@
+name: lpp
 on:
   pull_request:
     branches:
@@ -28,9 +29,6 @@ jobs:
     - name: Install GCC version ${{ matrix.config.gcc}}
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa -y && sudo apt update && sudo apt install -y gcc-${{ matrix.config.gcc}} g++-${{ matrix.config.gcc}} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.config.gcc}} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.config.gcc}}
 
-    - name: Install ROS dependencies
-      run: sudo apt install -y ros-noetic-rosbash
-
     - name: Install catkin tools
       run: sudo apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools
 
@@ -38,11 +36,11 @@ jobs:
       run: sudo apt install -y libgoogle-glog-dev
 
     - name: Build lpp
-      run: source /opt/ros/noetic/setup.bash && catkin build lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
+      run: source /opt/ros/${{ matrix.config.rosdistro }}/setup.bash && catkin build lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
       working-directory: catkin_ws
       shell: bash
 
     - name: Run unittests
-      run: source /opt/ros/noetic/setup.bash && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash && rosrun lpp test_lpp && rosrun lpp test_glog && rosrun lpp test_lpp_custom && rosrun lpp test_nolog && rosrun lpp test_default && rosrun lpp test_roslog
+      run: source /opt/ros/${{ matrix.config.rosdistro }}/setup.bash && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash && rosrun lpp test_lpp && rosrun lpp test_glog && rosrun lpp test_lpp_custom && rosrun lpp test_nolog && rosrun lpp test_default && rosrun lpp test_roslog
       working-directory: catkin_ws
       shell: bash
