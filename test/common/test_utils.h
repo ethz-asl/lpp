@@ -24,7 +24,7 @@ inline static bool isSubstring(const std::string &string, const std::string &sub
 
 inline static std::string removeNumbersFromString(std::string str) {
   int current = 0;
-  for (int i = 0; i < str.length(); i++) {
+  for (std::size_t i = 0; i < str.length(); i++) {
     if (!isdigit(str[i])) {
       str[current] = str[i];
       current++;

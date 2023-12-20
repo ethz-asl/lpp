@@ -216,9 +216,10 @@ using namespace lpp::internal;
  * Used to initialize Log++
  *
  * If called more than once, all further calls will be ignored.
- * @param argv is used for GLOG if present, otherwise unused.
+ * @param argv is used if MODE_GLOG is defined, otherwise unused.
+ * @param callback is used if MODE_LPP is defined, otherwise unused.
  */
-inline void LOG_INIT([[maybe_unused]] char *argv, const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
+inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
   if (!lppInit.glog_initialized || !lppInit.lpp_initialized) {
 
@@ -819,7 +820,7 @@ class InternalLogCount {
 class InternalGlogLogStringLog : public InternalLog {
  public:
   InternalGlogLogStringLog(BaseSeverity base_severity, std::vector<std::string>* vecptr):
-  vecptr_(vecptr), InternalLog(base_severity) {
+  InternalLog(base_severity), vecptr_(vecptr) {
     if (vecptr != nullptr) {
       should_print_ = false;
     }
@@ -839,8 +840,8 @@ class InternalGlogLogStringLog : public InternalLog {
 class InternalPolicyLog : public InternalLog {
  public:
   InternalPolicyLog(std::string key, int n, BaseSeverity base_severity, PolicyType policy_type) :
-      key_(std::move(key)), n_(n), policy_type_(policy_type),
-      InternalLog(base_severity) {
+      InternalLog(base_severity), key_(std::move(key)), n_(n),
+      policy_type_(policy_type) {
     should_print_ = false;
   };
 
