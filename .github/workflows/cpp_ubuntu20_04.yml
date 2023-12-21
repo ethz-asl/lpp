@@ -14,7 +14,7 @@ jobs:
         gcc: ['8', '9', '10']
         cxx: ['11', '14', '17']
     container: ros:${{ matrix.rosdistro }}-ros-base-focal
-    name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }}
+    name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
     steps:
     - uses: actions/checkout@v3
       name: Checkout lpp
