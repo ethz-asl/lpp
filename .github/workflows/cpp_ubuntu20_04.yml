@@ -12,6 +12,7 @@ jobs:
       matrix:
         rosdistro: ['noetic']
         gcc: ['8', '9', '10']
+        cxx: ['11', '14', '17']
     container: ros:${{ matrix.rosdistro }}-ros-base-focal
     name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }}
     steps:
@@ -35,7 +36,7 @@ jobs:
       run: sudo apt install -y libgoogle-glog-dev
 
     - name: Build lpp
-      run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && catkin build lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
+      run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && catkin build -DCMAKE_CXX_STANDARD=${{ matrix.cxx }} lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
       working-directory: catkin_ws
       shell: bash
 
