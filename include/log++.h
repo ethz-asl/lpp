@@ -446,25 +446,25 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #ifdef MODE_NOLOG
 //lpp
 #define LOG_2(severity, x) (void) LPP_INTL::LppSeverity::severity; InternalLog() << x
-#define LOG_EVERY(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
-#define LOG_FIRST(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
-#define LOG_TIMED(severity, t, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+#define LOG_EVERY(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define LOG_FIRST(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define LOG_TIMED(severity, t, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral<decltype(t)>::value, ""); InternalLog()
 
 //glog
 #define LOG_1(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
 #define DLOG(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
 #define DLOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
 #define LOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
-#define DLOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
-#define LOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(n)>); InternalLog()
-#define DLOG_IF_EVERY_N(severity, cond, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(cond), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
+#define DLOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define LOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define DLOG_IF_EVERY_N(severity, cond, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(cond), bool>::value && std::is_integral<decltype(n)>::value, ""); InternalLog()
 #define LOG_IF_EVERY_N(severity, cond, n) DLOG_IF_EVERY_N(severity, cond, n)
-#define LOG_STRING(severity, ptr) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(ptr), std::vector<std::string>*>::value || std::is_same<decltype(ptr), std::nullptr_t>::value); InternalLog()
-#define VLOG(verboselevel) static_assert(std::is_integral_v<decltype(verboselevel)>); InternalLog()
-#define VLOG_IF(verboselevel, condition) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value); InternalLog()
-#define VLOG_EVERY_N(verboselevel, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_integral_v<decltype(n)>); InternalLog()
-#define VLOG_IF_EVERY_N(verboselevel, condition, n) static_assert(std::is_integral_v<decltype(verboselevel)> && std::is_same<decltype(condition), bool>::value && std::is_integral_v<decltype(n)>); InternalLog()
-#define DLOG_EVERY_T(severity, t) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+#define LOG_STRING(severity, ptr) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(ptr), std::vector<std::string>*>::value || std::is_same<decltype(ptr), std::nullptr_t>::value, ""); InternalLog()
+#define VLOG(verboselevel) static_assert(std::is_integral<decltype(verboselevel)>::value, ""); InternalLog()
+#define VLOG_IF(verboselevel, condition) static_assert(std::is_integral<decltype(verboselevel)>::value && std::is_same<decltype(condition), bool>::value, ""); InternalLog()
+#define VLOG_EVERY_N(verboselevel, n) static_assert(std::is_integral<decltype(verboselevel)>::value && std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define VLOG_IF_EVERY_N(verboselevel, condition, n) static_assert(std::is_integral<decltype(verboselevel)>::value && std::is_same<decltype(condition), bool>::value && std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define DLOG_EVERY_T(severity, t) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral<decltype(t)>::value, ""); InternalLog()
 #define LOG_EVERY_T(severity, t) DLOG_EVERY_T(severity, t)
 
 //ros
@@ -480,14 +480,14 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define ROS_ERROR_STREAM(x) LPP_INTL::emptyString(x)
 #define ROS_FATAL_STREAM(x) LPP_INTL::emptyString(x)
 
-#define ROS_DEBUG_ONCE(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
-#define ROS_INFO_ONCE(...) LOG_2(I, LPP_INTL::emptyString(__VA_ARGS__))
-#define ROS_WARN_ONCE(...) LOG_2(W, LPP_INTL::emptyString(__VA_ARGS__))
-#define ROS_ERROR_ONCE(...) LOG_2(E, LPP_INTL::emptyString(__VA_ARGS__))
-#define ROS_FATAL_ONCE(...) LOG_2(F, LPP_INTL::emptyString(__VA_ARGS__))
+#define ROS_DEBUG_ONCE(...) LOG_2(D, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_INFO_ONCE(...) LOG_2(I, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_WARN_ONCE(...) LOG_2(W, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_ERROR_ONCE(...) LOG_2(E, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_FATAL_ONCE(...) LOG_2(F, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
 
-#define ROS_DEBUG_THROTTLE(t, x) static_assert(std::is_integral_v<decltype(t)>); LPP_INTL::emptyString(x)
-#define ROS_DEBUG_STREAM_THROTTLE(t, x) static_assert(std::is_integral_v<decltype(t)>); InternalLog()
+#define ROS_DEBUG_THROTTLE(t, x) static_assert(std::is_integral<decltype(t)>::value, ""); LPP_INTL::emptyString(x)
+#define ROS_DEBUG_STREAM_THROTTLE(t, x) static_assert(std::is_integral<decltype(t)>::value, ""); InternalLog()
 #define ROS_INFO_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
 #define ROS_INFO_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
 #define ROS_WARN_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
@@ -503,15 +503,15 @@ namespace internal {
 #ifdef MODE_NOLOG
 //! Used to disable logging for printf(3) like syntax
 template<typename... Args>
-constexpr inline std::string_view emptyString([[maybe_unused]] const char *f, [[maybe_unused]] Args... args) {
+constexpr inline const char* emptyString([[maybe_unused]] const char *f, [[maybe_unused]] Args... args) {
   return "";
 }
 
-[[maybe_unused]] constexpr std::string_view emptyString([[maybe_unused]] const char *str) {
+[[maybe_unused]] constexpr const char* emptyString([[maybe_unused]] const char *str) {
   return "";
 }
 
-[[maybe_unused]] constexpr std::string_view emptyString([[maybe_unused]] const std::string& str) {
+[[maybe_unused]] constexpr const char* emptyString([[maybe_unused]] const std::string& str) {
   return "";
 }
 #endif

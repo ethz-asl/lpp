@@ -5,8 +5,12 @@
 #ifndef LOG_TEST_COMMON_ASYNC_TESTS_H_
 #define LOG_TEST_COMMON_ASYNC_TESTS_H_
 
-#include <thread>
+#if __cplusplus >= 201703L
+#include <mutex>
+#endif
+
 #include <test_utils.h>
+#include <thread>
 
 #define GET_CLASS_NAME(class_ptr, status) abi::__cxa_demangle(typeid(class_ptr).name(), nullptr, nullptr, status)
 
@@ -44,7 +48,12 @@ class TestResult {
    * @return true on success otherwise false
    */
   inline bool get(const std::string &test_name) {
+#if __cplusplus >= 201703L
     std::scoped_lock<std::mutex> lock(test_result_mutex_);
+#elif __cplusplus >= 201103L
+    std::lock_guard<std::mutex> lock(test_result_mutex_);
+#endif
+
     LOG_INIT(*test_argv);
     if (!started_) {
       started_ = true;
