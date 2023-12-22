@@ -4,7 +4,7 @@
 
 #include <log++.h>
 
-int main(int argc, char **argv) {
+int main([[maybe_unused]] int argc, char **argv) {
   LOG_INIT(argv[0]);
 
   int foo = 5;

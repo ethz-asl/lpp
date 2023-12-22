@@ -7,7 +7,7 @@ if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
 endif ()
 
 # Set standard of top level project or C++17
-if (NOT DEFINED ${CMAKE_CXX_STANDARD})
+if (NOT DEFINED CMAKE_CXX_STANDARD)
         set(CMAKE_CXX_STANDARD 17)
         add_definitions(-Wall -Wextra -Wpedantic -Werror -Wno-unknown-pragmas)
 else ()
