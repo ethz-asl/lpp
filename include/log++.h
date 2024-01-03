@@ -216,9 +216,10 @@ using namespace lpp::internal;
  * Used to initialize Log++
  *
  * If called more than once, all further calls will be ignored.
- * @param argv is used for GLOG if present, otherwise unused.
+ * @param argv is used if MODE_GLOG is defined, otherwise unused.
+ * @param callback is used if MODE_LPP is defined, otherwise unused.
  */
-inline void LOG_INIT([[maybe_unused]] char *argv, const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
+inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
   if (!lppInit.glog_initialized || !lppInit.lpp_initialized) {
 
@@ -296,29 +297,29 @@ LPP_INTL::LppGlogExtensionLog(LPP_GET_KEY(), n, LPP_INTL::GlogSeverity::severity
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-macro-parentheses"
 
-#define LOG_2(severity, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity);                \
-if      (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_1(INFO) << x;}        \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_1(WARNING) << x;}     \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_1(ERROR) << x;}       \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_1(FATAL) << x;}       \
-true
+#define LOG_2(severity, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
+if      constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_1(INFO) << x;}        \
+else if constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_1(WARNING) << x;}     \
+else if constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_1(ERROR) << x;}       \
+else if constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_1(FATAL) << x;}       \
+} while(0)
 
 //Add true at the end to make semicolons mandatory. Compiles to nothing.
 #define LOG_3(severity, cond, x) if (cond) { LOG_2(severity, x);} true
-#define LOG_EVERY(severity, n, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); \
-if      (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I) {LOG_EVERY_N(INFO, n) << x;}        \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_EVERY_N(WARNING, n) << x;}     \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_EVERY_N(ERROR, n) << x;}       \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_EVERY_N(FATAL, n) << x;}       \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {DLOG_EVERY_N(INFO, n) << x;}       \
-true
+#define LOG_EVERY(severity, n, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
+if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I) {LOG_EVERY_N(INFO, n) << x;}        \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_EVERY_N(WARNING, n) << x;}     \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_EVERY_N(ERROR, n) << x;}       \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_EVERY_N(FATAL, n) << x;}       \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {DLOG_EVERY_N(INFO, n) << x;}       \
+} while(0)
 
-#define LOG_FIRST(severity, n, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); \
-if      (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_FIRST_N(INFO, n) << x;}        \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_FIRST_N(WARNING, n) << x;}     \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_FIRST_N(ERROR, n) << x;}       \
-else if (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_FIRST_N(FATAL, n) << x;}       \
-true
+#define LOG_FIRST(severity, n, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
+if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_FIRST_N(INFO, n) << x;}        \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_FIRST_N(WARNING, n) << x;}     \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_FIRST_N(ERROR, n) << x;}       \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_FIRST_N(FATAL, n) << x;}       \
+} while(0)
 
 #ifndef MODE_DEFAULT
 #define ROS_DEBUG(...) DLOG(INFO) << LPP_INTL::formatToString(__VA_ARGS__)
@@ -819,7 +820,7 @@ class InternalLogCount {
 class InternalGlogLogStringLog : public InternalLog {
  public:
   InternalGlogLogStringLog(BaseSeverity base_severity, std::vector<std::string>* vecptr):
-  vecptr_(vecptr), InternalLog(base_severity) {
+  InternalLog(base_severity), vecptr_(vecptr) {
     if (vecptr != nullptr) {
       should_print_ = false;
     }
@@ -839,8 +840,8 @@ class InternalGlogLogStringLog : public InternalLog {
 class InternalPolicyLog : public InternalLog {
  public:
   InternalPolicyLog(std::string key, int n, BaseSeverity base_severity, PolicyType policy_type) :
-      key_(std::move(key)), n_(n), policy_type_(policy_type),
-      InternalLog(base_severity) {
+      InternalLog(base_severity), key_(std::move(key)), n_(n),
+      policy_type_(policy_type) {
     should_print_ = false;
   };
 
