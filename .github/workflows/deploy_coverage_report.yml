@@ -1,14 +1,12 @@
+name: Coverage report
 on:
-  pull_request:
-    branches:
-      - "master"
   push:
-      branches:
+    branches:
       - "master"
 
 jobs:
-  build:
-    name: Generate coverage report
+  deploy:
+    name: Deploy coverage report
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.url }}
@@ -56,9 +54,18 @@ jobs:
         working-directory: catkin_ws/src/lpp/build/devel/lib/lpp
         shell: bash
 
-      - name: Print coverage
-        run: gcovr
-        working-directory: catkin_ws/src/lpp
+      - name: Generate coverage report
+        run: make coverage
+        working-directory: catkin_ws/src/lpp/build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./catkin_ws/src/lpp/build/coverage
+
+      - name: Deploy to Github pages
+        uses: actions/deploy-pages@v4
+        id: deployment
 
 
 
