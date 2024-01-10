@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     name: Generate coverage report
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.url }}
     runs-on: [self-hosted, linux]
     strategy:
       fail-fast: false
@@ -20,9 +17,6 @@ jobs:
         gcc: ['10']
         cxx: ['17']
     container: ros:${{ matrix.rosdistro }}-ros-base-focal
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
     steps:
       - uses: actions/checkout@v3
         name: Checkout lpp
