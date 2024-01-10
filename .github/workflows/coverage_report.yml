@@ -55,16 +55,23 @@ jobs:
         working-directory: catkin_ws/src/lpp/build/devel/lib/lpp
         shell: bash
 
+      - name: Print coverage
+        run: gcovr
+        working-directory: catkin_ws/src/lpp
+
       - name: Generate coverage report
+        if: github.ref == 'refs/heads/master'
         run: make coverage
         working-directory: catkin_ws/src/lpp/build
 
       - name: Upload artifact
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
         with:
             path: ./catkin_ws/src/lpp/build/coverage
 
       - name: Deploy to Github pages
+        if: github.ref == 'refs/heads/master'
         uses: actions/deploy-pages@v4
         id: deployment
 
