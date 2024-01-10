@@ -7,6 +7,7 @@ on:
 
 jobs:
   deploy:
+    name: Deploy coverage report
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.url }}
@@ -43,6 +44,8 @@ jobs:
 
       - name: Source ROS
         run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash
+        working-directory: catkin_ws
+        shell: bash
 
       - name: Build lpp
         run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Debug" -DENABLE_COVERAGE=1 && make
