@@ -59,7 +59,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-            path: .
+            path: ./catkin_ws/src/lpp/build/coverage
 
 
 
