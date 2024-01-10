@@ -6,6 +6,13 @@ if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
         set(LPP_BUILD_TESTS 1)
 endif ()
 
+if (ENABLE_COVERAGE)
+        set(LPP_TEST_CXX_FLAGS ${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage)
+        message(STATUS "Coverage enabled")
+else ()
+        set(LPP_TEST_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fcompare-debug-second)
+endif ()
+
 # Set standard of top level project or C++17
 if (NOT DEFINED CMAKE_CXX_STANDARD)
         set(CMAKE_CXX_STANDARD 17)
@@ -87,7 +94,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${GLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/glog)
         target_link_libraries(${GLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${GLOG_TESTS} PRIVATE MODE_GLOG)
-        target_compile_options(${GLOG_TESTS} PRIVATE ${CMAKE_CXX_FLAGS} "-fprofile-arcs" "-ftest-coverage")
+        target_compile_options(${GLOG_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
         ##### Log++ Tests #####
         set(LPP_TESTS "test_lpp")
@@ -103,7 +110,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
         target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${LPP_TESTS} PRIVATE MODE_LPP)
-        target_compile_options(${LPP_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
+        target_compile_options(${LPP_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
         ##### Log++ Custom Output Tests #####
         set(LPP_TESTS_CUSTOM "test_lpp_custom")
@@ -120,7 +127,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
         target_link_libraries(${LPP_TESTS_CUSTOM} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${LPP_TESTS_CUSTOM} PRIVATE MODE_LPP)
-        target_compile_options(${LPP_TESTS_CUSTOM} PRIVATE "-fprofile-arcs" "-ftest-coverage")
+        target_compile_options(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
         ##### Roslog Tests #####
         set(ROSLOG_TESTS "test_roslog")
@@ -136,7 +143,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)
         target_link_libraries(${ROSLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${ROSLOG_TESTS} PRIVATE MODE_ROSLOG)
-        target_compile_options(${ROSLOG_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
+        target_compile_options(${ROSLOG_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
         ##### Default Tests #####
         set(DEFAULT_TESTS "test_default")
@@ -155,7 +162,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${DEFAULT_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/default)
         target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${DEFAULT_TESTS} PRIVATE MODE_DEFAULT)
-        target_compile_options(${DEFAULT_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
+        target_compile_options(${DEFAULT_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
         ##### Nolog Tests #####
         set(NOLOG_TESTS "test_nolog")
@@ -173,7 +180,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_include_directories(${NOLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/nolog)
         target_link_libraries(${NOLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${NOLOG_TESTS} PRIVATE MODE_NOLOG)
-        target_compile_options(${NOLOG_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
+        target_compile_options(${NOLOG_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
         add_custom_target(coverage
                 COMMAND mkdir coverage && cd coverage && gcovr -r ${CMAKE_SOURCE_DIR} --html --html-details -o coverage.html
