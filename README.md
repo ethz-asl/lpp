@@ -1,5 +1,7 @@
 # Log++ Logging framework
+[![lpp](https://github.com/ethz-asl/lpp/actions/workflows/cpp_ubuntu20_04.yml/badge.svg)](https://github.com/ethz-asl/lpp/actions/workflows/cpp_ubuntu20_04.yml)
 
+[Latest Code Coverage Report](https://ethz-asl.github.io/lpp/coverage.html) (master branch)
 
 ![](docs/Log++.svg)
 ***
