@@ -1,3 +1,4 @@
+name: Generate coverage report
 on:
   pull_request:
     branches:
@@ -8,7 +9,6 @@ on:
 
 jobs:
   build:
-    name: Generate coverage report
     runs-on: [self-hosted, linux]
     strategy:
       fail-fast: false
