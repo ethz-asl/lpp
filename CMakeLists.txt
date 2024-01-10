@@ -85,9 +85,9 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/glog/test_glog_vlog.cc)
 
         target_include_directories(${GLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/glog)
-        target_link_libraries(${GLOG_TESTS} glog gtest ${catkin_LIBRARIES})
+        target_link_libraries(${GLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${GLOG_TESTS} PRIVATE MODE_GLOG)
-        target_compile_options(${GLOG_TESTS} PRIVATE "-fcompare-debug-second")
+        target_compile_options(${GLOG_TESTS} PRIVATE ${CMAKE_CXX_FLAGS} "-fprofile-arcs" "-ftest-coverage")
 
         ##### Log++ Tests #####
         set(LPP_TESTS "test_lpp")
@@ -101,9 +101,9 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/test_lpp_vlog.cc)
 
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
-        target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES})
+        target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${LPP_TESTS} PRIVATE MODE_LPP)
-        target_compile_options(${LPP_TESTS} PRIVATE "-fcompare-debug-second")
+        target_compile_options(${LPP_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
 
         ##### Log++ Custom Output Tests #####
         set(LPP_TESTS_CUSTOM "test_lpp_custom")
@@ -118,9 +118,9 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/custom/test_lpp_custom_vlog.cc)
 
         target_include_directories(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
-        target_link_libraries(${LPP_TESTS_CUSTOM} glog gtest ${catkin_LIBRARIES})
+        target_link_libraries(${LPP_TESTS_CUSTOM} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${LPP_TESTS_CUSTOM} PRIVATE MODE_LPP)
-        target_compile_options(${LPP_TESTS_CUSTOM} PRIVATE "-fcompare-debug-second")
+        target_compile_options(${LPP_TESTS_CUSTOM} PRIVATE "-fprofile-arcs" "-ftest-coverage")
 
         ##### Roslog Tests #####
         set(ROSLOG_TESTS "test_roslog")
@@ -134,9 +134,9 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/roslog/test_roslog_vlog.cc)
 
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)
-        target_link_libraries(${ROSLOG_TESTS} glog gtest ${catkin_LIBRARIES})
+        target_link_libraries(${ROSLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${ROSLOG_TESTS} PRIVATE MODE_ROSLOG)
-        target_compile_options(${ROSLOG_TESTS} PRIVATE "-fcompare-debug-second")
+        target_compile_options(${ROSLOG_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
 
         ##### Default Tests #####
         set(DEFAULT_TESTS "test_default")
@@ -153,9 +153,9 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/default/test_severity_conversions.cc)
 
         target_include_directories(${DEFAULT_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/default)
-        target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES})
+        target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${DEFAULT_TESTS} PRIVATE MODE_DEFAULT)
-        target_compile_options(${DEFAULT_TESTS} PRIVATE "-fcompare-debug-second")
+        target_compile_options(${DEFAULT_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
 
         ##### Nolog Tests #####
         set(NOLOG_TESTS "test_nolog")
@@ -171,7 +171,13 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         )
 
         target_include_directories(${NOLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/nolog)
-        target_link_libraries(${NOLOG_TESTS} glog gtest ${catkin_LIBRARIES})
+        target_link_libraries(${NOLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${NOLOG_TESTS} PRIVATE MODE_NOLOG)
-        target_compile_options(${NOLOG_TESTS} PRIVATE "-fcompare-debug-second")
+        target_compile_options(${NOLOG_TESTS} PRIVATE "-fprofile-arcs" "-ftest-coverage")
+
+        add_custom_target(coverage
+                COMMAND mkdir coverage && cd coverage && gcovr -r ${CMAKE_SOURCE_DIR} --html --html-details -o coverage.html
+                COMMENT "Generating coverage report"
+                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        )
 endif ()
