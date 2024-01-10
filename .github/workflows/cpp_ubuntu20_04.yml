@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         rosdistro: ['noetic']
-        gcc: ['8', '9', '10']
+        gcc: ['8', '9', '10', '11']
         cxx: ['11', '14', '17']
     container: ros:${{ matrix.rosdistro }}-ros-base-focal
     name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
@@ -30,7 +30,7 @@ jobs:
       run: sudo apt update && sudo apt-get install -y software-properties-common && sudo add-apt-repository -y ppa:git-core/ppa && sudo apt-get update && sudo apt-get install -y git
 
     - name: Install GCC version ${{ matrix.gcc }}
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa -y && sudo apt update && sudo apt install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc }} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc }}
+      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt update && sudo apt install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc }} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc }}
 
     - name: Install catkin tools
       run: sudo apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools
