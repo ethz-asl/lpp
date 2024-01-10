@@ -48,7 +48,7 @@ jobs:
         shell: bash
 
       - name: Run unittests
-        run: ./test_default && ./test_glog && ./test_lpp && ./test_lpp_custom && ./test_nolog && ./test_roslog
+        run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && ./test_default && ./test_glog && ./test_lpp && ./test_lpp_custom && ./test_nolog && ./test_roslog
         working-directory: catkin_ws/src/lpp/build/devel/lib/lpp
         shell: bash
 
