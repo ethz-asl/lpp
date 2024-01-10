@@ -61,5 +61,9 @@ jobs:
         with:
             path: ./catkin_ws/src/lpp/build/coverage
 
+      - name: Deploy to Github pages
+        uses: actions/deploy-pages@v4
+        id: deployment
+
 
 
