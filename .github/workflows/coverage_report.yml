@@ -1,0 +1,64 @@
+name: Coverage report
+on:
+  push:
+      branches:
+      - "master"
+      - "feature/coverage"
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.url }}
+    runs-on: [self-hosted, linux]
+    strategy:
+      fail-fast: false
+      matrix:
+        rosdistro: ['noetic']
+        gcc: ['10']
+        cxx: ['17']
+    container: ros:${{ matrix.rosdistro }}-ros-base-focal
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout lpp
+        with:
+          repository: ethz-asl/lpp
+          token: ${{ secrets.PAT }}
+          path: catkin_ws/src/lpp
+
+      - name: Install newest git version
+        run: sudo apt update && sudo apt-get install -y software-properties-common && sudo add-apt-repository -y ppa:git-core/ppa && sudo apt-get update && sudo apt-get install -y git
+
+      - name: Install GCC version ${{ matrix.gcc }}
+        run: sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa -y && sudo apt update && sudo apt install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc }} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc }}
+
+      - name: Install catkin tools
+        run: sudo apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools
+
+      - name: Install system dependencies
+        run: sudo apt install -y libgoogle-glog-dev
+
+      - name: Install gcovr
+        run: sudo apt install -y gcovr
+
+      - name: Build lpp
+        run: mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Debug" -DENABLE_COVERAGE=1 && make
+        working-directory: catkin_ws/src/lpp
+        shell: bash
+
+      - name: Run unittests
+        run: ./test_default && ./test_glog && ./test_lpp && ./test_lpp_custom && ./test_nolog && ./test_roslog
+        working-directory: catkin_ws/src/lpp/build/devel/lib/lpp
+        shell: bash
+
+      - name: Generate coverage report
+        run: make coverage
+        working-directory: catkin_ws/src/lpp/build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+            path: ${{runner.temp}}/catkin_ws/src/lpp/build/coverage"
+
+
+
