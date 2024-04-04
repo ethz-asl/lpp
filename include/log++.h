@@ -392,7 +392,7 @@ if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I   
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
 #define LOG_EVERY(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::EVERY_N) // NOLINT(bugprone-macro-parentheses)
 #define LOG_FIRST(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::FIRST_N) // NOLINT(bugprone-macro-parentheses)
-#define LOG_TIMED(severity, t, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
+#define LOG_TIMED(severity, t, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), t, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
