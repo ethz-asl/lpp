@@ -279,10 +279,10 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 
 #ifndef LOG_EVERY_T
 #define LPP_INTL_LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer. File name and line numbers will be invalid in the log output.") \
-LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), t, toBase(severity), LPP_INTL::PolicyType::TIMED)
+LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(severity), LPP_INTL::PolicyType::TIMED)
 
 #define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
-LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
+LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #endif
 
 #define LPP_INTL_DLOG_EVERY_T(severity, t) LPP_WARN("File name and line numbers will be invalid in the log output.") LOG_EVERY_T(severity, t)
@@ -408,15 +408,15 @@ if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I   
 #endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
 
 #if defined MODE_ROSLOG || defined MODE_LPP
-#define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
+#define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
 #define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
-#define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
+#define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
 
 #define DLOG(severity) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalLog(LPP_INTL::BaseSeverity::DEBUG)
-#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); \
-LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
-#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
+#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
 
 #undef VLOG_IS_ON
