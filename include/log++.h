@@ -472,8 +472,6 @@ LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG
 
 #define LOG_IF(severity, cond) if (cond) LPP_INTL::InternalLog(GlogSeverity::severity)
 #define LOG_1(severity) LPP_INTL::InternalLog(LPP_INTL::GlogSeverity::severity)
-#define DLOG_EVERY_T(severity, t) LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::DEBUG), LPP_INTL::PolicyType::TIMED)
-#define LOG_EVERY_T(severity, t) LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #endif
 
 #if defined MODE_LPP || defined MODE_DEFAULT
