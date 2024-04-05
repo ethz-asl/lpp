@@ -140,6 +140,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/roslog/test_roslog_if_every_n.cc
                 test/roslog/test_roslog_log_string.cc
                 test/roslog/test_roslog_rosprintf.cc
+                test/roslog/test_roslog_timed.cc
                 test/roslog/test_roslog_vlog.cc)
 
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)

@@ -16,7 +16,8 @@
 
 enum CompareType {
   EQUAL,
-  IS_SUBSTRING
+  IS_SUBSTRING,
+  REMOVE_NUMBERS_FROM_STRING
 };
 
 enum StreamType {
@@ -128,6 +129,7 @@ class TestResult {
     switch (compare_type) {
       case EQUAL:return compareEquality(output, expected_output);
       case IS_SUBSTRING: return compareSubstring(output, expected_output);
+      case REMOVE_NUMBERS_FROM_STRING: return compareRemoveNumbersFromString(output, expected_output);
       default:return false;
     }
   }
@@ -142,6 +144,10 @@ class TestResult {
   static inline bool compareEquality(const std::string &output, const std::string &expected_output) {
     return output == expected_output;
   };
+
+  static inline bool compareRemoveNumbersFromString(const std::string &output, const std::string &expected_output) {
+    return expected_output == removeNumbersFromString(output);
+  }
 
   inline void insert(const std::string &test_name, bool test_status) {
     test_results.insert({test_name, test_status});
