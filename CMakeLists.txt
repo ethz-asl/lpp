@@ -106,6 +106,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/test_lpp_if_every_n.cc
                 test/lpp/test_lpp_log_string.cc
                 test/lpp/test_lpp_rosprintf.cc
+                test/lpp/test_lpp_timed.cc
                 test/lpp/test_lpp_vlog.cc)
 
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)

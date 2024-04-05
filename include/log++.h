@@ -457,8 +457,21 @@ LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG
 #define ROS_ERROR_ONCE(...) LOG_FIRST(E, 1, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, LPP_INTL::formatToString(__VA_ARGS__))
 
+#define ROS_DEBUG_THROTTLE(period, ...) LOG_TIMED(D, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_DEBUG_STREAM_THROTTLE(period, x) LOG_TIMED(D, period, x)
+#define ROS_INFO_THROTTLE(period, ...) LOG_TIMED(I, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_INFO_STREAM_THROTTLE(period, x) LOG_TIMED(I, period, x)
+#define ROS_WARN_THROTTLE(period, ...) LOG_TIMED(W, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_WARN_STREAM_THROTTLE(period, x) LOG_TIMED(W, period, x)
+#define ROS_ERROR_THROTTLE(period, ...) LOG_TIMED(E, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_ERROR_STREAM_THROTTLE(period, x) LOG_TIMED(E, period, x)
+#define ROS_FATAL_THROTTLE(period, ...) LOG_TIMED(F, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_FATAL_STREAM_THROTTLE(period, x) LOG_TIMED(F, period, x)
+
 #define LOG_IF(severity, cond) if (cond) LPP_INTL::InternalLog(GlogSeverity::severity)
 #define LOG_1(severity) LPP_INTL::InternalLog(LPP_INTL::GlogSeverity::severity)
+#define DLOG_EVERY_T(severity, t) LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::DEBUG), LPP_INTL::PolicyType::TIMED)
+#define LOG_EVERY_T(severity, t) LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #endif
 
 #if defined MODE_LPP || defined MODE_DEFAULT
