@@ -35,9 +35,10 @@ std::vector<AsyncTest> generateTests() {
 }
 
 TEST(glog_timed, lpp_syntax_floating_point_time) {
+  LOG_INIT(*test_argv);
   for (int i = 0; i < 5; i++) {
 
-    std::string output = LPP_CAPTURE_STDOUT(LOG_TIMED(I, 0.1, "Test" << 123));
+    std::string output = LPP_CAPTURE_STDERR(LOG_TIMED(I, 0.1, "Test" << 123));
     if (i % 2 == 0) {
       ASSERT_TRUE(isSubstring(output, "I"));
       ASSERT_TRUE(isSubstring(output, "Test123"));
