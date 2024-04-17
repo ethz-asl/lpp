@@ -89,6 +89,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/glog/test_glog_if_every_n.cc
                 test/glog/test_glog_log_string.cc
                 test/glog/test_glog_rosprintf.cc
+                test/glog/test_glog_timed.cc
                 test/glog/test_glog_vlog.cc)
 
         target_include_directories(${GLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/glog)
@@ -105,6 +106,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/test_lpp_if_every_n.cc
                 test/lpp/test_lpp_log_string.cc
                 test/lpp/test_lpp_rosprintf.cc
+                test/lpp/test_lpp_timed.cc
                 test/lpp/test_lpp_vlog.cc)
 
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
@@ -138,6 +140,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/roslog/test_roslog_if_every_n.cc
                 test/roslog/test_roslog_log_string.cc
                 test/roslog/test_roslog_rosprintf.cc
+                test/roslog/test_roslog_timed.cc
                 test/roslog/test_roslog_vlog.cc)
 
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)

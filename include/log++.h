@@ -278,9 +278,14 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 
 #ifndef LOG_EVERY_T
+#define LPP_INTL_LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer. File name and line numbers will be invalid in the log output.") \
+LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(severity), LPP_INTL::PolicyType::TIMED)
+
 #define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
-LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
+LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #endif
+
+#define LPP_INTL_DLOG_EVERY_T(severity, t) LPP_WARN("File name and line numbers will be invalid in the log output.") LOG_EVERY_T(severity, t)
 
 #ifndef DLOG_EVERY_T
 #define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_EVERY_T is a Log++ extension") \
@@ -321,6 +326,15 @@ else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {
 else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_FIRST_N(FATAL, n) << x;}       \
 } while(0)
 
+#define LOG_TIMED(severity, t, x)  do { \
+if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I     \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W  \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E  \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F  \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D \
+ ){LPP_INTL_LOG_EVERY_T(LppSeverity::severity, t) << x;}      \
+} while(0)
+
 #ifndef MODE_DEFAULT
 #define ROS_DEBUG(...) DLOG(INFO) << LPP_INTL::formatToString(__VA_ARGS__)
 #define ROS_DEBUG_STREAM(x) DLOG(INFO) << x
@@ -349,6 +363,17 @@ else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {
 #define ROS_WARN_ONCE(...) LOG_FIRST_N(WARNING, 1) << LPP_INTL::formatToString(__VA_ARGS__)
 #define ROS_ERROR_ONCE(...) LOG_FIRST_N(ERROR, 1) << LPP_INTL::formatToString(__VA_ARGS__)
 #define ROS_FATAL_ONCE(...) LOG_FIRST_N(FATAL, 1) << LPP_INTL::formatToString(__VA_ARGS__)
+
+#define ROS_DEBUG_THROTTLE(n, ...) LPP_INTL_DLOG_EVERY_T(INFO, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_DEBUG_STREAM_THROTTLE(n, x) LPP_INTL_DLOG_EVERY_T(INFO, n) << x
+#define ROS_INFO_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::I, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_INFO_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::I, n) << x
+#define ROS_WARN_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::W, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_WARN_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::W, n) << x
+#define ROS_ERROR_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::E, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_ERROR_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::E, n) << x
+#define ROS_FATAL_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::F, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_FATAL_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::F, n) << x
 #endif
 
 #pragma clang diagnostic pop
@@ -365,9 +390,9 @@ else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
-#define LOG_EVERY(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::EVERY_N) // NOLINT(bugprone-macro-parentheses)
-#define LOG_FIRST(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::FIRST_N) // NOLINT(bugprone-macro-parentheses)
-#define LOG_TIMED(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity), LPP_INTL::PolicyType::TIMED) // NOLINT(bugprone-macro-parentheses)
+#define LOG_EVERY(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::EVERY_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
+#define LOG_FIRST(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::FIRST_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
+#define LOG_TIMED(severity, t, x) LPP_INTL::InternalLogCount::getInstance().update<float, LPP_INTL::PolicyType::TIMED>(LPP_GET_KEY(), t, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
@@ -383,15 +408,17 @@ else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {
 #endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
 
 #if defined MODE_ROSLOG || defined MODE_LPP
-#define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
+#define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
+#define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
-#define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
+#define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
 
 #define DLOG(severity) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalLog(LPP_INTL::BaseSeverity::DEBUG)
-#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+#define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::TIMED)
 #define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); \
-LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
-#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
+#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
 
 #undef VLOG_IS_ON
@@ -431,6 +458,17 @@ LPP_INTL::InternalPolicyLog(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP
 #define ROS_WARN_ONCE(...) LOG_FIRST(W, 1, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_ERROR_ONCE(...) LOG_FIRST(E, 1, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, LPP_INTL::formatToString(__VA_ARGS__))
+
+#define ROS_DEBUG_THROTTLE(period, ...) LOG_TIMED(D, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_DEBUG_STREAM_THROTTLE(period, x) LOG_TIMED(D, period, x)
+#define ROS_INFO_THROTTLE(period, ...) LOG_TIMED(I, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_INFO_STREAM_THROTTLE(period, x) LOG_TIMED(I, period, x)
+#define ROS_WARN_THROTTLE(period, ...) LOG_TIMED(W, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_WARN_STREAM_THROTTLE(period, x) LOG_TIMED(W, period, x)
+#define ROS_ERROR_THROTTLE(period, ...) LOG_TIMED(E, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_ERROR_STREAM_THROTTLE(period, x) LOG_TIMED(E, period, x)
+#define ROS_FATAL_THROTTLE(period, ...) LOG_TIMED(F, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_FATAL_STREAM_THROTTLE(period, x) LOG_TIMED(F, period, x)
 
 #define LOG_IF(severity, cond) if (cond) LPP_INTL::InternalLog(GlogSeverity::severity)
 #define LOG_1(severity) LPP_INTL::InternalLog(LPP_INTL::GlogSeverity::severity)
@@ -595,6 +633,25 @@ class InternalLog {
 #if defined MODE_LPP || defined MODE_DEFAULT
     lpp::internal::logging.call(severity_, ss.str());
 #endif
+#if defined MODE_GLOG
+    switch (severity_) {
+    case BaseSeverity::DEBUG:
+      LOG(INFO) << ss.str();
+      break;
+    case BaseSeverity::INFO:
+      LOG(INFO) << ss.str();
+      break;
+    case BaseSeverity::WARN:
+      LOG(WARNING) << ss.str();
+      break;
+    case BaseSeverity::ERROR:
+      LOG(ERROR) << ss.str();
+      break;
+    case BaseSeverity::FATAL:
+      LOG(FATAL) << ss.str();
+      break;
+    }
+#endif
   }
 
  protected:
@@ -617,21 +674,31 @@ public:
 };
 
 
-class LogPolicy {
+class LogPolicyBase {
  public:
   virtual void update() = 0;
   [[nodiscard]] virtual bool shouldLog() const = 0;
   virtual void onLog() {};
-  virtual ~LogPolicy() = default;
- protected:
-  explicit LogPolicy(int max) : max_(max) {}
-  int counter_{0};
-  int max_{0};
 };
 
-class OccasionPolicy : public LogPolicy {
+template<typename T>
+class LogPolicy : public LogPolicyBase {
+public:
+  explicit LogPolicy(T max) : max_(max) {}
+protected:
+  T max_{0};
+};
+
+class CountableLogPolicy : public LogPolicy<unsigned int> {
+public:
+  explicit CountableLogPolicy(unsigned int max) : LogPolicy(max) {}
+protected:
+  unsigned int counter_{0};
+};
+
+class OccasionPolicy : public CountableLogPolicy {
  public:
-  explicit OccasionPolicy(int max) : LogPolicy(max) {
+  explicit OccasionPolicy(unsigned int max) : CountableLogPolicy(max) {
     counter_ = max_;
   }
 
@@ -649,13 +716,14 @@ class OccasionPolicy : public LogPolicy {
     return should_log_;
   }
 
+  virtual ~OccasionPolicy() = default;
  private:
   bool should_log_{false};
 };
 
-class FirstNOccurrencesPolicy : public LogPolicy {
+class FirstNOccurrencesPolicy : public CountableLogPolicy {
  public:
-  explicit FirstNOccurrencesPolicy(int max) : LogPolicy(max) {}
+  explicit FirstNOccurrencesPolicy(unsigned int max) : CountableLogPolicy(max) {}
   inline void update() override {
     if (!is_n_occurences_reached) {
       counter_++;
@@ -670,22 +738,23 @@ class FirstNOccurrencesPolicy : public LogPolicy {
     return !is_n_occurences_reached;
   }
 
+  virtual ~FirstNOccurrencesPolicy() = default;
  private:
   bool is_n_occurences_reached = false;
 };
 
 using namespace std::chrono;
 
-class TimePolicy : public LogPolicy {
+class TimePolicy : public LogPolicy<float> {
  public:
-  explicit TimePolicy(int max) : LogPolicy(max) {};
+  explicit TimePolicy(float max) : LogPolicy(max) {};
 
   inline void update() override {
     now_ = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
   }
 
   [[nodiscard]] inline bool shouldLog() const override {
-    if (now_ >= last_ + (max_ * 1000000)) {
+    if (now_ >= last_ + static_cast<long>(max_ * 1000000.f)) {
       return true;
     }
     return false;
@@ -695,6 +764,7 @@ class TimePolicy : public LogPolicy {
     last_ = now_;
   }
 
+  virtual ~TimePolicy() = default;
  private:
   long now_{0};
   long last_{0};
@@ -706,11 +776,12 @@ enum PolicyType {
   TIMED
 };
 
-typedef std::shared_ptr<LogPolicy> LogPolicyPtr;
+typedef std::shared_ptr<LogPolicyBase> LogPolicyPtr;
 
 class LogPolicyFactory {
  public:
-  static LogPolicyPtr create(PolicyType policy_type, int max) {
+  template<typename T>
+  static LogPolicyPtr create(PolicyType policy_type, T max) {
     switch (policy_type) {
     case FIRST_N: return std::make_shared<FirstNOccurrencesPolicy>(max);
     case EVERY_N: return std::make_shared<OccasionPolicy>(max);
@@ -735,16 +806,23 @@ class InternalLogCount {
     return instance;
   }
 
+  template<typename T, PolicyType policyType>
   inline void update(const std::string &key,
-                     int max,
+                     T max,
                      const InternalLog &internal_log,
-                     const BaseSeverity base_severity,
-                     PolicyType policy_type) {
-    update(key, max, internal_log.ss.str(), base_severity, policy_type);
+                     const BaseSeverity base_severity) {
+    //Check if T is a float and only allow it for PolicyType::TIMED
+    static_assert(std::is_same<T, unsigned int>::value || std::is_same<T, float>::value, "Only int or float is allowed for T");
+
+    if constexpr (std::is_same<T, float>::value) {
+      static_assert(policyType == PolicyType::TIMED, "Only PolicyType::TIMED can be used with float");
+    }
+    update(key, max, internal_log.ss.str(), base_severity, policyType);
   }
 
+  template<typename T>
   inline void update(const std::string &key,
-                     int max,
+                     T max,
                      const std::string &log_msg,
                      const BaseSeverity base_severity,
                      PolicyType policy_type) {
@@ -755,8 +833,9 @@ class InternalLogCount {
     mtx_.unlock();
   }
 
+  template<typename T>
   inline void updatePolicy(const std::string &key,
-                           int max,
+                           T max,
                            const std::string &log_msg,
                            BaseSeverity base_severity,
                            PolicyType policy_type) {
@@ -836,10 +915,10 @@ class InternalGlogLogStringLog : public InternalLog {
   std::vector<std::string>* vecptr_;
 };
 
-
+template<typename T>
 class InternalPolicyLog : public InternalLog {
  public:
-  InternalPolicyLog(std::string key, int n, BaseSeverity base_severity, PolicyType policy_type) :
+  InternalPolicyLog(std::string key, T n, BaseSeverity base_severity, PolicyType policy_type) :
       InternalLog(base_severity), key_(std::move(key)), n_(n),
       policy_type_(policy_type) {
     should_print_ = false;
@@ -854,13 +933,13 @@ class InternalPolicyLog : public InternalLog {
  protected:
   bool should_update_{true};
   std::string key_{};
-  int n_{};
+  T n_{};
   PolicyType policy_type_{};
 };
 
-class LppGlogExtensionLog : public InternalPolicyLog {
+class LppGlogExtensionLog : public InternalPolicyLog<unsigned int> {
  public:
-  LppGlogExtensionLog(std::string key, int n, GlogSeverity glog_severity, PolicyType policy_type,
+  LppGlogExtensionLog(std::string key, unsigned int n, GlogSeverity glog_severity, PolicyType policy_type,
                       std::function<void(const std::string &str)> fn) :
       InternalPolicyLog(std::move(key), n, toBase(glog_severity), policy_type), fn_(std::move(fn)) {
     should_print_ = false;
