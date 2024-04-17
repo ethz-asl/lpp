@@ -390,8 +390,8 @@ if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I   
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
-#define LOG_EVERY(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<int, LPP_INTL::PolicyType::EVERY_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
-#define LOG_FIRST(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<int, LPP_INTL::PolicyType::FIRST_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
+#define LOG_EVERY(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::EVERY_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
+#define LOG_FIRST(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::FIRST_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
 #define LOG_TIMED(severity, t, x) LPP_INTL::InternalLogCount::getInstance().update<float, LPP_INTL::PolicyType::TIMED>(LPP_GET_KEY(), t, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
 #endif
 
@@ -408,17 +408,17 @@ if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I   
 #endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
 
 #if defined MODE_ROSLOG || defined MODE_LPP
-#define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
+#define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
 #define LOG_EVERY_T(severity, t) LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
-#define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
+#define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
 
 #define DLOG(severity) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalLog(LPP_INTL::BaseSeverity::DEBUG)
-#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::TIMED)
 #define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); \
-LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
-#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog<int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
+#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
 #define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
 
 #undef VLOG_IS_ON
@@ -689,16 +689,16 @@ protected:
   T max_{0};
 };
 
-class CountableLogPolicy : public LogPolicy<int> {
+class CountableLogPolicy : public LogPolicy<unsigned int> {
 public:
-  explicit CountableLogPolicy(int max) : LogPolicy(max) {}
+  explicit CountableLogPolicy(unsigned int max) : LogPolicy(max) {}
 protected:
-  int counter_{0};
+  unsigned int counter_{0};
 };
 
 class OccasionPolicy : public CountableLogPolicy {
  public:
-  explicit OccasionPolicy(int max) : CountableLogPolicy(max) {
+  explicit OccasionPolicy(unsigned int max) : CountableLogPolicy(max) {
     counter_ = max_;
   }
 
@@ -723,7 +723,7 @@ class OccasionPolicy : public CountableLogPolicy {
 
 class FirstNOccurrencesPolicy : public CountableLogPolicy {
  public:
-  explicit FirstNOccurrencesPolicy(int max) : CountableLogPolicy(max) {}
+  explicit FirstNOccurrencesPolicy(unsigned int max) : CountableLogPolicy(max) {}
   inline void update() override {
     if (!is_n_occurences_reached) {
       counter_++;
@@ -812,7 +812,7 @@ class InternalLogCount {
                      const InternalLog &internal_log,
                      const BaseSeverity base_severity) {
     //Check if T is a float and only allow it for PolicyType::TIMED
-    static_assert(std::is_same<T, int>::value || std::is_same<T, float>::value, "Only int or float is allowed for T");
+    static_assert(std::is_same<T, unsigned int>::value || std::is_same<T, float>::value, "Only int or float is allowed for T");
 
     if constexpr (std::is_same<T, float>::value) {
       static_assert(policyType == PolicyType::TIMED, "Only PolicyType::TIMED can be used with float");
@@ -937,9 +937,9 @@ class InternalPolicyLog : public InternalLog {
   PolicyType policy_type_{};
 };
 
-class LppGlogExtensionLog : public InternalPolicyLog<int> {
+class LppGlogExtensionLog : public InternalPolicyLog<unsigned int> {
  public:
-  LppGlogExtensionLog(std::string key, int n, GlogSeverity glog_severity, PolicyType policy_type,
+  LppGlogExtensionLog(std::string key, unsigned int n, GlogSeverity glog_severity, PolicyType policy_type,
                       std::function<void(const std::string &str)> fn) :
       InternalPolicyLog(std::move(key), n, toBase(glog_severity), policy_type), fn_(std::move(fn)) {
     should_print_ = false;
