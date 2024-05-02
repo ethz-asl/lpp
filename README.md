@@ -224,14 +224,25 @@ int main(int argc, char **argv) {
 | First N occurrences            | LOG_FIRST(I, n, str) | LOG_FIRST_N(INFO, n) << str          | ROS_INFO_ONCE(str) (only 1) |
 | Log to std::vector\<string>    | -                    | LOG_STRING(INFO, &vec) << str        | -                           |
 
-## TODOs
+## The following features are currently not supported (Feel free to contribute)
 - Implement ROS_INFO_NAMED() etc.
+- ROS2 support
 
-# Testing
+# Contributions
+The following information should be considered when contributing to Log++.
 
-- All modes (default, glog, lpp, roslog) have a separate test suite
-- All severity levels (Debug, Info, Warning, Error, Fatal)
-- All logging methods (Default, Conditional, Occasional, Timed, First N occurrences)
+## Build Unittests
+Unittests can be built by setting the `LPP_BUILD_TESTS` flag.
+If building with catkin, the tests can be built with the following command:
+
+```shell
+$ catkin build lpp -DLPP_BUILD_TESTS=1
+```
+
+## Unittests
+- All modes (default, glog, lpp, roslog, nolog) have a separate test suite. All tests should run with each mode.
+- Test all severity levels (Debug, Info, Warning, Error, Fatal)
+- Test if the functionality of a logging function works, not only the logging format (Default, Conditional, Occasional, Timed, First N occurrences)
 - Tests must run in debug mode in order to test debug log output
 
 Naming Convention:
