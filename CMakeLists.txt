@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(lpp)
 
-# Don't build tests when using as a submodule
-if (${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
-        set(LPP_BUILD_TESTS 1)
-endif ()
-
 if (ENABLE_COVERAGE)
         set(LPP_TEST_CXX_FLAGS ${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage)
         message(STATUS "Coverage enabled")
