@@ -14,12 +14,12 @@ jobs:
       fail-fast: false
       matrix:
         rosdistro: ['noetic']
-        gcc: ['8', '9', '10', '11']
+        gcc: ['8', '9', '10', '11', '12']
         cxx: ['11', '14', '17']
     container: ros:${{ matrix.rosdistro }}-ros-base-focal
     name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       name: Checkout lpp
       with:
         repository: ethz-asl/lpp
