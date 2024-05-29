@@ -30,7 +30,7 @@ jobs:
       run: sudo apt update && sudo apt-get install -y software-properties-common && sudo add-apt-repository -y ppa:git-core/ppa && sudo apt-get update && sudo apt-get install -y git
 
     - name: Install GCC version ${{ matrix.gcc }}
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt update && sudo apt install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc }} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc }}
+      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt update && sudo apt install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc }} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc }} && gcc --version
 
     - name: Install catkin tools
       run: sudo apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools
@@ -39,7 +39,7 @@ jobs:
       run: sudo apt install -y libgoogle-glog-dev
 
     - name: Build lpp
-      run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && catkin build -DCMAKE_CXX_STANDARD=${{ matrix.cxx }} -DLPP_BUILD_TESTS=1 lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
+      run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && catkin build -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/gcc -DCMAKE_CXX_STANDARD=${{ matrix.cxx }} -DLPP_BUILD_TESTS=1 lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
       working-directory: catkin_ws
       shell: bash
 
