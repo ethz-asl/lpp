@@ -15,7 +15,7 @@ jobs:
       matrix:
         rosdistro: ['noetic']
         gcc: ['8', '9', '10', '11', '13']
-        cxx: ['11', '14', '17']
+        cxx: ['11', '14', '17', '20']
     container: ros:${{ matrix.rosdistro }}-ros-base-focal
     name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
     steps:
@@ -28,10 +28,6 @@ jobs:
 
     - name: Install newest git version
       run: sudo apt update && sudo apt-get install -y software-properties-common && sudo add-apt-repository -y ppa:git-core/ppa && sudo apt-get update && sudo apt-get install -y git
-
-    - name: Add testing repository
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt update
-      if: ${{ matrix.gcc }} == '12'
 
     - name: Install GCC version ${{ matrix.gcc }}
       run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt update && sudo apt install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc }} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc }}
