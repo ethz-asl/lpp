@@ -39,7 +39,7 @@ jobs:
       run: sudo apt install -y libgoogle-glog-dev
 
     - name: Build lpp
-      run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && catkin build -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/gcc -DCMAKE_CXX_STANDARD=${{ matrix.cxx }} -DLPP_BUILD_TESTS=1 lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
+      run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && catkin build -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_CXX_STANDARD=${{ matrix.cxx }} -DLPP_BUILD_TESTS=1 lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
       working-directory: catkin_ws
       shell: bash
 
