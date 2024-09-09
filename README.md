@@ -14,7 +14,8 @@
 - All log calls are thread-safe.
 - Lightweight with performance in mind
 - Header only
-- Recommended to use with C++17, but also works with C++11 when compiling with GCC.
+- GCC 8 or later required
+- Recommended to use with C++17/C++20, but also works with C++11/C++14.
 
 ## Example
 
