@@ -2,9 +2,7 @@ if(NOT COMMAND feature_summary)
     include(FeatureSummary)
 endif()
 
-if(NOT PKG_CONFIG_FOUND)
-    include(FindPkgConfig)
-endif()
+find_package(PkgConfig QUIET)
 
 if(NOT DEFINED GLOG_ROOT)
     set(GLOG_ROOT /usr /usr/local)
@@ -58,7 +56,7 @@ endmacro()
 _find_glog_libraries(GLOG_LIBRARIES libglog.so)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(GLOG DEFAULT_MSG GLOG_LIBRARIES)
+find_package_handle_standard_args(glog DEFAULT_MSG GLOG_LIBRARIES)
 
 if(GLOG_FOUND)
     message(STATUS "glog library found at ${GLOG_LIBRARIES}")
