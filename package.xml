@@ -3,7 +3,7 @@
   <name>lpp</name>
   <version>0.1.0</version>
   <description>Log++ Logging framework</description>
-  <maintainer email="69460051+4c3y@users.noreply.github.com">4c3y</maintainer>
+  <maintainer email="git@acey.dev">4c3y</maintainer>
   <license>BSD</license>
   <buildtool_depend>catkin</buildtool_depend>
   <depend>roscpp</depend>
