@@ -671,6 +671,7 @@ public:
       : InternalLog(severity) {
     should_print_ = cond;
   }
+  ~InternalCondLog() override = default;
 };
 
 
@@ -679,12 +680,14 @@ class LogPolicyBase {
   virtual void update() = 0;
   [[nodiscard]] virtual bool shouldLog() const = 0;
   virtual void onLog() {};
+  virtual ~LogPolicyBase() = default;
 };
 
 template<typename T>
 class LogPolicy : public LogPolicyBase {
 public:
   explicit LogPolicy(T max) : max_(max) {}
+  ~LogPolicy() override = default;
 protected:
   T max_{0};
 };
@@ -716,7 +719,7 @@ class OccasionPolicy : public CountableLogPolicy {
     return should_log_;
   }
 
-  virtual ~OccasionPolicy() = default;
+  ~OccasionPolicy() override = default;
  private:
   bool should_log_{false};
 };
@@ -738,7 +741,7 @@ class FirstNOccurrencesPolicy : public CountableLogPolicy {
     return !is_n_occurences_reached;
   }
 
-  virtual ~FirstNOccurrencesPolicy() = default;
+  ~FirstNOccurrencesPolicy() override = default;
  private:
   bool is_n_occurences_reached = false;
 };
@@ -764,7 +767,7 @@ class TimePolicy : public LogPolicy<float> {
     last_ = now_;
   }
 
-  virtual ~TimePolicy() = default;
+  ~TimePolicy() override = default;
  private:
   long now_{0};
   long last_{0};

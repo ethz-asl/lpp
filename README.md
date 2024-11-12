@@ -100,7 +100,7 @@ $ git submodule add git@github.com:ethz-asl/lpp.git
 ```cmake
 add_subdirectory(my_submodule_dir/lpp)
 add_executable(my_executable main.cpp)
-target_link_libraries(my_executable Log++)
+target_link_libraries(my_executable lpp)
 ```
 
 3. To update Log++ to the latest commit, execute the following commands:
