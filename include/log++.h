@@ -68,12 +68,12 @@
 //! Check if libraries are available at compile time and include required headers
 #if __has_include(<glog/logging.h>)
 #include <glog/logging.h>
-#define GLOG_SUPPORTED
+#define LPP_GLOG_SUPPORTED
 #endif
 
 #if __has_include(<ros/console.h>)
 #include <ros/console.h>
-#define ROSLOG_SUPPORTED
+#define LPP_ROSLOG_SUPPORTED
 #endif
 
 //! Debug flag, If LPP_DEBUG is enabled, debug output should be printed.
@@ -138,23 +138,23 @@ inline static Init lppInit;
 }
 
 //! assert if mode is supported by the libraries available
-#if defined MODE_GLOG && !defined GLOG_SUPPORTED
+#if defined MODE_GLOG && !defined LPP_GLOG_SUPPORTED
 #error Logging Mode is set to glog but glog was not found
 #endif
 
-#if defined MODE_ROSLOG && !defined ROSLOG_SUPPORTED
+#if defined MODE_ROSLOG && !defined LPP_ROSLOG_SUPPORTED
 #error Logging Mode is set to roslog but roslog was not found
 #endif
 
 
 //! Un-define glog`s LOG macro to avoid conflicts
-#ifdef GLOG_SUPPORTED
+#ifdef LPP_GLOG_SUPPORTED
 #undef LOG
 #endif
 
 
 //! Un-define log methods for redefinition
-#if defined GLOG_SUPPORTED && !defined MODE_GLOG && !defined MODE_DEFAULT
+#if defined LPP_GLOG_SUPPORTED && !defined MODE_GLOG && !defined MODE_DEFAULT
 #undef LOG_IF
 #undef LOG_EVERY_N
 #undef LOG_FIRST_N
@@ -169,7 +169,7 @@ inline static Init lppInit;
 #undef LOG_STRING
 #endif
 
-#if defined ROSLOG_SUPPORTED && !defined MODE_ROSLOG && !defined MODE_DEFAULT
+#if defined LPP_ROSLOG_SUPPORTED && !defined MODE_ROSLOG && !defined MODE_DEFAULT
 #undef ROS_DEBUG
 #undef ROS_DEBUG_STREAM
 #undef ROS_INFO
@@ -236,7 +236,7 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 #endif
 
 #if defined MODE_GLOG || defined MODE_DEFAULT
-#ifdef GLOG_SUPPORTED
+#ifdef LPP_GLOG_SUPPORTED
     google::InitGoogleLogging(argv);
     FLAGS_logtostderr = true;
     lppInit.glog_initialized = true;
@@ -250,21 +250,21 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 #define LPP_ASSERT_GLOG(x) static_assert((x) == LPP_INTL::GlogSeverity::INFO || (x) == LPP_INTL::GlogSeverity::WARNING || (x) == LPP_INTL::GlogSeverity::ERROR || (x) == LPP_INTL::GlogSeverity::FATAL, "Unknown severity level")
 
 //! Hack to enable macro overloading. Used to overload glog's LOG() macro.
-#define CAT(A, B) A ## B
-#define SELECT(NAME, NUM) CAT( NAME ## _, NUM )
+#define LPP_CAT(A, B) A ## B
+#define LPP_SELECT(NAME, NUM) LPP_CAT( NAME ## _, NUM )
 
-#define GET_COUNT(_1, _2, _3, _4, _5, _6, COUNT, ...) COUNT
-#define VA_SIZE(...) GET_COUNT( __VA_ARGS__, 6, 5, 4, 3, 2, 1 )
-#define VA_SELECT(NAME, ...) SELECT( NAME, VA_SIZE(__VA_ARGS__) )(__VA_ARGS__)
+#define LPP_GET_COUNT(_1, _2, _3, _4, _5, _6, COUNT, ...) COUNT
+#define LPP_VA_SIZE(...) LPP_GET_COUNT( __VA_ARGS__, 6, 5, 4, 3, 2, 1 )
+#define LPP_VA_SELECT(NAME, ...) LPP_SELECT( NAME, LPP_VA_SIZE(__VA_ARGS__) )(__VA_ARGS__)
 
 //! Helper macros to generate warnings
-#define DO_PRAGMA(x) _Pragma (#x)
-#define LPP_WARN(x) DO_PRAGMA(message (#x))
+#define LPP_PRAGMA(x) _Pragma (#x)
+#define LPP_WARN(x) LPP_PRAGMA(message (#x))
 
 //! Overloads
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "OCUnusedMacroInspection"
-#define LOG(...) VA_SELECT( LOG, __VA_ARGS__ )
+#define LOG(...) LPP_VA_SELECT( LOG, __VA_ARGS__ )
 #pragma clang diagnostic pop
 
 /**
@@ -402,9 +402,9 @@ if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I   
  */
 [[maybe_unused]] inline static int32_t LPP_FLAGS_v;
 
-#ifdef GLOG_SUPPORTED
+#ifdef LPP_GLOG_SUPPORTED
 #define FLAGS_v LPP_FLAGS_v
-#endif //GLOG_SUPPORTED
+#endif //LPP_GLOG_SUPPORTED
 #endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
 
 #if defined MODE_ROSLOG || defined MODE_LPP
@@ -965,5 +965,9 @@ class LppGlogExtensionLog : public InternalPolicyLog<unsigned int> {
 
 #define LPP_GET_KEY() std::string(__FILE__) + std::to_string(__LINE__)
 #pragma clang diagnostic pop
+
+// Undefine macros that are only needed in this file
+#undef LPP_GLOG_SUPPORTED
+#undef LPP_ROSLOG_SUPPORTED
 
 #endif //LOG__LOG_H_
