@@ -1,15 +1,14 @@
-name: Coverage report
+name: Generate coverage report
 on:
-  push:
+  pull_request:
     branches:
+      - "master"
+  push:
+      branches:
       - "master"
 
 jobs:
-  deploy:
-    name: Deploy coverage report
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.url }}
+  build:
     runs-on: [self-hosted, linux]
     strategy:
       fail-fast: false
@@ -22,9 +21,6 @@ jobs:
       credentials:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-    permissions:
-      pages: write      # to deploy to Pages
-      id-token: write   # to verify the deployment originates from an appropriate source
     steps:
       - uses: actions/checkout@v3
         name: Checkout lpp
@@ -46,18 +42,9 @@ jobs:
         working-directory: catkin_ws/src/lpp/build/devel/lib/lpp
         shell: bash
 
-      - name: Generate coverage report
-        run: make coverage
-        working-directory: catkin_ws/src/lpp/build
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./catkin_ws/src/lpp/build/coverage
-
-      - name: Deploy to Github pages
-        uses: actions/deploy-pages@v4
-        id: deployment
+      - name: Print coverage
+        run: gcovr
+        working-directory: catkin_ws/src/lpp
 
 
 
