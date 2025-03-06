@@ -17,7 +17,7 @@ jobs:
         gcc: [ '8', '9', '10', '11', '13' ]
         cxx: [ '11', '14', '17', '20' ]
     container:
-      image: ${{ secrets.DOCKER_USERNAME }}/ubuntu-omav-ros:ros-noetic-ros-base
+      image: omavteam/ubuntu-omav-ros:ros-noetic-ros-base
       credentials:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
