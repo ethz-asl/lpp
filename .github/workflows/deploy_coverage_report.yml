@@ -34,7 +34,7 @@ jobs:
           path: catkin_ws/src/lpp
 
       - name: Install gcovr
-        run: sudo apt install -y gcovr
+        run: sudo apt update && sudo apt install -y gcovr
 
       - name: Build lpp
         run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && mkdir build && cd build && cmake .. -DCMAKE_BUILD_TYPE="Debug" -DENABLE_COVERAGE=1 -DLPP_BUILD_TESTS=1 && make
