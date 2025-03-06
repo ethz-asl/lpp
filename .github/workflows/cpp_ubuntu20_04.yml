@@ -16,7 +16,11 @@ jobs:
         rosdistro: ['noetic']
         gcc: ['8', '9', '10', '11', '13']
         cxx: ['11', '14', '17', '20']
-    container: ros:${{ matrix.rosdistro }}-ros-base-focal
+    container:
+      image: ${{ secrets.DOCKER_USERNAME }}/ubuntu-omav-ros:ros-noetic-ros-base
+      credentials:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
     name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
     steps:
     - uses: actions/checkout@v4
@@ -26,17 +30,12 @@ jobs:
         token: ${{ secrets.PAT }}
         path: catkin_ws/src/lpp
 
-    - name: Install newest git version
-      run: sudo apt update && sudo apt-get install -y software-properties-common && sudo add-apt-repository -y ppa:git-core/ppa && sudo apt-get update && sudo apt-get install -y git
-
-    - name: Install GCC version ${{ matrix.gcc }}
-      run: sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y && sudo apt update && sudo apt install -y gcc-${{ matrix.gcc }} g++-${{ matrix.gcc }} && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc }} 100 --slave /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc }} && gcc --version && g++ --version
-
-    - name: Install catkin tools
-      run: sudo apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential python3-catkin-tools
-
-    - name: Install system dependencies
-      run: sudo apt install -y libgoogle-glog-dev
+    - name: Switch GCC version
+      run: |
+          update-alternatives --set gcc /usr/bin/gcc-${{ matrix.gcc_version }}
+          update-alternatives --set g++ /usr/bin/g++-${{ matrix.gcc_version }}
+          gcc --version
+          g++ --version
 
     - name: Build lpp
       run: source /opt/ros/${{ matrix.rosdistro }}/setup.bash && catkin build -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_CXX_STANDARD=${{ matrix.cxx }} -DLPP_BUILD_TESTS=1 lpp && source ${GITHUB_WORKSPACE}/catkin_ws/devel/setup.bash
