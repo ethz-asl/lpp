@@ -32,8 +32,8 @@ jobs:
 
       - name: Switch GCC version
         run: |
-          update-alternatives --set gcc /usr/bin/gcc-${{ matrix.gcc_version }}
-          update-alternatives --set g++ /usr/bin/g++-${{ matrix.gcc_version }}
+          update-alternatives --set gcc /usr/bin/gcc-${{ matrix.gcc }}
+          update-alternatives --set g++ /usr/bin/g++-${{ matrix.gcc}}
           gcc --version
           g++ --version
 
