@@ -41,7 +41,7 @@ jobs:
       credentials:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
-    name: ROS ${{ matrix.rosdistro }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
+    name: Ubuntu ${{ matrix.ubuntu }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
     steps:
       - uses: actions/checkout@v4
         name: Checkout lpp
