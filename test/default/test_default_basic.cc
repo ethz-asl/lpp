@@ -94,72 +94,63 @@ TEST(default_basic, roslog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG("Test"));
-  bool isEqual = debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_debug_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("Test"));
-  bool isEqual = debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_info) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(ROS_INFO("Test"));
-  bool isEqual = info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_info_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("Test"));
-  bool isEqual = info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_warning) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_WARN("Test"));
-  bool isEqual = warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_warning_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_WARN_STREAM("Test"));
-  bool isEqual = warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_error) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_ERROR("Test"));
-  bool isEqual = error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_error_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_ERROR_STREAM("" << "Test"));
-  bool isEqual = error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_fatal) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_FATAL("Test"));
-  bool isEqual = fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output));
 
 }
 
@@ -167,6 +158,5 @@ TEST(default_basic, roslog_syntax_severity_fatal_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("" << "Test"));
-  bool isEqual = fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output);
-  EXPECT_TRUE(isEqual);
+  EXPECT_TRUE(fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output));
 }
