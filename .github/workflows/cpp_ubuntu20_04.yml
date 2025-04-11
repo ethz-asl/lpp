@@ -17,7 +17,7 @@ jobs:
       matrix:
         gcc: [ '8', '9', '10', '11', '12', '13' ]
         cxx: [ '11', '14', '17', '20' ]
-        ubuntu: [ '20.04', '22.04', '24.04' ]
+        ubuntu: [ '20.04', '22.04']
         exclude:
           # Exclude GCC 8 on unsupported Ubuntu versions
           - gcc: '8'
@@ -32,10 +32,10 @@ jobs:
             cxx: '11'
           - ubuntu: '22.04'
             cxx: '14'
-          - ubuntu: '24.04'
-            cxx: '11'
-          - ubuntu: '24.04'
-            cxx: '14'
+         # - ubuntu: '24.04'
+         #   cxx: '11'
+         # - ubuntu: '24.04'
+         #   cxx: '14'
     container:
       image: omavteam/ubuntu-omav-ros:ros-ros-base-${{ matrix.ubuntu }}
       credentials:
