@@ -27,7 +27,6 @@ jobs:
         name: Checkout lpp
         with:
           repository: ethz-asl/lpp
-          token: ${{ secrets.PAT }}
           path: catkin_ws/src/lpp
 
       - name: Switch GCC version
