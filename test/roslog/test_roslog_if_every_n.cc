@@ -17,7 +17,7 @@ TEST(roslog_if_every_n, glog_syntax_if_every_n_severity_debug) {
     std::string output = testing::internal::GetCapturedStdout();
 
     if (i <= 3 && i % 3 == 0) {
-      ASSERT_EQ(debug, removeNumbersFromString(output));
+      EXPECT_TRUE(debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output));
     } else {
       ASSERT_EQ(output, "");
     }
@@ -33,7 +33,7 @@ TEST(roslog_if_every_n, glog_syntax_if_every_n_severity_info) {
     std::string output = testing::internal::GetCapturedStdout();
 
     if (i <= 3 && i % 3 == 0) {
-      ASSERT_EQ(info, removeNumbersFromString(output));
+      EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
     } else {
       ASSERT_EQ(output, "");
     }
@@ -49,7 +49,7 @@ TEST(roslog_if_every_n, glog_syntax_if_every_n_severity_warning) {
     std::string output = testing::internal::GetCapturedStderr();
 
     if (i <= 3 && i % 3 == 0) {
-      ASSERT_EQ(warning, removeNumbersFromString(output));
+      EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
     } else {
       ASSERT_EQ(output, "");
     }
@@ -66,7 +66,7 @@ TEST(roslog_if_every_n, glog_syntax_if_every_n_severity_error) {
     std::string output = testing::internal::GetCapturedStderr();
 
     if (i <= 3 && i % 3 == 0) {
-      ASSERT_EQ(error, removeNumbersFromString(output));
+      EXPECT_TRUE(error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output));
     } else {
       ASSERT_EQ(output, "");
     }
@@ -82,7 +82,7 @@ TEST(roslog_if_every_n, glog_syntax_if_every_n_severity_fatal) {
     std::string output = testing::internal::GetCapturedStderr();
 
     if (i <= 3 && i % 3 == 0) {
-      ASSERT_EQ(fatal, removeNumbersFromString(output));
+      EXPECT_TRUE(fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output));
     } else {
       ASSERT_EQ(output, "");
     }

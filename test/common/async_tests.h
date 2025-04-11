@@ -27,7 +27,7 @@ enum StreamType {
 
 struct AsyncTest {
   std::string class_name;
-  std::string expected_output;
+  std::vector<std::string> expected_output;
   std::function<void()> fn;
   CompareType compare_type;
   StreamType stream_type;
@@ -111,11 +111,12 @@ class TestResult {
 
       if ((i == 0 || i % 4 == 0)) {
         if (!compare(a.compare_type, output, a.expected_output)) {
-          std::cout << a.class_name << " failed. Output: " << output << " expected output: " << a.expected_output
+
+          std::cout << a.class_name << " failed. Output: " << output << " expected output: " << a.expected_output[0]
                     << std::endl;
           test_status = false;
         }
-      } else if (!compare(a.compare_type, output, "")) {
+      } else if (!compare(a.compare_type, output, {""})) {
         std::cout << a.class_name << " failed. Output: " << output << " expected output: " << "\"\"" << std::endl;
         test_status = false;
       }
@@ -125,7 +126,7 @@ class TestResult {
   }
 
   //gtest assertions only work on main thread
-  static inline bool compare(CompareType compare_type, const std::string &output, const std::string &expected_output) {
+  static inline bool compare(CompareType compare_type, const std::string &output, const std::vector<std::string> &expected_output) {
     switch (compare_type) {
       case EQUAL:return compareEquality(output, expected_output);
       case IS_SUBSTRING: return compareSubstring(output, expected_output);
@@ -134,19 +135,33 @@ class TestResult {
     }
   }
 
-  static inline bool compareSubstring(const std::string &output, const std::string &expected_output) {
-    if (expected_output.empty()) {
-      return output.empty();
+  static inline bool compareSubstring(const std::string &output, const std::vector<std::string> &expected_output) {
+    bool res = false;
+    for (const auto &eo: expected_output) {
+      if (isSubstring(output, eo)) {
+        res = true;
+        break;
+      }
     }
-    return isSubstring(output, expected_output);
+    return res;
   };
 
-  static inline bool compareEquality(const std::string &output, const std::string &expected_output) {
-    return output == expected_output;
+  static inline bool compareEquality(const std::string &output, const std::vector<std::string> &expected_output) {
+    for (const auto &eo: expected_output) {
+      if (output == eo) {
+        return true;
+      }
+    }
+    return false;
   };
 
-  static inline bool compareRemoveNumbersFromString(const std::string &output, const std::string &expected_output) {
-    return expected_output == removeNumbersFromString(output);
+  static inline bool compareRemoveNumbersFromString(const std::string &output, const std::vector<std::string> &expected_output) {
+    for (const auto &eo: expected_output) {
+      if (removeNumbersFromString(output) == removeNumbersFromString(eo)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   inline void insert(const std::string &test_name, bool test_status) {

@@ -12,6 +12,10 @@
 extern char **test_argv;
 
 inline static bool isSubstring(const std::string &string, const std::string &substring) {
+  if (string.empty() && substring.empty()) {
+    return true;
+  }
+
   bool res = (string.find(substring) != std::string::npos);
 
   if(!res) {
