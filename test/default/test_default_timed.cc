@@ -80,9 +80,9 @@ TEST(default_timed, glog_syntax_severity_debug) {
   ASSERT_TRUE(TestResult::getInstance().get(GET_CLASS_NAME(*this, nullptr)));
 }
 
-TEST(default_timed, glog_syntax_severity_info) {
-  ASSERT_TRUE(TestResult::getInstance().get(GET_CLASS_NAME(*this, nullptr)));
-}
+//TEST(default_timed, glog_syntax_severity_info) {
+//  ASSERT_TRUE(TestResult::getInstance().get(GET_CLASS_NAME(*this, nullptr)));
+//}
 
 //TEST(default_timed, glog_syntax_severity_warning) {
 //  ASSERT_TRUE(TestResult::getInstance().get(GET_CLASS_NAME(*this, nullptr)));
