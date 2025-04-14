@@ -170,6 +170,7 @@ inline static Init lppInit;
 #if defined(LOG_EVERY_T)
 #undef LOG_EVERY_T
 #undef DLOG_EVERY_T
+#define LPP_IS_GLOG_V0_6
 #define LPP_GLOG_V0_6_WARNING(str)
 #endif
 #endif
