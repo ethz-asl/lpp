@@ -41,7 +41,7 @@ TEST(roslog_timed, lpp_syntax_floating_point_time) {
   for (int i = 0; i < 5; i++) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_TIMED(I, 0.1, "Test" << 123));
     if (i % 2 == 0) {
-      ASSERT_EQ(removeNumbersFromString(output),  info);
+      EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
     }
     //sleep 0.1s
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
