@@ -167,7 +167,7 @@ inline static Init lppInit;
 #undef DLOG_EVERY_N
 #undef DLOG_IF_EVERY_N
 #undef LOG_STRING
-#if defined(LOG_EVERY_T) && defined(DLOG_EVERY_T)
+#if defined(LOG_EVERY_T)
 #undef LOG_EVERY_T
 #undef DLOG_EVERY_T
 #define LPP_GLOG_V0_6_WARNING(str)
@@ -286,10 +286,10 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 #if defined MODE_GLOG || defined MODE_DEFAULT
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 
-#ifndef LOG_EVERY_T
+
 #define LPP_INTL_LOG_EVERY_T(severity, t) LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer. File name and line numbers will be invalid in the log output.") \
 LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(severity), LPP_INTL::PolicyType::TIMED)
-
+#ifndef LOG_EVERY_T
 #define LOG_EVERY_T(severity, t) LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
 LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #endif
