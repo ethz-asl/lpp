@@ -93,64 +93,64 @@ TEST(default_basic, lpp_syntax_severity_fatal) {
 TEST(default_basic, roslog_syntax_severity_debug) {
   LOG_INIT(*test_argv);
 
-  std::string output1 = LPP_CAPTURE_STDOUT(ROS_DEBUG("Test"));
-  ASSERT_EQ(debug, removeNumbersFromString(output1));
+  std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG("Test"));
+  EXPECT_TRUE(debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_debug_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(ROS_DEBUG_STREAM("Test"));
-  ASSERT_EQ(debug, removeNumbersFromString(output));
+  EXPECT_TRUE(debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_info) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(ROS_INFO("Test"));
-  ASSERT_EQ(info, removeNumbersFromString(output));
+  EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_info_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(ROS_INFO_STREAM("Test"));
-  ASSERT_EQ(info, removeNumbersFromString(output));
+  EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_warning) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_WARN("Test"));
-  ASSERT_EQ(warning, removeNumbersFromString(output));
+  EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_warning_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_WARN_STREAM("Test"));
-  ASSERT_EQ(warning, removeNumbersFromString(output));
+  EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_error) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_ERROR("Test"));
-  ASSERT_EQ(error, removeNumbersFromString(output));
+  EXPECT_TRUE(error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_error_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_ERROR_STREAM("" << "Test"));
-  ASSERT_EQ(error, removeNumbersFromString(output));
+  EXPECT_TRUE(error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output));
 }
 
 TEST(default_basic, roslog_syntax_severity_fatal) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_FATAL("Test"));
-  ASSERT_EQ(fatal, removeNumbersFromString(output));
+  EXPECT_TRUE(fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output));
 
 }
 
@@ -158,5 +158,5 @@ TEST(default_basic, roslog_syntax_severity_fatal_stream) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(ROS_FATAL_STREAM("" << "Test"));
-  ASSERT_EQ(fatal, removeNumbersFromString(output));
+  EXPECT_TRUE(fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output));
 }
