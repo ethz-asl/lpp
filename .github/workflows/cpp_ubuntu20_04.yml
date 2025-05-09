@@ -43,6 +43,9 @@ jobs:
             cxx: '23'
           - gcc: '10'
             cxx: '23'
+          # Exclude all combinations of CXX 23 with Ubuntu 20.04
+          - ubuntu: '20.04'
+            cxx: '23'
     container:
       image: omavteam/ubuntu-omav-ros:ros-ros-base-${{ matrix.ubuntu }}
       credentials:
