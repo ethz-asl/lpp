@@ -91,12 +91,15 @@
 #define LPP_INTL lpp::internal
 
 // diagnostic push / pop
-#if __clang__
+#if defined(__clang__)
 #define DIAG_PUSH _Pragma("clang diagnostic push")
 #define DIAG_POP _Pragma("clang diagnostic pop")
-#else
+#elif defined(__GNUC__)
 #define DIAG_PUSH _Pragma("GCC diagnostic push")
 #define DIAG_POP _Pragma("GCC diagnostic pop")
+#else
+#define DIAG_PUSH
+#define DIAG_POP
 #endif
 DIAG_PUSH
 
