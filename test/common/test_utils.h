@@ -12,6 +12,10 @@
 extern char **test_argv;
 
 inline static bool isSubstring(const std::string &string, const std::string &substring) {
+  if (string.empty() && substring.empty()) {
+    return true;
+  }
+
   bool res = (string.find(substring) != std::string::npos);
 
   if(!res) {
@@ -89,16 +93,20 @@ namespace testing {
 inline static constexpr const char *ERROR_MESSAGE = "Base angle (%f) is less than the minimum angle (%f)";
 inline static const std::string EXPECTED_ERROR_MESSAGE = "Base angle (3.300000) is less than the minimum angle (5.500000)\n";
 }
-}
 
-
-namespace lpp {
-namespace rostest{
+namespace rostest {
 inline static const std::string debug = "\x1B[m[DEBUG] [.]: Test\x1B[m\n";
 inline static const std::string info = "\x1B[m[ INFO] [.]: Test\x1B[m\n";
 inline static const std::string warning = "\x1B[m[ WARN] [.]: Test\x1B[m\n";
 inline static const std::string error = "\x1B[m[ERROR] [.]: Test\x1B[m\n";
 inline static const std::string fatal = "\x1B[m[FATAL] [.]: Test\x1B[m\n";
+namespace v2 {
+inline static const std::string debug = rostest::debug;
+inline static const std::string info = "\x1B[m[INFO] [.]: Test\x1B[m\n";
+inline static const std::string warning = "\x1B[m[WARN] [.]: Test\x1B[m\n";
+inline static const std::string error = rostest::error;
+inline static const std::string fatal = rostest::fatal;
+}
 }
 
 
@@ -108,6 +116,13 @@ inline static const std::string info = "\x1B[m[ INFO] [.]: Base angle (.) is les
 inline static const std::string warning = "\x1B[m[ WARN] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
 inline static const std::string error = "\x1B[m[ERROR] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
 inline static const std::string fatal = "\x1B[m[FATAL] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+namespace v2 {
+inline static const std::string debug = rosprintf::debug;
+inline static const std::string info = "\x1B[m[INFO] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+inline static const std::string warning = "\x1B[m[WARN] [.]: Base angle (.) is less than the minimum angle (.)\x1B[m\n";
+inline static const std::string error = rosprintf::error;
+inline static const std::string fatal = rosprintf::fatal;
+}
 }
 
 
@@ -116,6 +131,12 @@ inline static const std::string info = "\x1B[m[ INFO] [.]: LOG_STRING: collected
 inline static const std::string warning = "\x1B[m[ WARN] [.]: LOG_STRING: collected warn\x1B[m\n";
 inline static const std::string error = "\x1B[m[ERROR] [.]: LOG_STRING: collected error\x1B[m\n";
 inline static const std::string fatal = "\x1B[m[FATAL] [.]: LOG_STRING: collected fatal\x1B[m\n";
+namespace v2 {
+inline static const std::string info = "\x1B[m[INFO] [.]: LOG_STRING: collected info\x1B[m\n";
+inline static const std::string warning = "\x1B[m[WARN] [.]: LOG_STRING: collected warn\x1B[m\n";
+inline static const std::string error = logstr::error;
+inline static const std::string fatal = logstr::fatal;
+}
 }
 
 namespace custom {

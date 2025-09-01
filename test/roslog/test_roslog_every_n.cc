@@ -15,7 +15,7 @@ TEST(roslog_LogEveryN, lpp_syntax_severity_debug) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(D, 3, "Test"));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(debug, removeNumbersFromString(output));
+      EXPECT_TRUE(debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -29,7 +29,7 @@ TEST(roslog_LogEveryN, lpp_syntax_severity_info) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY(I, 3, "Test"));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(info, removeNumbersFromString(output));
+      EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -43,7 +43,7 @@ TEST(roslog_LogEveryN, lpp_syntax_severity_warning) {
     std::string output  = LPP_CAPTURE_STDERR(LOG_EVERY(W, 3, "Test"));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(warning, removeNumbersFromString(output));
+      EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -57,7 +57,7 @@ TEST(roslog_LogEveryN, lpp_syntax_severity_error) {
     std::string output = LPP_CAPTURE_STDERR(LOG_EVERY(E, 3, "Test"));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(error, removeNumbersFromString(output));
+      EXPECT_TRUE(error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -71,7 +71,7 @@ TEST(roslog_LogEveryN, lpp_syntax_severity_fatal) {
     std::string output = LPP_CAPTURE_STDERR(LOG_EVERY(F, 3, "Test"));
 
     if (i % 3 == 0) {
-      ASSERT_EQ(fatal, removeNumbersFromString(output));
+      EXPECT_TRUE(fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -85,7 +85,7 @@ TEST(roslog_LogEveryN, glog_syntax_severity_debug) {
     std::string output = LPP_CAPTURE_STDOUT(DLOG_EVERY_N(INFO, 3) << "Test");
 
     if (i % 3 == 0) {
-      ASSERT_EQ(debug, removeNumbersFromString(output));
+      EXPECT_TRUE(debug == removeNumbersFromString(output) || v2::debug == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -99,7 +99,7 @@ TEST(roslog_LogEveryN, glog_syntax_severity_info) {
     std::string output = LPP_CAPTURE_STDOUT(LOG_EVERY_N(INFO, 3) << "Test");
 
     if (i % 3 == 0) {
-      ASSERT_EQ(info, removeNumbersFromString(output));
+      EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -113,7 +113,7 @@ TEST(roslog_LogEveryN, glog_syntax_severity_warning) {
     std::string output = LPP_CAPTURE_STDERR(LOG_EVERY_N(WARNING, 3) << "Test");
 
     if (i % 3 == 0) {
-      ASSERT_EQ(warning, removeNumbersFromString(output));
+      EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -127,7 +127,7 @@ TEST(roslog_LogEveryN, glog_syntax_severity_error) {
     std::string output = LPP_CAPTURE_STDERR(LOG_EVERY_N(ERROR, 3) << "Test");
 
     if (i % 3 == 0) {
-      ASSERT_EQ(error, removeNumbersFromString(output));
+      EXPECT_TRUE(error == removeNumbersFromString(output) || v2::error == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }
@@ -141,7 +141,7 @@ TEST(roslog_LogEveryN, glog_syntax_severity_fatal) {
     std::string output = LPP_CAPTURE_STDERR(LOG_EVERY_N(FATAL, 3) << "Test");
 
     if (i % 3 == 0) {
-      ASSERT_EQ(fatal, removeNumbersFromString(output));
+      EXPECT_TRUE(fatal == removeNumbersFromString(output) || v2::fatal == removeNumbersFromString(output));
     } else {
       ASSERT_EQ("", removeNumbersFromString(output));
     }

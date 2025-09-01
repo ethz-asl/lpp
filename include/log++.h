@@ -187,6 +187,16 @@ inline static Init lppInit;
 #undef DLOG_EVERY_N
 #undef DLOG_IF_EVERY_N
 #undef LOG_STRING
+#if defined(LOG_EVERY_T)
+#undef LOG_EVERY_T
+#undef DLOG_EVERY_T
+#define LPP_IS_GLOG_V0_6
+#define LPP_GLOG_V0_6_WARNING(str)
+#endif
+#endif
+
+#ifndef LPP_GLOG_V0_6_WARNING
+#define LPP_GLOG_V0_6_WARNING(str) LPP_WARN(str)
 #endif
 
 #if defined LPP_ROSLOG_SUPPORTED && !defined MODE_ROSLOG && \
@@ -312,16 +322,15 @@ DIAG_POP
 #if defined MODE_GLOG || defined MODE_DEFAULT
 #define LOG_1(severity) COMPACT_GOOGLE_LOG_##severity.stream()
 
-#ifndef LOG_EVERY_T
 #define LPP_INTL_LOG_EVERY_T(severity, t)                                      \
-  LPP_WARN(                                                                    \
+  LPP_GLOG_V0_6_WARNING(                                                       \
       "LOG_EVERY_T is only defined in GLOG v0.6 or newer. File name and line " \
       "numbers will be invalid in the log output.")                            \
   LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(severity),       \
                                      LPP_INTL::PolicyType::TIMED)
-
+#ifndef LOG_EVERY_T
 #define LOG_EVERY_T(severity, t)                                               \
-  LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.")               \
+  LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.")  \
   LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t,                         \
                                      toBase(LPP_INTL::GlogSeverity::severity), \
                                      LPP_INTL::PolicyType::TIMED)
@@ -549,10 +558,10 @@ DIAG_POP
   LPP_INTL::InternalPolicyLog<unsigned int>(                                \
       LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), \
       LPP_INTL::PolicyType::EVERY_N)
-#define LOG_EVERY_T(severity, t)                                            \
-  LPP_WARN("LOG_EVERY_T is only defined in GLOG v0.6 or newer.")            \
-  LPP_INTL::InternalPolicyLog<float>(                                       \
-      LPP_GET_KEY(), t, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), \
+#define LOG_EVERY_T(severity, t)                                              \
+  LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
+  LPP_INTL::InternalPolicyLog<float>(                                         \
+      LPP_GET_KEY(), t, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity),   \
       LPP_INTL::PolicyType::TIMED)
 #define LOG_IF_EVERY_N(severity, condition, n) \
   if (condition) LOG_EVERY_N(severity, n)

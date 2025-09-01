@@ -26,7 +26,7 @@ TEST(roslog_log_string, severity_info_null) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDOUT(LOG_STRING(INFO, nullptr) << "LOG_STRING: " << "collected info");
-  ASSERT_EQ(removeNumbersFromString(output), info);
+  EXPECT_TRUE(info == removeNumbersFromString(output) || v2::info == removeNumbersFromString(output));
 }
 
 TEST(roslog_log_string, severity_warning) {
@@ -47,7 +47,7 @@ TEST(roslog_log_string, severity_warning_null) {
   LOG_INIT(*test_argv);
 
   std::string output = LPP_CAPTURE_STDERR(LOG_STRING(WARNING, nullptr) << "LOG_STRING: " << "collected warn");
-  ASSERT_EQ(removeNumbersFromString(output), warning);
+  EXPECT_TRUE(warning == removeNumbersFromString(output) || v2::warning == removeNumbersFromString(output));
 }
 
 TEST(roslog_log_string, severity_error) {
