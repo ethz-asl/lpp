@@ -91,12 +91,15 @@
 #define LPP_INTL lpp::internal
 
 // Diagnostic push/pop
-#if defined(__clang__)
+#if __clang__
 #define DIAG_PUSH _Pragma("clang diagnostic push")
 #define DIAG_POP _Pragma("clang diagnostic pop")
-#elif defined(__GNUC__)
+#elif __GNUC__
 #define DIAG_PUSH _Pragma("GCC diagnostic push")
 #define DIAG_POP _Pragma("GCC diagnostic pop")
+#else
+#define DIAG_PUSH
+#define DIAG_POP
 #endif
 DIAG_PUSH
 
@@ -728,7 +731,7 @@ DIAG_POP
                 "");                                         \
   InternalLog()
 #define LOG_IF_EVERY_N(severity, cond, n) DLOG_IF_EVERY_N(severity, cond, n)
-#define LOG_STRING(severity, ptr)                                       \
+#define LOG_STRING(severity, ptr int32_value.data = 12345;)             \
   (void)LPP_INTL::GlogSeverity::severity;                               \
   static_assert(                                                        \
       std::is_same<decltype(ptr), std::vector<std::string> *>::value || \
