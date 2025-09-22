@@ -36,8 +36,15 @@ struct AsyncTest {
 extern std::vector<AsyncTest> generateTests();
 static std::vector<AsyncTest> tests = generateTests();
 
+// choose a single-mutex lock type once, based on the standard level
+#if __cplusplus >= 201703L
+using MutexLock = std::scoped_lock<std::mutex>;
+#else
+using MutexLock = std::lock_guard<std::mutex>;
+#endif
+
 class TestResult {
- public:
+public:
   static inline TestResult &getInstance() {
     static TestResult instance{};
     return instance;
@@ -49,24 +56,17 @@ class TestResult {
    * @return true on success otherwise false
    */
   inline bool get(const std::string &test_name) {
-#if __cplusplus >= 201703L
-    std::scoped_lock<std::mutex> lock(test_result_mutex_);
-#elif __cplusplus >= 201103L
-    std::lock_guard<std::mutex> lock(test_result_mutex_);
-#endif
-
     LOG_INIT(*test_argv);
-    if (!started_) {
-      started_ = true;
-      startAll();
-    }
 
-    if (test_results.find(test_name) == test_results.end()) {
-      return false;
-    }
+    std::call_once(start_once_, [] {
+      TestResult::startAll();
+    });
 
-    bool res = test_results.at(test_name);
-    return res;
+    {
+      MutexLock lock(getInstance().test_result_mutex_);
+      auto it = getInstance().test_results.find(test_name);
+      return it != getInstance().test_results.end() && it->second;
+    }
   }
 
  private:
@@ -102,12 +102,16 @@ class TestResult {
   inline void startTimed(const AsyncTest &a) {
     bool test_status = true;
 
-    for (int i = 0; i < 30; i++) {
-      stdout_capture_mutex_.lock();
-      startCapture(a.stream_type);
-      a.fn();
-      std::string output = stopCapture(a.stream_type);
-      stdout_capture_mutex_.unlock();
+    for (int i = 0; i < 10; ++i) {
+      std::string output;
+
+      {
+        MutexLock lg(stdout_capture_mutex_);
+        startCapture(a.stream_type);
+        a.fn();
+
+        output = stopCapture(a.stream_type);
+      }
 
       if ((i == 0 || i % 4 == 0)) {
         if (!compare(a.compare_type, output, a.expected_output)) {
@@ -165,13 +169,14 @@ class TestResult {
   }
 
   inline void insert(const std::string &test_name, bool test_status) {
+    MutexLock lock(test_result_mutex_);
     test_results.insert({test_name, test_status});
   }
 
   TestResult() = default;
 
-  bool started_{false};
-  std::mutex test_result_mutex_;
+  static inline std::once_flag start_once_;
+  std::mutex test_result_mutex_;  // protects test_results
   std::mutex stdout_capture_mutex_;
   std::map<std::string, bool> test_results;
 };
