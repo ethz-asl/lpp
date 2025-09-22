@@ -1,13 +1,13 @@
 /* BSD 3-Clause License
  *
- * Copyright ©2022, Autonomous Systems Lab, ETH Zurich, 4c3y
- * (https://github.com/4c3y) All rights reserved.
+ * Copyright ©2022, Autonomous Systems Lab, ETH Zurich, 4c3y (https://github.com/4c3y)
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
@@ -19,33 +19,31 @@
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 #ifndef LOG__LOG_H_
 #define LOG__LOG_H_
 
 #include <algorithm>
-#include <chrono>
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <mutex>
+#include <utility>
 #include <set>
 #include <sstream>
 #include <unordered_map>
-#include <utility>
+#include <iostream>
+#include <chrono>
+#include <mutex>
+#include <functional>
+#include <memory>
 
-#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && \
-    !defined MODE_DEFAULT && !defined MODE_NOLOG
+#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT && !defined MODE_NOLOG
 #define MODE_DEFAULT
 #warning "No mode defined. Selected MODE_DEFAULT";
 #endif
@@ -56,12 +54,9 @@
  * To suppress potentially multiple thousands lines of errors,
  * all modes except MODE_DEFAULT gets undefined in this case.
  *
- * Defining MODE_DEFAULT will prevent errors from being generated for each
- * logging function that is called.
+ * Defining MODE_DEFAULT will prevent errors from being generated for each logging function that is called.
  */
-#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + \
-        defined(MODE_DEFAULT) + defined(MODE_NOLOG) >               \
-    1
+#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_DEFAULT) + defined(MODE_NOLOG) > 1
 #undef MODE_LPP
 #undef MODE_GLOG
 #undef MODE_ROSLOG
@@ -70,8 +65,7 @@
 #error "More than one mode is defined"
 #endif
 
-//! Check if libraries are available at compile time and include required
-//! headers
+//! Check if libraries are available at compile time and include required headers
 #if __has_include(<glog/logging.h>)
 #include <glog/logging.h>
 #define LPP_GLOG_SUPPORTED
@@ -89,6 +83,7 @@
 
 //! Can't use namespaces in macros, used to increase readability
 #define LPP_INTL lpp::internal
+
 
 // diagnostic push / pop
 #if defined(__clang__)
@@ -114,7 +109,13 @@ IDE_IGNORE(
 
 namespace lpp {
 namespace internal {
-enum class BaseSeverity { DEBUG, INFO, WARN, ERROR, FATAL };
+enum class BaseSeverity {
+  DEBUG,
+  INFO,
+  WARN,
+  ERROR,
+  FATAL
+};
 
 //! Initialization logic
 class Init {
@@ -125,42 +126,35 @@ class Init {
 
 class Logging {
  public:
-  inline void call(BaseSeverity severity, const std::string &str) {
+  inline void call(BaseSeverity severity, const std::string& str) {
     fn_(severity, str);
   }
 
-  inline void setLoggingFunction(
-      const std::function<void(BaseSeverity, const std::string &)> &fn) {
+  inline void setLoggingFunction(const std::function<void(BaseSeverity, const std::string &)> &fn) {
     fn_ = fn;
   }
 
  private:
-  std::function<void(BaseSeverity, const std::string &)> fn_ =
-      [](BaseSeverity severity, const std::string &str) {
-        switch (severity) {
-          case BaseSeverity::DEBUG:
-            std::cout << "DEBUG " << str << std::endl;
-            return;
-          case BaseSeverity::INFO:
-            std::cout << "INFO  " << str << std::endl;
-            return;
-          case BaseSeverity::WARN:
-            std::cout << "WARN  " << str << std::endl;
-            return;
-          case BaseSeverity::ERROR:
-            std::cout << "ERROR " << str << std::endl;
-            return;
-          case BaseSeverity::FATAL:
-            std::cout << "FATAL " << str << std::endl;
-            return;
-        }
-      };
+  std::function<void(BaseSeverity, const std::string &)> fn_ = [](BaseSeverity severity, const std::string &str) {
+    switch (severity) {
+      case BaseSeverity::DEBUG:std::cout << "DEBUG " << str << std::endl;
+        return;
+      case BaseSeverity::INFO:std::cout << "INFO  " << str << std::endl;
+        return;
+      case BaseSeverity::WARN:std::cout << "WARN  " << str << std::endl;
+        return;
+      case BaseSeverity::ERROR:std::cout << "ERROR " << str << std::endl;
+        return;
+      case BaseSeverity::FATAL:std::cout << "FATAL " << str << std::endl;
+        return;
+    }
+  };
 };
 
 inline static Logging logging;
 inline static Init lppInit;
-}  // namespace internal
-}  // namespace lpp
+} // namepace internal
+} // namespace lpp
 
 //! assert if mode is supported by the libraries available
 #if defined MODE_GLOG && !defined LPP_GLOG_SUPPORTED
@@ -171,10 +165,12 @@ inline static Init lppInit;
 #error Logging Mode is set to roslog but roslog was not found
 #endif
 
+
 //! Un-define glog`s LOG macro to avoid conflicts
 #ifdef LPP_GLOG_SUPPORTED
 #undef LOG
 #endif
+
 
 //! Un-define log methods for redefinition
 #if defined LPP_GLOG_SUPPORTED && !defined MODE_GLOG && !defined MODE_DEFAULT
@@ -202,8 +198,7 @@ inline static Init lppInit;
 #define LPP_GLOG_V0_6_WARNING(str) LPP_WARN(str)
 #endif
 
-#if defined LPP_ROSLOG_SUPPORTED && !defined MODE_ROSLOG && \
-    !defined MODE_DEFAULT
+#if defined LPP_ROSLOG_SUPPORTED && !defined MODE_ROSLOG && !defined MODE_DEFAULT
 #undef ROS_DEBUG
 #undef ROS_DEBUG_STREAM
 #undef ROS_INFO
@@ -253,12 +248,10 @@ using namespace lpp::internal;
  * @param argv is used if MODE_GLOG is defined, otherwise unused.
  * @param callback is used if MODE_LPP is defined, otherwise unused.
  */
-inline void LOG_INIT(
-    [[maybe_unused]] char *argv,
-    [[maybe_unused]] const std::function<
-        void(BaseSeverity, const std::string &)> &callback = nullptr) {
+inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
   if (!lppInit.glog_initialized || !lppInit.lpp_initialized) {
+
 #if defined MODE_LPP
     if (callback != nullptr) {
       logging.setLoggingFunction(callback);
@@ -266,8 +259,7 @@ inline void LOG_INIT(
 #endif
 
 #if defined LPP_DEBUG && (defined MODE_ROSLOG || defined MODE_DEFAULT)
-    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME,
-                                       ros::console::levels::Debug)) {
+    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug)) {
       ros::console::notifyLoggerLevelsChanged();
     }
 #endif
@@ -283,31 +275,20 @@ inline void LOG_INIT(
   }
 }
 
-#define LPP_ASSERT_LPP(x)                                                     \
-  static_assert(                                                              \
-      (x) == LPP_INTL::LppSeverity::D || (x) == LPP_INTL::LppSeverity::I ||   \
-          (x) == LPP_INTL::LppSeverity::W ||                                  \
-          (x) == LPP_INTL::LppSeverity::E || (x) == LPP_INTL::LppSeverity::F, \
-      "Unknown severity level")
-#define LPP_ASSERT_GLOG(x)                                    \
-  static_assert((x) == LPP_INTL::GlogSeverity::INFO ||        \
-                    (x) == LPP_INTL::GlogSeverity::WARNING || \
-                    (x) == LPP_INTL::GlogSeverity::ERROR ||   \
-                    (x) == LPP_INTL::GlogSeverity::FATAL,     \
-                "Unknown severity level")
+#define LPP_ASSERT_LPP(x) static_assert((x) == LPP_INTL::LppSeverity::D || (x) == LPP_INTL::LppSeverity::I || (x) == LPP_INTL::LppSeverity::W || (x) == LPP_INTL::LppSeverity::E || (x) == LPP_INTL::LppSeverity::F, "Unknown severity level")
+#define LPP_ASSERT_GLOG(x) static_assert((x) == LPP_INTL::GlogSeverity::INFO || (x) == LPP_INTL::GlogSeverity::WARNING || (x) == LPP_INTL::GlogSeverity::ERROR || (x) == LPP_INTL::GlogSeverity::FATAL, "Unknown severity level")
 
 //! Hack to enable macro overloading. Used to overload glog's LOG() macro.
-#define LPP_CAT(A, B) A##B
-#define LPP_SELECT(NAME, NUM) LPP_CAT(NAME##_, NUM)
+#define LPP_CAT(A, B) A ## B
+#define LPP_SELECT(NAME, NUM) LPP_CAT( NAME ## _, NUM )
 
 #define LPP_GET_COUNT(_1, _2, _3, _4, _5, _6, COUNT, ...) COUNT
-#define LPP_VA_SIZE(...) LPP_GET_COUNT(__VA_ARGS__, 6, 5, 4, 3, 2, 1)
-#define LPP_VA_SELECT(NAME, ...) \
-  LPP_SELECT(NAME, LPP_VA_SIZE(__VA_ARGS__))(__VA_ARGS__)
+#define LPP_VA_SIZE(...) LPP_GET_COUNT( __VA_ARGS__, 6, 5, 4, 3, 2, 1 )
+#define LPP_VA_SELECT(NAME, ...) LPP_SELECT( NAME, LPP_VA_SIZE(__VA_ARGS__) )(__VA_ARGS__)
 
 //! Helper macros to generate warnings
-#define LPP_PRAGMA(x) _Pragma(#x)
-#define LPP_WARN(x) LPP_PRAGMA(message(#x))
+#define LPP_PRAGMA(x) _Pragma (#x)
+#define LPP_WARN(x) LPP_PRAGMA(message (#x))
 
 //! Overloads
 DIAG_PUSH
@@ -323,42 +304,26 @@ DIAG_POP
 
 //! MODE_GLOG
 #if defined MODE_GLOG || defined MODE_DEFAULT
-#define LOG_1(severity) COMPACT_GOOGLE_LOG_##severity.stream()
+#define LOG_1(severity) COMPACT_GOOGLE_LOG_ ## severity.stream()
 
-#define LPP_INTL_LOG_EVERY_T(severity, t)                                      \
-  LPP_GLOG_V0_6_WARNING(                                                       \
-      "LOG_EVERY_T is only defined in GLOG v0.6 or newer. File name and line " \
-      "numbers will be invalid in the log output.")                            \
-  LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(severity),       \
-                                     LPP_INTL::PolicyType::TIMED)
+
+#define LPP_INTL_LOG_EVERY_T(severity, t) LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer. File name and line numbers will be invalid in the log output.") \
+LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(severity), LPP_INTL::PolicyType::TIMED)
 #ifndef LOG_EVERY_T
-#define LOG_EVERY_T(severity, t)                                               \
-  LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.")  \
-  LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t,                         \
-                                     toBase(LPP_INTL::GlogSeverity::severity), \
-                                     LPP_INTL::PolicyType::TIMED)
+#define LOG_EVERY_T(severity, t) LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
+LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #endif
 
-#define LPP_INTL_DLOG_EVERY_T(severity, t)                                  \
-  LPP_WARN("File name and line numbers will be invalid in the log output.") \
-  LOG_EVERY_T(severity, t)
+#define LPP_INTL_DLOG_EVERY_T(severity, t) LPP_WARN("File name and line numbers will be invalid in the log output.") LOG_EVERY_T(severity, t)
 
 #ifndef DLOG_EVERY_T
-#define DLOG_EVERY_T(severity, t)                         \
-  LPP_WARN("DLOG_EVERY_T is a Log++ extension")           \
-  LPP_INTL::LppGlogExtensionLog(                          \
-      LPP_GET_KEY(), t, LPP_INTL::GlogSeverity::severity, \
-      LPP_INTL::PolicyType::TIMED,                        \
-      [](const std::string &str) { LOG_1(severity) << str; })
+#define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_EVERY_T is a Log++ extension") \
+LPP_INTL::LppGlogExtensionLog(LPP_GET_KEY(), t, LPP_INTL::GlogSeverity::severity, LPP_INTL::PolicyType::TIMED, [](const std::string& str) {LOG_1(severity) << str;})
 #endif
 
 #ifndef DLOG_FIRST_N
-#define DLOG_FIRST_N(severity, n)                         \
-  LPP_WARN("DLOG_FIRST_N is a Log++ extension")           \
-  LPP_INTL::LppGlogExtensionLog(                          \
-      LPP_GET_KEY(), n, LPP_INTL::GlogSeverity::severity, \
-      LPP_INTL::PolicyType::FIRST_N,                      \
-      [](const std::string &str) { LOG_1(severity) << str; })
+#define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension") \
+LPP_INTL::LppGlogExtensionLog(LPP_GET_KEY(), n, LPP_INTL::GlogSeverity::severity, LPP_INTL::PolicyType::FIRST_N, [](const std::string& str) {LOG_1(severity) << str;})
 #endif
 #endif
 
@@ -366,88 +331,38 @@ DIAG_POP
 DIAG_PUSH
 IDE_IGNORE("bugprone-macro-parentheses")
 
-#define LOG_2(severity, x)                                  \
-  LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity);          \
-  do {                                                      \
-    if constexpr (LPP_INTL::LppSeverity::severity ==        \
-                      LPP_INTL::LppSeverity::I ||           \
-                  LPP_INTL::LppSeverity::severity ==        \
-                      LPP_INTL::LppSeverity::D) {           \
-      LOG_1(INFO) << x;                                     \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::W) {        \
-      LOG_1(WARNING) << x;                                  \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::E) {        \
-      LOG_1(ERROR) << x;                                    \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::F) {        \
-      LOG_1(FATAL) << x;                                    \
-    }                                                       \
-  } while (0)
+#define LOG_2(severity, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
+if      constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_1(INFO) << x;}        \
+else if constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_1(WARNING) << x;}     \
+else if constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_1(ERROR) << x;}       \
+else if constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_1(FATAL) << x;}       \
+} while(0)
 
-// Add true at the end to make semicolons mandatory. Compiles to nothing.
-#define LOG_3(severity, cond, x) \
-  if (cond) {                    \
-    LOG_2(severity, x);          \
-  }                              \
-  true
-#define LOG_EVERY(severity, n, x)                           \
-  LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity);          \
-  do {                                                      \
-    if constexpr (LPP_INTL::LppSeverity::severity ==        \
-                  LPP_INTL::LppSeverity::I) {               \
-      LOG_EVERY_N(INFO, n) << x;                            \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::W) {        \
-      LOG_EVERY_N(WARNING, n) << x;                         \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::E) {        \
-      LOG_EVERY_N(ERROR, n) << x;                           \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::F) {        \
-      LOG_EVERY_N(FATAL, n) << x;                           \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::D) {        \
-      DLOG_EVERY_N(INFO, n) << x;                           \
-    }                                                       \
-  } while (0)
+//Add true at the end to make semicolons mandatory. Compiles to nothing.
+#define LOG_3(severity, cond, x) if (cond) { LOG_2(severity, x);} true
+#define LOG_EVERY(severity, n, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
+if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I) {LOG_EVERY_N(INFO, n) << x;}        \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_EVERY_N(WARNING, n) << x;}     \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_EVERY_N(ERROR, n) << x;}       \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_EVERY_N(FATAL, n) << x;}       \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {DLOG_EVERY_N(INFO, n) << x;}       \
+} while(0)
 
-#define LOG_FIRST(severity, n, x)                           \
-  LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity);          \
-  do {                                                      \
-    if constexpr (LPP_INTL::LppSeverity::severity ==        \
-                      LPP_INTL::LppSeverity::I ||           \
-                  LPP_INTL::LppSeverity::severity ==        \
-                      LPP_INTL::LppSeverity::D) {           \
-      LOG_FIRST_N(INFO, n) << x;                            \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::W) {        \
-      LOG_FIRST_N(WARNING, n) << x;                         \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::E) {        \
-      LOG_FIRST_N(ERROR, n) << x;                           \
-    } else if constexpr (LPP_INTL::LppSeverity::severity == \
-                         LPP_INTL::LppSeverity::F) {        \
-      LOG_FIRST_N(FATAL, n) << x;                           \
-    }                                                       \
-  } while (0)
+#define LOG_FIRST(severity, n, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
+if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_FIRST_N(INFO, n) << x;}        \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W) {LOG_FIRST_N(WARNING, n) << x;}     \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E) {LOG_FIRST_N(ERROR, n) << x;}       \
+else if constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F) {LOG_FIRST_N(FATAL, n) << x;}       \
+} while(0)
 
-#define LOG_TIMED(severity, t, x)                          \
-  do {                                                     \
-    if constexpr (LPP_INTL::LppSeverity::severity ==       \
-                      LPP_INTL::LppSeverity::I ||          \
-                  LPP_INTL::LppSeverity::severity ==       \
-                      LPP_INTL::LppSeverity::W ||          \
-                  LPP_INTL::LppSeverity::severity ==       \
-                      LPP_INTL::LppSeverity::E ||          \
-                  LPP_INTL::LppSeverity::severity ==       \
-                      LPP_INTL::LppSeverity::F ||          \
-                  LPP_INTL::LppSeverity::severity ==       \
-                      LPP_INTL::LppSeverity::D) {          \
-      LPP_INTL_LOG_EVERY_T(LppSeverity::severity, t) << x; \
-    }                                                      \
-  } while (0)
+#define LOG_TIMED(severity, t, x)  do { \
+if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I     \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::W  \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::E  \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::F  \
+                  || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D \
+ ){LPP_INTL_LOG_EVERY_T(LppSeverity::severity, t) << x;}      \
+} while(0)
 
 #ifndef MODE_DEFAULT
 #define ROS_DEBUG(...) DLOG(INFO) << LPP_INTL::formatToString(__VA_ARGS__)
@@ -472,76 +387,41 @@ IDE_IGNORE("bugprone-macro-parentheses")
 #define ROS_FATAL_COND(cond, x) LOG_IF(ERROR, cond) << x
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_IF(ERROR, cond) << x
 
-#define ROS_DEBUG_ONCE(...) \
-  LOG_FIRST_N(INFO, 1) << LPP_INTL::formatToString(__VA_ARGS__)
-#define ROS_INFO_ONCE(...) \
-  LOG_FIRST_N(INFO, 1) << LPP_INTL::formatToString(__VA_ARGS__)
-#define ROS_WARN_ONCE(...) \
-  LOG_FIRST_N(WARNING, 1) << LPP_INTL::formatToString(__VA_ARGS__)
-#define ROS_ERROR_ONCE(...) \
-  LOG_FIRST_N(ERROR, 1) << LPP_INTL::formatToString(__VA_ARGS__)
-#define ROS_FATAL_ONCE(...) \
-  LOG_FIRST_N(FATAL, 1) << LPP_INTL::formatToString(__VA_ARGS__)
+#define ROS_DEBUG_ONCE(...) LOG_FIRST_N(INFO, 1) << LPP_INTL::formatToString(__VA_ARGS__)
+#define ROS_INFO_ONCE(...) LOG_FIRST_N(INFO, 1) << LPP_INTL::formatToString(__VA_ARGS__)
+#define ROS_WARN_ONCE(...) LOG_FIRST_N(WARNING, 1) << LPP_INTL::formatToString(__VA_ARGS__)
+#define ROS_ERROR_ONCE(...) LOG_FIRST_N(ERROR, 1) << LPP_INTL::formatToString(__VA_ARGS__)
+#define ROS_FATAL_ONCE(...) LOG_FIRST_N(FATAL, 1) << LPP_INTL::formatToString(__VA_ARGS__)
 
-#define ROS_DEBUG_THROTTLE(n, ...) \
-  LPP_INTL_DLOG_EVERY_T(INFO, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_DEBUG_THROTTLE(n, ...) LPP_INTL_DLOG_EVERY_T(INFO, n) << LPP_INTL::formatToString(__VA_ARGS__);
 #define ROS_DEBUG_STREAM_THROTTLE(n, x) LPP_INTL_DLOG_EVERY_T(INFO, n) << x
-#define ROS_INFO_THROTTLE(n, ...)         \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::I, n) \
-      << LPP_INTL::formatToString(__VA_ARGS__);
-#define ROS_INFO_STREAM_THROTTLE(n, x) \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::I, n) << x
-#define ROS_WARN_THROTTLE(n, ...)         \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::W, n) \
-      << LPP_INTL::formatToString(__VA_ARGS__);
-#define ROS_WARN_STREAM_THROTTLE(n, x) \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::W, n) << x
-#define ROS_ERROR_THROTTLE(n, ...)        \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::E, n) \
-      << LPP_INTL::formatToString(__VA_ARGS__);
-#define ROS_ERROR_STREAM_THROTTLE(n, x) \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::E, n) << x
-#define ROS_FATAL_THROTTLE(n, ...)        \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::F, n) \
-      << LPP_INTL::formatToString(__VA_ARGS__);
-#define ROS_FATAL_STREAM_THROTTLE(n, x) \
-  LPP_INTL_LOG_EVERY_T(LppSeverity::F, n) << x
+#define ROS_INFO_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::I, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_INFO_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::I, n) << x
+#define ROS_WARN_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::W, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_WARN_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::W, n) << x
+#define ROS_ERROR_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::E, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_ERROR_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::E, n) << x
+#define ROS_FATAL_THROTTLE(n, ...) LPP_INTL_LOG_EVERY_T(LppSeverity::F, n) << LPP_INTL::formatToString(__VA_ARGS__);
+#define ROS_FATAL_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::F, n) << x
 #endif
 
 DIAG_POP
 #endif
 
+
 //! MODE_ROSLOG
 #ifdef MODE_ROSLOG
-#define LOG_IF(severity, cond) \
-  if (cond) InternalLog(GlogSeverity::severity)
+#define LOG_IF(severity, cond) if (cond) InternalLog(GlogSeverity::severity)
 
 #define LOG_1(severity) LPP_INTL::InternalLog(LPP_INTL::GlogSeverity::severity)
-#define LOG_2(severity, x) \
-  LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x
-#define LOG_3(severity, cond, x) \
-  if (cond) LPP_INTL::InternalLog(LppSeverity::severity) << x
+#define LOG_2(severity, x) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x
+#define LOG_3(severity, cond, x) if (cond) LPP_INTL::InternalLog(LppSeverity::severity) << x
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
-#define LOG_EVERY(severity, n, x)                           \
-  LPP_INTL::InternalLogCount::getInstance()                 \
-      .update<unsigned int, LPP_INTL::PolicyType::EVERY_N>( \
-          LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x,   \
-          toBase(LPP_INTL::LppSeverity::                    \
-                     severity))  // NOLINT(bugprone-macro-parentheses)
-#define LOG_FIRST(severity, n, x)                           \
-  LPP_INTL::InternalLogCount::getInstance()                 \
-      .update<unsigned int, LPP_INTL::PolicyType::FIRST_N>( \
-          LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x,   \
-          toBase(LPP_INTL::LppSeverity::                    \
-                     severity))  // NOLINT(bugprone-macro-parentheses)
-#define LOG_TIMED(severity, t, x)                         \
-  LPP_INTL::InternalLogCount::getInstance()               \
-      .update<float, LPP_INTL::PolicyType::TIMED>(        \
-          LPP_GET_KEY(), t, LPP_INTL::InternalLog() << x, \
-          toBase(LPP_INTL::LppSeverity::                  \
-                     severity))  // NOLINT(bugprone-macro-parentheses)
+#define LOG_EVERY(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::EVERY_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
+#define LOG_FIRST(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::FIRST_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
+#define LOG_TIMED(severity, t, x) LPP_INTL::InternalLogCount::getInstance().update<float, LPP_INTL::PolicyType::TIMED>(LPP_GET_KEY(), t, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
 #endif
 
 #if defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
@@ -553,68 +433,29 @@ DIAG_POP
 
 #ifdef LPP_GLOG_SUPPORTED
 #define FLAGS_v LPP_FLAGS_v
-#endif  // LPP_GLOG_SUPPORTED
-#endif  // defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
+#endif //LPP_GLOG_SUPPORTED
+#endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
 
 #if defined MODE_ROSLOG || defined MODE_LPP
-#define LOG_EVERY_N(severity, n)                                            \
-  LPP_INTL::InternalPolicyLog<unsigned int>(                                \
-      LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), \
-      LPP_INTL::PolicyType::EVERY_N)
-#define LOG_EVERY_T(severity, t)                                              \
-  LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") \
-  LPP_INTL::InternalPolicyLog<float>(                                         \
-      LPP_GET_KEY(), t, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity),   \
-      LPP_INTL::PolicyType::TIMED)
-#define LOG_IF_EVERY_N(severity, condition, n) \
-  if (condition) LOG_EVERY_N(severity, n)
-#define LOG_FIRST_N(severity, n)                                            \
-  LPP_INTL::InternalPolicyLog<unsigned int>(                                \
-      LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), \
-      LPP_INTL::PolicyType::FIRST_N)
+#define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
+#define LOG_EVERY_T(severity, t) LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
+#define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
+#define LOG_FIRST_N(severity, n) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::FIRST_N)
 
-#define DLOG(severity)                               \
-  LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); \
-  LPP_INTL::InternalLog(LPP_INTL::BaseSeverity::DEBUG)
-#define DLOG_EVERY_N(severity, n)                                          \
-  LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity);                       \
-  LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n,              \
-                                            LPP_INTL::BaseSeverity::DEBUG, \
-                                            LPP_INTL::PolicyType::EVERY_N)
-#define DLOG_EVERY_T(severity, t)                                   \
-  LPP_WARN("DLOG_FIRST_N is a Log++ extension");                    \
-  LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity);                \
-  LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t,              \
-                                     LPP_INTL::BaseSeverity::DEBUG, \
-                                     LPP_INTL::PolicyType::TIMED)
-#define DLOG_FIRST_N(severity, n)                                          \
-  LPP_WARN("DLOG_FIRST_N is a Log++ extension");                           \
-  LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity);                       \
-  LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n,              \
-                                            LPP_INTL::BaseSeverity::DEBUG, \
-                                            LPP_INTL::PolicyType::FIRST_N)
-#define DLOG_IF_EVERY_N(severity, condition, n)                            \
-  LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity);                       \
-  if (condition)                                                           \
-  LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n,              \
-                                            LPP_INTL::BaseSeverity::DEBUG, \
-                                            LPP_INTL::PolicyType::EVERY_N)
-#define LOG_STRING(severity, ptr)                                              \
-  LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity);                           \
-  LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), \
-                                     ptr)
+#define DLOG(severity) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalLog(LPP_INTL::BaseSeverity::DEBUG)
+#define DLOG_EVERY_N(severity, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+#define DLOG_EVERY_T(severity, t) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::TIMED)
+#define DLOG_FIRST_N(severity, n) LPP_WARN("DLOG_FIRST_N is a Log++ extension"); LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); \
+LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::FIRST_N)
+#define DLOG_IF_EVERY_N(severity, condition, n) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); if (condition) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeverity::DEBUG, LPP_INTL::PolicyType::EVERY_N)
+#define LOG_STRING(severity, ptr) LPP_ASSERT_GLOG(LPP_INTL::GlogSeverity::severity); LPP_INTL::InternalGlogLogStringLog(toBase(LPP_INTL::GlogSeverity::severity), ptr)
 
 #undef VLOG_IS_ON
 #define VLOG_IS_ON(verboselevel) LPP_FLAGS_v >= (verboselevel) ? true : false
-#define VLOG(verboselevel)                                 \
-  LPP_INTL::InternalCondLog(LPP_INTL::BaseSeverity::DEBUG, \
-                            VLOG_IS_ON(verboselevel))
-#define VLOG_EVERY_N(verboselevel, n) \
-  if (VLOG_IS_ON(verboselevel)) LOG_EVERY_N(DEBUG, n)
-#define VLOG_IF(verboselevel, condition) \
-  if (condition) VLOG(verboselevel)
-#define VLOG_IF_EVERY_N(verboselevel, condition, n) \
-  if (VLOG_IS_ON(verboselevel) && condition) LOG_EVERY_N(DEBUG, n)
+#define VLOG(verboselevel) LPP_INTL::InternalCondLog(LPP_INTL::BaseSeverity::DEBUG, VLOG_IS_ON(verboselevel))
+#define VLOG_EVERY_N(verboselevel, n) if (VLOG_IS_ON(verboselevel)) LOG_EVERY_N(DEBUG, n)
+#define VLOG_IF(verboselevel, condition) if (condition) VLOG(verboselevel)
+#define VLOG_IF_EVERY_N(verboselevel, condition, n) if (VLOG_IS_ON(verboselevel) && condition) LOG_EVERY_N(DEBUG, n)
 #endif
 
 //! MODE_LPP
@@ -641,129 +482,60 @@ DIAG_POP
 #define ROS_FATAL_COND(cond, x) LOG_3(F, cond, x)
 #define ROS_FATAL_STREAM_COND(cond, x) LOG_3(F, cond, x)
 
-#define ROS_DEBUG_ONCE(...) \
-  LOG_FIRST(D, 1, LPP_INTL::formatToString(__VA_ARGS__))
-#define ROS_INFO_ONCE(...) \
-  LOG_FIRST(I, 1, LPP_INTL::formatToString(__VA_ARGS__))
-#define ROS_WARN_ONCE(...) \
-  LOG_FIRST(W, 1, LPP_INTL::formatToString(__VA_ARGS__))
-#define ROS_ERROR_ONCE(...) \
-  LOG_FIRST(E, 1, LPP_INTL::formatToString(__VA_ARGS__))
-#define ROS_FATAL_ONCE(...) \
-  LOG_FIRST(F, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_DEBUG_ONCE(...) LOG_FIRST(D, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_INFO_ONCE(...) LOG_FIRST(I, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_WARN_ONCE(...) LOG_FIRST(W, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_ERROR_ONCE(...) LOG_FIRST(E, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, LPP_INTL::formatToString(__VA_ARGS__))
 
-#define ROS_DEBUG_THROTTLE(period, ...) \
-  LOG_TIMED(D, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_DEBUG_THROTTLE(period, ...) LOG_TIMED(D, period, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_DEBUG_STREAM_THROTTLE(period, x) LOG_TIMED(D, period, x)
-#define ROS_INFO_THROTTLE(period, ...) \
-  LOG_TIMED(I, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_INFO_THROTTLE(period, ...) LOG_TIMED(I, period, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_INFO_STREAM_THROTTLE(period, x) LOG_TIMED(I, period, x)
-#define ROS_WARN_THROTTLE(period, ...) \
-  LOG_TIMED(W, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_WARN_THROTTLE(period, ...) LOG_TIMED(W, period, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_WARN_STREAM_THROTTLE(period, x) LOG_TIMED(W, period, x)
-#define ROS_ERROR_THROTTLE(period, ...) \
-  LOG_TIMED(E, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_ERROR_THROTTLE(period, ...) LOG_TIMED(E, period, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_ERROR_STREAM_THROTTLE(period, x) LOG_TIMED(E, period, x)
-#define ROS_FATAL_THROTTLE(period, ...) \
-  LOG_TIMED(F, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_FATAL_THROTTLE(period, ...) LOG_TIMED(F, period, LPP_INTL::formatToString(__VA_ARGS__))
 #define ROS_FATAL_STREAM_THROTTLE(period, x) LOG_TIMED(F, period, x)
 
-#define LOG_IF(severity, cond) \
-  if (cond) LPP_INTL::InternalLog(GlogSeverity::severity)
+#define LOG_IF(severity, cond) if (cond) LPP_INTL::InternalLog(GlogSeverity::severity)
 #define LOG_1(severity) LPP_INTL::InternalLog(LPP_INTL::GlogSeverity::severity)
 #endif
 
 #if defined MODE_LPP || defined MODE_DEFAULT
-#define LOG_2(severity, x)                               \
-  LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) \
-      << x  // NOLINT(bugprone-macro-parentheses)
-#define LOG_3(severity, cond, x)                         \
-  if (cond)                                              \
-  LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) \
-      << x  // NOLINT(bugprone-macro-parentheses)
+#define LOG_2(severity, x) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
+#define LOG_3(severity, cond, x) if (cond) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
+
 
 //! MODE_NOLOG
 
 #ifdef MODE_NOLOG
-// lpp
-#define LOG_2(severity, x)               \
-  (void)LPP_INTL::LppSeverity::severity; \
-  InternalLog() << x
-#define LOG_EVERY(severity, n, x)                          \
-  (void)LPP_INTL::LppSeverity::severity;                   \
-  static_assert(std::is_integral<decltype(n)>::value, ""); \
-  InternalLog()
-#define LOG_FIRST(severity, n, x)                          \
-  (void)LPP_INTL::LppSeverity::severity;                   \
-  static_assert(std::is_integral<decltype(n)>::value, ""); \
-  InternalLog()
-#define LOG_TIMED(severity, t, x)                          \
-  (void)LPP_INTL::LppSeverity::severity;                   \
-  static_assert(std::is_integral<decltype(t)>::value, ""); \
-  InternalLog()
+//lpp
+#define LOG_2(severity, x) (void) LPP_INTL::LppSeverity::severity; InternalLog() << x
+#define LOG_EVERY(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define LOG_FIRST(severity, n, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define LOG_TIMED(severity, t, x) (void) LPP_INTL::LppSeverity::severity; static_assert(std::is_integral<decltype(t)>::value, ""); InternalLog()
 
-// glog
-#define LOG_1(severity)                   \
-  (void)LPP_INTL::GlogSeverity::severity; \
-  InternalLog()
-#define DLOG(severity)                    \
-  (void)LPP_INTL::GlogSeverity::severity; \
-  InternalLog()
-#define DLOG_EVERY_N(severity, n)         \
-  (void)LPP_INTL::GlogSeverity::severity; \
-  InternalLog()
-#define LOG_EVERY_N(severity, n)          \
-  (void)LPP_INTL::GlogSeverity::severity; \
-  InternalLog()
-#define DLOG_FIRST_N(severity, n)                          \
-  (void)LPP_INTL::GlogSeverity::severity;                  \
-  static_assert(std::is_integral<decltype(n)>::value, ""); \
-  InternalLog()
-#define LOG_FIRST_N(severity, n)                           \
-  (void)LPP_INTL::GlogSeverity::severity;                  \
-  static_assert(std::is_integral<decltype(n)>::value, ""); \
-  InternalLog()
-#define DLOG_IF_EVERY_N(severity, cond, n)                   \
-  (void)LPP_INTL::GlogSeverity::severity;                    \
-  static_assert(std::is_same<decltype(cond), bool>::value && \
-                    std::is_integral<decltype(n)>::value,    \
-                "");                                         \
-  InternalLog()
+//glog
+#define LOG_1(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define DLOG(severity) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define DLOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define LOG_EVERY_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; InternalLog()
+#define DLOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define LOG_FIRST_N(severity, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define DLOG_IF_EVERY_N(severity, cond, n) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(cond), bool>::value && std::is_integral<decltype(n)>::value, ""); InternalLog()
 #define LOG_IF_EVERY_N(severity, cond, n) DLOG_IF_EVERY_N(severity, cond, n)
-#define LOG_STRING(severity, ptr)                                       \
-  (void)LPP_INTL::GlogSeverity::severity;                               \
-  static_assert(                                                        \
-      std::is_same<decltype(ptr), std::vector<std::string> *>::value || \
-          std::is_same<decltype(ptr), std::nullptr_t>::value,           \
-      "");                                                              \
-  InternalLog()
-#define VLOG(verboselevel)                                            \
-  static_assert(std::is_integral<decltype(verboselevel)>::value, ""); \
-  InternalLog()
-#define VLOG_IF(verboselevel, condition)                            \
-  static_assert(std::is_integral<decltype(verboselevel)>::value &&  \
-                    std::is_same<decltype(condition), bool>::value, \
-                "");                                                \
-  InternalLog()
-#define VLOG_EVERY_N(verboselevel, n)                              \
-  static_assert(std::is_integral<decltype(verboselevel)>::value && \
-                    std::is_integral<decltype(n)>::value,          \
-                "");                                               \
-  InternalLog()
-#define VLOG_IF_EVERY_N(verboselevel, condition, n)                   \
-  static_assert(std::is_integral<decltype(verboselevel)>::value &&    \
-                    std::is_same<decltype(condition), bool>::value && \
-                    std::is_integral<decltype(n)>::value,             \
-                "");                                                  \
-  InternalLog()
-#define DLOG_EVERY_T(severity, t)                          \
-  (void)LPP_INTL::GlogSeverity::severity;                  \
-  static_assert(std::is_integral<decltype(t)>::value, ""); \
-  InternalLog()
+#define LOG_STRING(severity, ptr) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_same<decltype(ptr), std::vector<std::string>*>::value || std::is_same<decltype(ptr), std::nullptr_t>::value, ""); InternalLog()
+#define VLOG(verboselevel) static_assert(std::is_integral<decltype(verboselevel)>::value, ""); InternalLog()
+#define VLOG_IF(verboselevel, condition) static_assert(std::is_integral<decltype(verboselevel)>::value && std::is_same<decltype(condition), bool>::value, ""); InternalLog()
+#define VLOG_EVERY_N(verboselevel, n) static_assert(std::is_integral<decltype(verboselevel)>::value && std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define VLOG_IF_EVERY_N(verboselevel, condition, n) static_assert(std::is_integral<decltype(verboselevel)>::value && std::is_same<decltype(condition), bool>::value && std::is_integral<decltype(n)>::value, ""); InternalLog()
+#define DLOG_EVERY_T(severity, t) (void) LPP_INTL::GlogSeverity::severity; static_assert(std::is_integral<decltype(t)>::value, ""); InternalLog()
 #define LOG_EVERY_T(severity, t) DLOG_EVERY_T(severity, t)
 
-// ros
+//ros
 #define ROS_DEBUG(...) LOG_2(D, LPP_INTL::emptyString(__VA_ARGS__))
 #define ROS_INFO(...) LOG_2(I, LPP_INTL::emptyString(__VA_ARGS__))
 #define ROS_WARN(...) LOG_2(W, LPP_INTL::emptyString(__VA_ARGS__))
@@ -776,23 +548,14 @@ DIAG_POP
 #define ROS_ERROR_STREAM(x) LPP_INTL::emptyString(x)
 #define ROS_FATAL_STREAM(x) LPP_INTL::emptyString(x)
 
-#define ROS_DEBUG_ONCE(...) \
-  LOG_2(D, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
-#define ROS_INFO_ONCE(...) \
-  LOG_2(I, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
-#define ROS_WARN_ONCE(...) \
-  LOG_2(W, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
-#define ROS_ERROR_ONCE(...) \
-  LOG_2(E, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
-#define ROS_FATAL_ONCE(...) \
-  LOG_2(F, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_DEBUG_ONCE(...) LOG_2(D, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_INFO_ONCE(...) LOG_2(I, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_WARN_ONCE(...) LOG_2(W, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_ERROR_ONCE(...) LOG_2(E, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
+#define ROS_FATAL_ONCE(...) LOG_2(F, std::string(LPP_INTL::emptyString(__VA_ARGS__)))
 
-#define ROS_DEBUG_THROTTLE(t, x)                           \
-  static_assert(std::is_integral<decltype(t)>::value, ""); \
-  LPP_INTL::emptyString(x)
-#define ROS_DEBUG_STREAM_THROTTLE(t, x)                    \
-  static_assert(std::is_integral<decltype(t)>::value, ""); \
-  InternalLog()
+#define ROS_DEBUG_THROTTLE(t, x) static_assert(std::is_integral<decltype(t)>::value, ""); LPP_INTL::emptyString(x)
+#define ROS_DEBUG_STREAM_THROTTLE(t, x) static_assert(std::is_integral<decltype(t)>::value, ""); InternalLog()
 #define ROS_INFO_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
 #define ROS_INFO_STREAM_THROTTLE(t, x) ROS_DEBUG_STREAM_THROTTLE(t, x)
 #define ROS_WARN_THROTTLE(t, x) ROS_DEBUG_THROTTLE(t, x)
@@ -807,59 +570,69 @@ namespace lpp {
 namespace internal {
 #ifdef MODE_NOLOG
 //! Used to disable logging for printf(3) like syntax
-template <typename... Args>
-constexpr inline const char *emptyString([[maybe_unused]] const char *f,
-                                         [[maybe_unused]] Args... args) {
+template<typename... Args>
+constexpr inline const char* emptyString([[maybe_unused]] const char *f, [[maybe_unused]] Args... args) {
   return "";
 }
 
-[[maybe_unused]] constexpr const char *emptyString(
-    [[maybe_unused]] const char *str) {
+[[maybe_unused]] constexpr const char* emptyString([[maybe_unused]] const char *str) {
   return "";
 }
 
-[[maybe_unused]] constexpr const char *emptyString(
-    [[maybe_unused]] const std::string &str) {
+[[maybe_unused]] constexpr const char* emptyString([[maybe_unused]] const std::string& str) {
   return "";
 }
 #endif
-//! Composes a string with the same text that would be printed if format was
-//! used on printf(3)
-template <typename... Args>
+//! Composes a string with the same text that would be printed if format was used on printf(3)
+template<typename... Args>
 inline std::string formatToString(const char *f, Args... args) {
   size_t sz = snprintf(nullptr, 0, f, args...);
   if (sz == 0) {
     return "";
   }
-  char *buf = (char *)malloc(sz + 1);
+  char *buf = (char *) malloc(sz + 1);
   snprintf(buf, sz + 1, f, args...);
   return buf;
 }
 
-inline std::string formatToString(const char *str) { return str; }
+inline std::string formatToString(const char *str) {
+  return str;
+}
 
-enum class LppSeverity { D, I, W, E, F };
+enum class LppSeverity {
+  D,
+  I,
+  W,
+  E,
+  F
+};
 
-enum class GlogSeverity { DEBUG, INFO, WARNING, ERROR, FATAL };
+enum class GlogSeverity {
+  DEBUG,
+  INFO,
+  WARNING,
+  ERROR,
+  FATAL
+};
 
 inline BaseSeverity toBase(LppSeverity lpp_severity) {
-  return (BaseSeverity)lpp_severity;
+  return (BaseSeverity) lpp_severity;
 }
 
 inline BaseSeverity toBase(GlogSeverity glog_severity) {
-  return (BaseSeverity)glog_severity;
+  return (BaseSeverity) glog_severity;
 }
 
 //! Internal log class
 class InternalLog {
  public:
-  InternalLog() { should_print_ = false; };
+  InternalLog() {
+    should_print_ = false;
+  };
 
   explicit InternalLog(BaseSeverity base_severity) : severity_(base_severity) {}
-  explicit InternalLog(LppSeverity lpp_severity)
-      : severity_(toBase(lpp_severity)) {}
-  explicit InternalLog(GlogSeverity glog_severity)
-      : severity_(toBase(glog_severity)) {}
+  explicit InternalLog(LppSeverity lpp_severity) : severity_(toBase(lpp_severity)) {}
+  explicit InternalLog(GlogSeverity glog_severity) : severity_(toBase(glog_severity)) {}
 
   InternalLog(InternalLog const &log) : severity_(log.severity_) {
     ss << log.ss.str();
@@ -874,20 +647,15 @@ class InternalLog {
     }
 #if defined MODE_ROSLOG
     switch (severity_) {
-      case BaseSeverity::DEBUG:
-        ROS_DEBUG_STREAM(ss.str());
+      case BaseSeverity::DEBUG:ROS_DEBUG_STREAM(ss.str());
         break;
-      case BaseSeverity::INFO:
-        ROS_INFO_STREAM(ss.str());
+      case BaseSeverity::INFO:ROS_INFO_STREAM(ss.str());
         break;
-      case BaseSeverity::WARN:
-        ROS_WARN_STREAM(ss.str());
+      case BaseSeverity::WARN:ROS_WARN_STREAM(ss.str());
         break;
-      case BaseSeverity::ERROR:
-        ROS_ERROR_STREAM(ss.str());
+      case BaseSeverity::ERROR:ROS_ERROR_STREAM(ss.str());
         break;
-      case BaseSeverity::FATAL:
-        ROS_FATAL_STREAM(ss.str());
+      case BaseSeverity::FATAL:ROS_FATAL_STREAM(ss.str());
         break;
     }
 #endif
@@ -896,21 +664,21 @@ class InternalLog {
 #endif
 #if defined MODE_GLOG
     switch (severity_) {
-      case BaseSeverity::DEBUG:
-        LOG(INFO) << ss.str();
-        break;
-      case BaseSeverity::INFO:
-        LOG(INFO) << ss.str();
-        break;
-      case BaseSeverity::WARN:
-        LOG(WARNING) << ss.str();
-        break;
-      case BaseSeverity::ERROR:
-        LOG(ERROR) << ss.str();
-        break;
-      case BaseSeverity::FATAL:
-        LOG(FATAL) << ss.str();
-        break;
+    case BaseSeverity::DEBUG:
+      LOG(INFO) << ss.str();
+      break;
+    case BaseSeverity::INFO:
+      LOG(INFO) << ss.str();
+      break;
+    case BaseSeverity::WARN:
+      LOG(WARNING) << ss.str();
+      break;
+    case BaseSeverity::ERROR:
+      LOG(ERROR) << ss.str();
+      break;
+    case BaseSeverity::FATAL:
+      LOG(FATAL) << ss.str();
+      break;
     }
 #endif
   }
@@ -919,7 +687,7 @@ class InternalLog {
   bool should_print_{true};
 };
 
-template <typename T>
+template<typename T>
 InternalLog &&operator<<(InternalLog &&wrap, T const &whatever) {
   wrap.ss << whatever;
   return std::move(wrap);
@@ -927,13 +695,14 @@ InternalLog &&operator<<(InternalLog &&wrap, T const &whatever) {
 
 //! Used for glog's VLOG macro
 class InternalCondLog : public InternalLog {
- public:
+public:
   explicit InternalCondLog(BaseSeverity severity, bool cond)
       : InternalLog(severity) {
     should_print_ = cond;
   }
   ~InternalCondLog() override = default;
 };
+
 
 class LogPolicyBase {
  public:
@@ -943,21 +712,19 @@ class LogPolicyBase {
   virtual ~LogPolicyBase() = default;
 };
 
-template <typename T>
+template<typename T>
 class LogPolicy : public LogPolicyBase {
- public:
+public:
   explicit LogPolicy(T max) : max_(max) {}
   ~LogPolicy() override = default;
-
- protected:
+protected:
   T max_{0};
 };
 
 class CountableLogPolicy : public LogPolicy<unsigned int> {
- public:
+public:
   explicit CountableLogPolicy(unsigned int max) : LogPolicy(max) {}
-
- protected:
+protected:
   unsigned int counter_{0};
 };
 
@@ -977,18 +744,18 @@ class OccasionPolicy : public CountableLogPolicy {
     counter_++;
   }
 
-  [[nodiscard]] inline bool shouldLog() const override { return should_log_; }
+  [[nodiscard]] inline bool shouldLog() const override {
+    return should_log_;
+  }
 
   ~OccasionPolicy() override = default;
-
  private:
   bool should_log_{false};
 };
 
 class FirstNOccurrencesPolicy : public CountableLogPolicy {
  public:
-  explicit FirstNOccurrencesPolicy(unsigned int max)
-      : CountableLogPolicy(max) {}
+  explicit FirstNOccurrencesPolicy(unsigned int max) : CountableLogPolicy(max) {}
   inline void update() override {
     if (!is_n_occurences_reached) {
       counter_++;
@@ -1004,7 +771,6 @@ class FirstNOccurrencesPolicy : public CountableLogPolicy {
   }
 
   ~FirstNOccurrencesPolicy() override = default;
-
  private:
   bool is_n_occurences_reached = false;
 };
@@ -1016,8 +782,7 @@ class TimePolicy : public LogPolicy<float> {
   explicit TimePolicy(float max) : LogPolicy(max) {};
 
   inline void update() override {
-    now_ = duration_cast<microseconds>(system_clock::now().time_since_epoch())
-               .count();
+    now_ = duration_cast<microseconds>(system_clock::now().time_since_epoch()).count();
   }
 
   [[nodiscard]] inline bool shouldLog() const override {
@@ -1027,39 +792,40 @@ class TimePolicy : public LogPolicy<float> {
     return false;
   }
 
-  void onLog() override { last_ = now_; }
+  void onLog() override {
+    last_ = now_;
+  }
 
   ~TimePolicy() override = default;
-
  private:
   long now_{0};
   long last_{0};
 };
 
-enum PolicyType { FIRST_N, EVERY_N, TIMED };
+enum PolicyType {
+  FIRST_N,
+  EVERY_N,
+  TIMED
+};
 
 typedef std::shared_ptr<LogPolicyBase> LogPolicyPtr;
 
 class LogPolicyFactory {
  public:
-  template <typename T>
+  template<typename T>
   static LogPolicyPtr create(PolicyType policy_type, T max) {
     switch (policy_type) {
-      case FIRST_N:
-        return std::make_shared<FirstNOccurrencesPolicy>(max);
-      case EVERY_N:
-        return std::make_shared<OccasionPolicy>(max);
-      case TIMED:
-        return std::make_shared<TimePolicy>(max);
-      default:
-        abort();
+    case FIRST_N: return std::make_shared<FirstNOccurrencesPolicy>(max);
+    case EVERY_N: return std::make_shared<OccasionPolicy>(max);
+    case TIMED: return std::make_shared<TimePolicy>(max);
+    default:abort();
     }
   }
 };
 
 struct LogStatementData {
   LogStatementData(LogPolicyPtr log_policy, BaseSeverity severity_type)
-      : log_policy_(std::move(log_policy)), severity_type_(severity_type) {}
+  : log_policy_(std::move(log_policy)), severity_type_(severity_type) {}
   LogPolicyPtr log_policy_;
   std::string msg{};
   BaseSeverity severity_type_;
@@ -1072,39 +838,42 @@ class InternalLogCount {
     return instance;
   }
 
-  template <typename T, PolicyType policyType>
-  inline void update(const std::string &key, T max,
+  template<typename T, PolicyType policyType>
+  inline void update(const std::string &key,
+                     T max,
                      const InternalLog &internal_log,
                      const BaseSeverity base_severity) {
-    // Check if T is a float and only allow it for PolicyType::TIMED
-    static_assert(
-        std::is_same<T, unsigned int>::value || std::is_same<T, float>::value,
-        "Only int or float is allowed for T");
+    //Check if T is a float and only allow it for PolicyType::TIMED
+    static_assert(std::is_same<T, unsigned int>::value || std::is_same<T, float>::value, "Only int or float is allowed for T");
 
     if constexpr (std::is_same<T, float>::value) {
-      static_assert(policyType == PolicyType::TIMED,
-                    "Only PolicyType::TIMED can be used with float");
+      static_assert(policyType == PolicyType::TIMED, "Only PolicyType::TIMED can be used with float");
     }
     update(key, max, internal_log.ss.str(), base_severity, policyType);
   }
 
-  template <typename T>
-  inline void update(const std::string &key, T max, const std::string &log_msg,
-                     const BaseSeverity base_severity, PolicyType policy_type) {
+  template<typename T>
+  inline void update(const std::string &key,
+                     T max,
+                     const std::string &log_msg,
+                     const BaseSeverity base_severity,
+                     PolicyType policy_type) {
+
     updatePolicy(key, max, log_msg, base_severity, policy_type);
     mtx_.lock();
     logIfReady(key, log_msg);
     mtx_.unlock();
   }
 
-  template <typename T>
-  inline void updatePolicy(const std::string &key, T max,
+  template<typename T>
+  inline void updatePolicy(const std::string &key,
+                           T max,
                            const std::string &log_msg,
-                           BaseSeverity base_severity, PolicyType policy_type) {
+                           BaseSeverity base_severity,
+                           PolicyType policy_type) {
     mtx_.lock();
     if (!keyExists(key)) {
-      LogStatementData data(LogPolicyFactory::create(policy_type, max),
-                            base_severity);
+      LogStatementData data(LogPolicyFactory::create(policy_type, max), base_severity);
       data.msg = log_msg;
       updateLogPolicyData(&data);
       occurences_.insert({key, data});
@@ -1161,9 +930,8 @@ class InternalLogCount {
  */
 class InternalGlogLogStringLog : public InternalLog {
  public:
-  InternalGlogLogStringLog(BaseSeverity base_severity,
-                           std::vector<std::string> *vecptr)
-      : InternalLog(base_severity), vecptr_(vecptr) {
+  InternalGlogLogStringLog(BaseSeverity base_severity, std::vector<std::string>* vecptr):
+  InternalLog(base_severity), vecptr_(vecptr) {
     if (vecptr != nullptr) {
       should_print_ = false;
     }
@@ -1176,25 +944,21 @@ class InternalGlogLogStringLog : public InternalLog {
   }
 
  private:
-  std::vector<std::string> *vecptr_;
+  std::vector<std::string>* vecptr_;
 };
 
-template <typename T>
+template<typename T>
 class InternalPolicyLog : public InternalLog {
  public:
-  InternalPolicyLog(std::string key, T n, BaseSeverity base_severity,
-                    PolicyType policy_type)
-      : InternalLog(base_severity),
-        key_(std::move(key)),
-        n_(n),
-        policy_type_(policy_type) {
+  InternalPolicyLog(std::string key, T n, BaseSeverity base_severity, PolicyType policy_type) :
+      InternalLog(base_severity), key_(std::move(key)), n_(n),
+      policy_type_(policy_type) {
     should_print_ = false;
   };
 
   ~InternalPolicyLog() override {
     if (should_update_) {
-      InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_,
-                                             policy_type_);
+      InternalLogCount::getInstance().update(key_, n_, ss.str(), severity_, policy_type_);
     }
   }
 
@@ -1207,19 +971,15 @@ class InternalPolicyLog : public InternalLog {
 
 class LppGlogExtensionLog : public InternalPolicyLog<unsigned int> {
  public:
-  LppGlogExtensionLog(std::string key, unsigned int n,
-                      GlogSeverity glog_severity, PolicyType policy_type,
-                      std::function<void(const std::string &str)> fn)
-      : InternalPolicyLog(std::move(key), n, toBase(glog_severity),
-                          policy_type),
-        fn_(std::move(fn)) {
+  LppGlogExtensionLog(std::string key, unsigned int n, GlogSeverity glog_severity, PolicyType policy_type,
+                      std::function<void(const std::string &str)> fn) :
+      InternalPolicyLog(std::move(key), n, toBase(glog_severity), policy_type), fn_(std::move(fn)) {
     should_print_ = false;
-    should_update_ = false;  // Disable update in InternalPolicyLog destructor
+    should_update_ = false; //Disable update in InternalPolicyLog destructor
   }
 
   ~LppGlogExtensionLog() override {
-    InternalLogCount::getInstance().updatePolicy(key_, n_, ss.str(), severity_,
-                                                 policy_type_);
+    InternalLogCount::getInstance().updatePolicy(key_, n_, ss.str(), severity_, policy_type_);
     if (InternalLogCount::getInstance().shouldLog(key_)) {
       InternalLogCount::getInstance().log(key_);
       fn_(ss.str());
@@ -1229,8 +989,8 @@ class LppGlogExtensionLog : public InternalPolicyLog<unsigned int> {
  private:
   std::function<void(const std::string &str)> fn_;
 };
-}  // namespace internal
-}  // namespace lpp
+} // namespace internal
+} // namespace lpp
 
 #define LPP_GET_KEY() std::string(__FILE__) + std::to_string(__LINE__)
 DIAG_POP
@@ -1239,4 +999,4 @@ DIAG_POP
 #undef LPP_GLOG_SUPPORTED
 #undef LPP_ROSLOG_SUPPORTED
 
-#endif  // LOG__LOG_H_
+#endif //LOG__LOG_H_
