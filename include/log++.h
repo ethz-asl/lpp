@@ -84,28 +84,29 @@
 //! Can't use namespaces in macros, used to increase readability
 #define LPP_INTL lpp::internal
 
+#define LPP_STRINGIFY(x) #x
 
 // diagnostic push / pop
 #if defined(__clang__)
-#define DIAG_PUSH _Pragma("clang diagnostic push")
-#define DIAG_POP _Pragma("clang diagnostic pop")
+#define LPP_DIAG_PUSH _Pragma("clang diagnostic push")
+#define LPP_DIAG_POP _Pragma("clang diagnostic pop")
 #elif defined(__GNUC__)
-#define DIAG_PUSH _Pragma("GCC diagnostic push")
-#define DIAG_POP _Pragma("GCC diagnostic pop")
+#define LPP_DIAG_PUSH _Pragma("GCC diagnostic push")
+#define LPP_DIAG_POP _Pragma("GCC diagnostic pop")
 #else
-#define DIAG_PUSH
-#define DIAG_POP
+#define LPP_DIAG_PUSH
+#define LPP_DIAG_POP
 #endif
-DIAG_PUSH
+LPP_DIAG_PUSH
 
 // jetbrains IDE hints
 #ifdef __JETBRAINS_IDE__
-#define IDE_IGNORE(inspect) _Pragma("ide diagnostic ignored \"" inspect "\"")
+#define LPP_IDE_IGNORE(inspect) _Pragma(LPP_STRINGIFY(ide diagnostic ignored  #inspect ))
 #else
-#define IDE_IGNORE(inspect)
+#define LPP_IDE_IGNORE(inspect)
 #endif
-IDE_IGNORE(
-    "modernize-concat-nested-namespaces")  // Keep compatibility with C++11
+LPP_IDE_IGNORE(
+    modernize-concat-nested-namespaces)  // Keep compatibility with C++11
 
 namespace lpp {
 namespace internal {
@@ -291,10 +292,10 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 #define LPP_WARN(x) LPP_PRAGMA(message (#x))
 
 //! Overloads
-DIAG_PUSH
-IDE_IGNORE("OCUnusedMacroInspection")
+LPP_DIAG_PUSH
+LPP_IDE_IGNORE(OCUnusedMacroInspection)
 #define LOG(...) LPP_VA_SELECT(LOG, __VA_ARGS__)
-DIAG_POP
+LPP_DIAG_POP
 
 /**
  * LOG_1 = Google logging syntax
@@ -328,8 +329,8 @@ LPP_INTL::LppGlogExtensionLog(LPP_GET_KEY(), n, LPP_INTL::GlogSeverity::severity
 #endif
 
 #ifdef MODE_GLOG
-DIAG_PUSH
-IDE_IGNORE("bugprone-macro-parentheses")
+LPP_DIAG_PUSH
+LPP_IDE_IGNORE(bugprone-macro-parentheses)
 
 #define LOG_2(severity, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
 if      constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_1(INFO) << x;}        \
@@ -405,7 +406,7 @@ if      constexpr(LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I   
 #define ROS_FATAL_STREAM_THROTTLE(n, x) LPP_INTL_LOG_EVERY_T(LppSeverity::F, n) << x
 #endif
 
-DIAG_POP
+LPP_DIAG_POP
 #endif
 
 
@@ -993,7 +994,7 @@ class LppGlogExtensionLog : public InternalPolicyLog<unsigned int> {
 } // namespace lpp
 
 #define LPP_GET_KEY() std::string(__FILE__) + std::to_string(__LINE__)
-DIAG_POP
+LPP_DIAG_POP
 
 // Undefine macros that are only needed in this file
 #undef LPP_GLOG_SUPPORTED
