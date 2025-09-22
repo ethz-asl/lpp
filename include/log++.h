@@ -29,8 +29,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef LOG__LOG_H_
-#define LOG__LOG_H_
+#ifndef LOG_LOG_H_
+#define LOG_LOG_H_
 
 #include <algorithm>
 #include <utility>
@@ -84,8 +84,6 @@
 //! Can't use namespaces in macros, used to increase readability
 #define LPP_INTL lpp::internal
 
-#define LPP_STRINGIFY(x) #x
-
 // diagnostic push / pop
 #if defined(__clang__)
 #define LPP_DIAG_PUSH _Pragma("clang diagnostic push")
@@ -97,17 +95,11 @@
 #define LPP_DIAG_PUSH
 #define LPP_DIAG_POP
 #endif
+
 LPP_DIAG_PUSH
-
-// jetbrains IDE hints
 #ifdef __JETBRAINS_IDE__
-#define LPP_IDE_IGNORE(inspect) _Pragma(LPP_STRINGIFY(ide diagnostic ignored  #inspect ))
-#else
-#define LPP_IDE_IGNORE(inspect)
+#pragma ide diagnostic ignored "modernize-concat-nested-namespaces"
 #endif
-LPP_IDE_IGNORE(
-    modernize-concat-nested-namespaces)  // Keep compatibility with C++11
-
 namespace lpp {
 namespace internal {
 enum class BaseSeverity {
@@ -117,6 +109,8 @@ enum class BaseSeverity {
   ERROR,
   FATAL
 };
+
+LPP_DIAG_POP
 
 //! Initialization logic
 class Init {
@@ -251,6 +245,12 @@ using namespace lpp::internal;
  */
 inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
+
+LPP_DIAG_PUSH
+#ifdef __JETBRAINS_IDE__
+#pragma ide diagnostic ignored "ConstantConditionsOC"
+#pragma ide diagnostic ignored "UnreachableCode"
+#endif
   if (!lppInit.glog_initialized || !lppInit.lpp_initialized) {
 
 #if defined MODE_LPP
@@ -274,6 +274,7 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 #endif
     lppInit.lpp_initialized = true;
   }
+LPP_DIAG_POP
 }
 
 #define LPP_ASSERT_LPP(x) static_assert((x) == LPP_INTL::LppSeverity::D || (x) == LPP_INTL::LppSeverity::I || (x) == LPP_INTL::LppSeverity::W || (x) == LPP_INTL::LppSeverity::E || (x) == LPP_INTL::LppSeverity::F, "Unknown severity level")
@@ -293,7 +294,9 @@ inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::fu
 
 //! Overloads
 LPP_DIAG_PUSH
-LPP_IDE_IGNORE(OCUnusedMacroInspection)
+#ifdef __JETBRAINS_IDE__
+#pragma ide diagnostic ignored "OCUnusedMacroInspection"
+#endif
 #define LOG(...) LPP_VA_SELECT(LOG, __VA_ARGS__)
 LPP_DIAG_POP
 
@@ -330,7 +333,9 @@ LPP_INTL::LppGlogExtensionLog(LPP_GET_KEY(), n, LPP_INTL::GlogSeverity::severity
 
 #ifdef MODE_GLOG
 LPP_DIAG_PUSH
-LPP_IDE_IGNORE(bugprone-macro-parentheses)
+#ifdef __JETBRAINS_IDE__
+#pragma ide diagnostic ignored "bugprone-macro-parentheses"
+#endif
 
 #define LOG_2(severity, x) LPP_ASSERT_LPP(LPP_INTL::LppSeverity::severity); do {\
 if      constexpr (LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::I || LPP_INTL::LppSeverity::severity == LPP_INTL::LppSeverity::D) {LOG_1(INFO) << x;}        \
@@ -1000,4 +1005,4 @@ LPP_DIAG_POP
 #undef LPP_GLOG_SUPPORTED
 #undef LPP_ROSLOG_SUPPORTED
 
-#endif //LOG__LOG_H_
+#endif //LOG_LOG_H_
