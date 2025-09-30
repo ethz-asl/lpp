@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - "master"
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -10,7 +11,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.url }}
-    runs-on: [self-hosted, linux]
+    runs-on: [self-hosted, linux, x64]
     strategy:
       fail-fast: false
       matrix:
