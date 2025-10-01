@@ -6,10 +6,11 @@ on:
   push:
     branches:
       - "master"
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: [ self-hosted, linux ]
+    runs-on: [ self-hosted, linux, x64 ]
     env:
       rosdistro: ${{ matrix.ubuntu == '20.04' && 'noetic' || 'one' }}
     strategy:
