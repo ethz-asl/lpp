@@ -44,8 +44,9 @@ jobs:
         run: |
           source /opt/ros/${{ matrix.rosdistro }}/setup.bash
           cmake --build build --target coverage
-          gcovr --object-directory build -r .
+          ROOT_DIR=$(pwd)
+          cd build
+          gcovr --object-directory . -r "${ROOT_DIR}"
         working-directory: catkin_ws/src/lpp
         shell: bash
-
 
