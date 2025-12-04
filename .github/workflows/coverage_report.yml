@@ -1,8 +1,6 @@
 name: Generate coverage report
 on:
   pull_request:
-    branches:
-      - "master"
   push:
       branches:
       - "master"
@@ -42,9 +40,12 @@ jobs:
         working-directory: catkin_ws/src/lpp/build/devel/lib/lpp
         shell: bash
 
-      - name: Print coverage
-        run: gcovr
+      - name: Generate coverage report
+        run: |
+          source /opt/ros/${{ matrix.rosdistro }}/setup.bash
+          cmake --build build --target coverage
+          gcovr --object-directory build -r .
         working-directory: catkin_ws/src/lpp
-
+        shell: bash
 
 
