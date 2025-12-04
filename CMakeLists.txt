@@ -185,7 +185,8 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_compile_options(${NOLOG_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
         add_custom_target(coverage
-                COMMAND mkdir coverage && cd coverage && gcovr -r ${CMAKE_SOURCE_DIR} --html --html-details -o coverage.html
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/coverage
+                COMMAND gcovr --object-directory ${CMAKE_BINARY_DIR} -r ${CMAKE_SOURCE_DIR} --html --html-details -o ${CMAKE_BINARY_DIR}/coverage/coverage.html --keep
                 COMMENT "Generating coverage report"
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
         )
