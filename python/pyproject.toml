@@ -1,0 +1,27 @@
+[build-system]
+requires = ["scikit-build-core>=0.5.1"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "lpp"
+version = "0.1.0"
+description = "Log++ logging framework header-only library"
+readme = "../README.md"
+requires-python = ">=3.8"
+license = { file = "../LICENSE.md" }
+authors = [
+  { name = "Autonomous Systems Lab, ETH Zurich", email = "git@acey.dev" },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: C++",
+  "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://github.com/ethz-asl/lpp"
+Repository = "https://github.com/ethz-asl/lpp"
+
