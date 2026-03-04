@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(lpp)
 
+SET(LPP_BUILD_TESTS ON)
+
 if (ENABLE_COVERAGE)
         set(LPP_TEST_CXX_FLAGS ${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage)
         message(STATUS "Coverage enabled")
@@ -33,6 +35,7 @@ endif()
 
 find_package(glog)
 find_package(catkin REQUIRED COMPONENTS roscpp)
+find_library(SYSTEMD_LIBRARY systemd)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
@@ -64,6 +67,10 @@ endif ()
 
 if (GLOG_FOUND)
         target_link_libraries(lpp_demo glog)
+endif ()
+
+if (SYSTEMD_LIBRARY)
+        target_link_libraries(lpp_demo ${SYSTEMD_LIBRARY})
 endif ()
 
 ################## Testing ##################
@@ -165,6 +172,25 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${DEFAULT_TESTS} PRIVATE MODE_DEFAULT)
         target_compile_options(${DEFAULT_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
+
+        ##### Systemd Tests #####
+        if (SYSTEMD_LIBRARY)
+                set(SYSD_TESTS "test_sysd")
+                add_executable(${SYSD_TESTS} test/test_entry_point.cpp
+                        test/sysd/test_sysd_basic.cc
+                        test/sysd/test_sysd_every_n.cc
+                        test/sysd/test_sysd_first_n.cc
+                        test/sysd/test_sysd_if_every_n.cc
+                        test/sysd/test_sysd_log_string.cc
+                        test/sysd/test_sysd_rosprintf.cc
+                        test/sysd/test_sysd_timed.cc
+                        test/sysd/test_sysd_vlog.cc)
+
+                target_include_directories(${SYSD_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/sysd)
+                target_link_libraries(${SYSD_TESTS} glog gtest ${catkin_LIBRARIES} ${SYSTEMD_LIBRARY} gcov)
+                target_compile_definitions(${SYSD_TESTS} PRIVATE MODE_SYSD)
+                target_compile_options(${SYSD_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
+        endif ()
 
         ##### Nolog Tests #####
         set(NOLOG_TESTS "test_nolog")
