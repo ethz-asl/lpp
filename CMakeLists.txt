@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(lpp)
 
-SET(LPP_BUILD_TESTS ON)
-
 if (ENABLE_COVERAGE)
         set(LPP_TEST_CXX_FLAGS ${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage)
         message(STATUS "Coverage enabled")
