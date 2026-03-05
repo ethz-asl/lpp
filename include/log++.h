@@ -43,7 +43,8 @@
 #include <functional>
 #include <memory>
 #include <filesystem>
-#if defined(__cpp_lib_filesystem) && (__cpp_lib_filesystem >= 201703L) && (__cplusplus >= 201703L)
+#if defined(__cpp_lib_filesystem) && (__cpp_lib_filesystem >= 201703L) && (__cplusplus >= 201703L) && \
+    !(defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 9))
 #define LPP_HAS_STD_FILESYSTEM
 #endif
 
