@@ -2,8 +2,6 @@
 #include <log++.h>
 #include <test_utils.h>
 
-#include <filesystem>
-
 #include "sysd_test_utils.h"
 
 using lpp::sysdtest::entries;
@@ -14,7 +12,7 @@ TEST(sysd_basic, lpp_syntax_severity_debug) {
   ASSERT_EQ(entries().size(), 1);
   ASSERT_EQ(entries().at(0).severity, BaseSeverity::DEBUG);
   ASSERT_EQ(entries().at(0).message, "Test123");
-  ASSERT_EQ(entries().at(0).identifier, std::filesystem::path(*test_argv).filename().string());
+  ASSERT_EQ(entries().at(0).identifier, lpp::internal::filenameFromPath(*test_argv));
 }
 
 TEST(sysd_basic, lpp_syntax_severity_info) {

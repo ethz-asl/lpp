@@ -43,6 +43,9 @@
 #include <functional>
 #include <memory>
 #include <filesystem>
+#if defined(__cpp_lib_filesystem) && (__cpp_lib_filesystem >= 201703L) && (__cplusplus >= 201703L)
+#define LPP_HAS_STD_FILESYSTEM
+#endif
 
 #if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_SYSD && !defined MODE_DEFAULT && !defined MODE_NOLOG
 #define MODE_DEFAULT
@@ -157,6 +160,15 @@ class Logging {
     }
   };
 };
+
+inline std::string filenameFromPath(const std::string &path) {
+#ifdef LPP_HAS_STD_FILESYSTEM
+  return std::filesystem::path(path).filename().string();
+#else
+  const std::string::size_type pos = path.find_last_of("/\\");
+  return (pos == std::string::npos) ? path : path.substr(pos + 1);
+#endif
+}
 
 inline static Logging logging;
 inline static Init lppInit;
@@ -281,7 +293,7 @@ LPP_DIAG_PUSH
 
 #if defined MODE_SYSD
     if (argv != nullptr) {
-      lppInit.sysd_identifier = std::filesystem::path(argv).filename().string();
+      lppInit.sysd_identifier = filenameFromPath(argv);
     }
     if (sysd_sender != nullptr) {
       lppInit.sysd_sender = sysd_sender;
