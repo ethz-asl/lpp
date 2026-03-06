@@ -27,15 +27,19 @@ jobs:
       - name: Checkout lpp
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
+      - name: Install curl
+        run: apt update && apt install -y curl
 
-      - name: Create venv and install package
+      - name: Install micromamba
         shell: bash
         run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install --upgrade pip
-          python -m pip install .
+          curl -L micro.mamba.pm/install.sh | bash
+
+      - name: Install Python and package
+        shell: bash
+        run: |
+          source ~/.bashrc
+          micromamba env create -n lpptest
+          micromamba activate lpptest
+          micromamba install -y python==${{ matrix.python-version }} -c conda-forge
+          pip install -v .
