@@ -42,8 +42,13 @@
 #include <mutex>
 #include <functional>
 #include <memory>
+#include <filesystem>
+#if defined(__cpp_lib_filesystem) && (__cpp_lib_filesystem >= 201703L) && (__cplusplus >= 201703L) && \
+    !(defined(__GNUC__) && !defined(__clang__) && (__GNUC__ < 9))
+#define LPP_HAS_STD_FILESYSTEM
+#endif
 
-#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_DEFAULT && !defined MODE_NOLOG
+#if !defined MODE_LPP && !defined MODE_GLOG && !defined MODE_ROSLOG && !defined MODE_SYSD && !defined MODE_DEFAULT && !defined MODE_NOLOG
 #define MODE_DEFAULT
 #warning "No mode defined. Selected MODE_DEFAULT";
 #endif
@@ -56,10 +61,11 @@
  *
  * Defining MODE_DEFAULT will prevent errors from being generated for each logging function that is called.
  */
-#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_DEFAULT) + defined(MODE_NOLOG) > 1
+#if defined(MODE_LPP) + defined(MODE_GLOG) + defined(MODE_ROSLOG) + defined(MODE_SYSD) + defined(MODE_DEFAULT) + defined(MODE_NOLOG) > 1
 #undef MODE_LPP
 #undef MODE_GLOG
 #undef MODE_ROSLOG
+#undef MODE_SYSD
 #undef MODE_NOLOG
 #define MODE_DEFAULT
 #error "More than one mode is defined"
@@ -74,6 +80,12 @@
 #if __has_include(<ros/console.h>)
 #include <ros/console.h>
 #define LPP_ROSLOG_SUPPORTED
+#endif
+
+#if __has_include(<systemd/sd-journal.h>)
+#include <systemd/sd-journal.h>
+#include <syslog.h>
+#define LPP_SYSD_SUPPORTED
 #endif
 
 //! Debug flag, If LPP_DEBUG is enabled, debug output should be printed.
@@ -117,6 +129,10 @@ class Init {
  public:
   bool lpp_initialized = false;
   bool glog_initialized = false;
+  std::string sysd_identifier;
+#ifdef MODE_SYSD
+  std::function<void(BaseSeverity, const std::string &, const std::string &)> sysd_sender;
+#endif
 };
 
 class Logging {
@@ -146,6 +162,15 @@ class Logging {
   };
 };
 
+inline std::string filenameFromPath(const std::string &path) {
+#ifdef LPP_HAS_STD_FILESYSTEM
+  return std::filesystem::path(path).filename().string();
+#else
+  const std::string::size_type pos = path.find_last_of("/\\");
+  return (pos == std::string::npos) ? path : path.substr(pos + 1);
+#endif
+}
+
 inline static Logging logging;
 inline static Init lppInit;
 } // namepace internal
@@ -158,6 +183,10 @@ inline static Init lppInit;
 
 #if defined MODE_ROSLOG && !defined LPP_ROSLOG_SUPPORTED
 #error Logging Mode is set to roslog but roslog was not found
+#endif
+
+#if defined MODE_SYSD && !defined LPP_SYSD_SUPPORTED
+#error Logging Mode is set to sysd but systemd-dev headers were not found
 #endif
 
 
@@ -240,10 +269,14 @@ using namespace lpp::internal;
  * Used to initialize Log++
  *
  * If called more than once, all further calls will be ignored.
- * @param argv is used if MODE_GLOG is defined, otherwise unused.
+ * @param argv is used if MODE_GLOG or MODE_SYSD is defined, otherwise unused.
  * @param callback is used if MODE_LPP is defined, otherwise unused.
+ * @param sysd_sender is used if MODE_SYSD is defined, otherwise unused.
  */
-inline void LOG_INIT([[maybe_unused]] char *argv, [[maybe_unused]] const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr) {
+inline void LOG_INIT(
+    [[maybe_unused]] char *argv,
+    [[maybe_unused]] const std::function<void(BaseSeverity, const std::string&)>& callback = nullptr,
+    [[maybe_unused]] const std::function<void(BaseSeverity, const std::string &, const std::string &)> &sysd_sender = nullptr) {
   // If LOG_INIT is called more than once, do nothing.
 
 LPP_DIAG_PUSH
@@ -256,6 +289,15 @@ LPP_DIAG_PUSH
 #if defined MODE_LPP
     if (callback != nullptr) {
       logging.setLoggingFunction(callback);
+    }
+#endif
+
+#if defined MODE_SYSD
+    if (argv != nullptr) {
+      lppInit.sysd_identifier = filenameFromPath(argv);
+    }
+    if (sysd_sender != nullptr) {
+      lppInit.sysd_sender = sysd_sender;
     }
 #endif
 
@@ -424,13 +466,13 @@ LPP_DIAG_POP
 #define LOG_3(severity, cond, x) if (cond) LPP_INTL::InternalLog(LppSeverity::severity) << x
 #endif
 
-#if defined MODE_ROSLOG || defined MODE_LPP || defined MODE_DEFAULT
+#if defined MODE_ROSLOG || defined MODE_SYSD || defined MODE_LPP || defined MODE_DEFAULT
 #define LOG_EVERY(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::EVERY_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
 #define LOG_FIRST(severity, n, x) LPP_INTL::InternalLogCount::getInstance().update<unsigned int, LPP_INTL::PolicyType::FIRST_N>(LPP_GET_KEY(), n, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
 #define LOG_TIMED(severity, t, x) LPP_INTL::InternalLogCount::getInstance().update<float, LPP_INTL::PolicyType::TIMED>(LPP_GET_KEY(), t, LPP_INTL::InternalLog() << x, toBase(LPP_INTL::LppSeverity::severity)) // NOLINT(bugprone-macro-parentheses)
 #endif
 
-#if defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
+#if defined MODE_ROSLOG || defined MODE_SYSD || defined MODE_LPP || MODE_NOLOG
 /**
  * Replace glog's FLAGS_v and VLOG_IS_ON to avoid linker errors
  * if glog is installed but not linked to lpp.
@@ -442,7 +484,7 @@ LPP_DIAG_POP
 #endif //LPP_GLOG_SUPPORTED
 #endif //defined MODE_ROSLOG || defined MODE_LPP || MODE_NOLOG
 
-#if defined MODE_ROSLOG || defined MODE_LPP
+#if defined MODE_ROSLOG || defined MODE_SYSD || defined MODE_LPP
 #define LOG_EVERY_N(severity, n) LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::EVERY_N)
 #define LOG_EVERY_T(severity, t) LPP_GLOG_V0_6_WARNING("LOG_EVERY_T is only defined in GLOG v0.6 or newer.") LPP_INTL::InternalPolicyLog<float>(LPP_GET_KEY(), t, LPP_INTL::toBase(LPP_INTL::GlogSeverity::severity), LPP_INTL::PolicyType::TIMED)
 #define LOG_IF_EVERY_N(severity, condition, n) if (condition) LOG_EVERY_N(severity, n)
@@ -509,7 +551,52 @@ LPP_INTL::InternalPolicyLog<unsigned int>(LPP_GET_KEY(), n, LPP_INTL::BaseSeveri
 #define LOG_1(severity) LPP_INTL::InternalLog(LPP_INTL::GlogSeverity::severity)
 #endif
 
-#if defined MODE_LPP || defined MODE_DEFAULT
+//! MODE_SYSD
+#ifdef MODE_SYSD
+#define ROS_DEBUG(...) LOG_2(D, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_DEBUG_STREAM(x) LOG_2(D, x)
+#define ROS_INFO(...) LOG_2(I, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_INFO_STREAM(x) LOG_2(I, x)
+#define ROS_WARN(...) LOG_2(W, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_WARN_STREAM(x) LOG_2(W, x)
+#define ROS_ERROR(...) LOG_2(E, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_ERROR_STREAM(x) LOG_2(E, x)
+#define ROS_FATAL(...) LOG_2(F, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_FATAL_STREAM(x) LOG_2(F, x)
+
+#define ROS_DEBUG_COND(cond, x) LOG_3(D, cond, x)
+#define ROS_DEBUG_STREAM_COND(cond, x) LOG_3(D, cond, x)
+#define ROS_INFO_COND(cond, x) LOG_3(I, cond, x)
+#define ROS_INFO_STREAM_COND(cond, x) LOG_3(I, cond, x)
+#define ROS_WARN_COND(cond, x) LOG_3(W, cond, x)
+#define ROS_WARN_STREAM_COND(cond, x) LOG_3(W, cond, x)
+#define ROS_ERROR_COND(cond, x) LOG_3(E, cond, x)
+#define ROS_ERROR_STREAM_COND(cond, x) LOG_3(E, cond, x)
+#define ROS_FATAL_COND(cond, x) LOG_3(F, cond, x)
+#define ROS_FATAL_STREAM_COND(cond, x) LOG_3(F, cond, x)
+
+#define ROS_DEBUG_ONCE(...) LOG_FIRST(D, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_INFO_ONCE(...) LOG_FIRST(I, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_WARN_ONCE(...) LOG_FIRST(W, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_ERROR_ONCE(...) LOG_FIRST(E, 1, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_FATAL_ONCE(...) LOG_FIRST(F, 1, LPP_INTL::formatToString(__VA_ARGS__))
+
+#define ROS_DEBUG_THROTTLE(period, ...) LOG_TIMED(D, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_DEBUG_STREAM_THROTTLE(period, x) LOG_TIMED(D, period, x)
+#define ROS_INFO_THROTTLE(period, ...) LOG_TIMED(I, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_INFO_STREAM_THROTTLE(period, x) LOG_TIMED(I, period, x)
+#define ROS_WARN_THROTTLE(period, ...) LOG_TIMED(W, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_WARN_STREAM_THROTTLE(period, x) LOG_TIMED(W, period, x)
+#define ROS_ERROR_THROTTLE(period, ...) LOG_TIMED(E, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_ERROR_STREAM_THROTTLE(period, x) LOG_TIMED(E, period, x)
+#define ROS_FATAL_THROTTLE(period, ...) LOG_TIMED(F, period, LPP_INTL::formatToString(__VA_ARGS__))
+#define ROS_FATAL_STREAM_THROTTLE(period, x) LOG_TIMED(F, period, x)
+
+#define LOG_IF(severity, cond) if (cond) LPP_INTL::InternalLog(GlogSeverity::severity)
+#define LOG_1(severity) LPP_INTL::InternalLog(LPP_INTL::GlogSeverity::severity)
+#endif
+
+#if defined MODE_LPP || defined MODE_SYSD || defined MODE_DEFAULT
 #define LOG_2(severity, x) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
 #define LOG_3(severity, cond, x) if (cond) LPP_INTL::InternalLog(LPP_INTL::LppSeverity::severity) << x // NOLINT(bugprone-macro-parentheses)
 #endif
@@ -629,6 +716,43 @@ inline BaseSeverity toBase(GlogSeverity glog_severity) {
   return (BaseSeverity) glog_severity;
 }
 
+#ifdef MODE_SYSD
+inline int toSysdPriority(BaseSeverity severity) {
+  switch (severity) {
+    case BaseSeverity::DEBUG:
+      return LOG_DEBUG;
+    case BaseSeverity::INFO:
+      return LOG_INFO;
+    case BaseSeverity::WARN:
+      return LOG_WARNING;
+    case BaseSeverity::ERROR:
+      return LOG_ERR;
+    case BaseSeverity::FATAL:
+      return LOG_CRIT;
+  }
+  return LOG_INFO;
+}
+
+inline void journalSend(BaseSeverity severity, const std::string &message) {
+  if (lppInit.sysd_sender != nullptr) {
+    lppInit.sysd_sender(severity, message, lppInit.sysd_identifier);
+    return;
+  }
+
+  if (lppInit.sysd_identifier.empty()) {
+    sd_journal_send("MESSAGE=%s", message.c_str(),
+                    "PRIORITY=%i", toSysdPriority(severity),
+                    nullptr);
+    return;
+  }
+
+  sd_journal_send("MESSAGE=%s", message.c_str(),
+                  "PRIORITY=%i", toSysdPriority(severity),
+                  "SYSLOG_IDENTIFIER=%s", lppInit.sysd_identifier.c_str(),
+                  nullptr);
+}
+#endif
+
 //! Internal log class
 class InternalLog {
  public:
@@ -664,6 +788,9 @@ class InternalLog {
       case BaseSeverity::FATAL:ROS_FATAL_STREAM(ss.str());
         break;
     }
+#endif
+#if defined MODE_SYSD
+    journalSend(severity_, ss.str());
 #endif
 #if defined MODE_LPP || defined MODE_DEFAULT
     lpp::internal::logging.call(severity_, ss.str());
