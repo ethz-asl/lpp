@@ -1,0 +1,41 @@
+name: pip install
+
+on:
+  pull_request:
+    branches:
+      - "master"
+  push:
+    branches:
+      - "master"
+  workflow_dispatch:
+
+jobs:
+  pip-install:
+    runs-on: [ self-hosted, linux, x64 ]
+    strategy:
+      fail-fast: true
+      matrix:
+        ubuntu: ["22.04", "24.04"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+    container:
+      image: omavteam/ubuntu-omav:${{ matrix.ubuntu }}
+      credentials:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    name: Ubuntu ${{ matrix.ubuntu }} | Python ${{ matrix.python-version }} | pip install
+    steps:
+      - name: Checkout lpp
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Create venv and install package
+        shell: bash
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install .
