@@ -6,9 +6,9 @@ build-backend = "scikit_build_core.build"
 name = "lpp"
 version = "0.1.0"
 description = "Log++ logging framework header-only library"
-readme = "../README.md"
+readme = "README.md"
 requires-python = ">=3.8"
-license = { file = "../LICENSE.md" }
+license = { file = "LICENSE.md" }
 authors = [
   { name = "Autonomous Systems Lab, ETH Zurich", email = "git@acey.dev" },
 ]
@@ -25,3 +25,5 @@ classifiers = [
 Homepage = "https://github.com/ethz-asl/lpp"
 Repository = "https://github.com/ethz-asl/lpp"
 
+[tool.scikit-build]
+cmake.source-dir = "python"
