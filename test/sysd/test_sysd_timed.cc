@@ -8,18 +8,14 @@
 
 using lpp::sysdtest::entries;
 
-static void expect_between(size_t value, size_t low, size_t high) {
-  ASSERT_GE(value, low);
-  ASSERT_LE(value, high);
-}
-
 TEST(sysd_timed, lpp_syntax_floating_point_time) {
   lpp::sysdtest::init(*test_argv);
   for (int i = 0; i < 5; i++) {
     LOG_TIMED(I, 0.1, "Test" << 123);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
-  expect_between(entries().size(), 2, 3);
+  ASSERT_GE(entries().size(), 2);
+  ASSERT_LE(entries().size(), 3);
 }
 
 TEST(sysd_timed, lpp_syntax_severity_debug) {
