@@ -83,6 +83,9 @@
 #endif
 
 #if __has_include(<systemd/sd-journal.h>)
+#ifndef SD_JOURNAL_SUPPRESS_LOCATION
+#define SD_JOURNAL_SUPPRESS_LOCATION
+#endif
 #include <systemd/sd-journal.h>
 #include <syslog.h>
 #define LPP_SYSD_SUPPORTED
