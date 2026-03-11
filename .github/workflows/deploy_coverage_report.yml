@@ -51,7 +51,7 @@ jobs:
         working-directory: catkin_ws/src/lpp/build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./catkin_ws/src/lpp/build/coverage
 
