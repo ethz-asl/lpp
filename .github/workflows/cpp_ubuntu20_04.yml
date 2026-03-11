@@ -59,7 +59,7 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
     name: Ubuntu ${{ matrix.ubuntu }} - GCC ${{ matrix.gcc }} - C++${{ matrix.cxx }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         name: Checkout lpp
         with:
           repository: ethz-asl/lpp
