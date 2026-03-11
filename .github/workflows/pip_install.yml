@@ -25,7 +25,7 @@ jobs:
     name: Ubuntu ${{ matrix.ubuntu }} | Python ${{ matrix.python-version }} | pip install
     steps:
       - name: Checkout lpp
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install curl
         run: apt update && apt install -y curl

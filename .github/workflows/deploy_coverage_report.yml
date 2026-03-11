@@ -27,7 +27,7 @@ jobs:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         name: Checkout lpp
         with:
           repository: ethz-asl/lpp
