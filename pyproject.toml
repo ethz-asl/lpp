@@ -26,4 +26,4 @@ Homepage = "https://github.com/ethz-asl/lpp"
 Repository = "https://github.com/ethz-asl/lpp"
 
 [tool.scikit-build]
-cmake.source-dir = "python"
+cmake.source-dir = "."

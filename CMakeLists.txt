@@ -32,7 +32,12 @@ else()
 endif()
 
 find_package(glog)
-find_package(catkin REQUIRED COMPONENTS roscpp)
+if (SKBUILD)
+        set(catkin_FOUND FALSE)
+        message(STATUS "SKBUILD detected: skipping catkin integration")
+else ()
+        find_package(catkin REQUIRED COMPONENTS roscpp)
+endif ()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
