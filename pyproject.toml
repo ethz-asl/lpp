@@ -27,3 +27,4 @@ Repository = "https://github.com/ethz-asl/lpp"
 
 [tool.scikit-build]
 cmake.source-dir = "."
+wheel.packages = ["python/lpp"]
