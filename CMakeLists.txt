@@ -33,8 +33,9 @@ endif()
 
 find_package(glog)
 if (SKBUILD)
-        set(catkin_FOUND FALSE)
         message(STATUS "SKBUILD detected: skipping catkin integration")
+        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h
+                DESTINATION lpp/include)
 else ()
         find_package(catkin REQUIRED COMPONENTS roscpp)
 endif ()
