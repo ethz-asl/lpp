@@ -1,2 +1,4 @@
 @PACKAGE_INIT@
+
+set_and_check(lpp_INCLUDE_DIRS "${PACKAGE_PREFIX_DIR}/lpp/include/lpp")
 include("${CMAKE_CURRENT_LIST_DIR}/lppTargets.cmake")
