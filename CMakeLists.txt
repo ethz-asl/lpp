@@ -34,8 +34,6 @@ endif()
 find_package(glog)
 if (SKBUILD)
         message(STATUS "SKBUILD detected: skipping catkin integration")
-        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h
-                DESTINATION lpp/include)
 else ()
         find_package(catkin REQUIRED COMPONENTS roscpp)
 endif ()
@@ -66,6 +64,26 @@ if (catkin_FOUND)
                 LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
                 RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
                 )
+endif ()
+
+if (SKBUILD)
+        include(CMakePackageConfigHelpers)
+
+        configure_package_config_file(cmake/lppConfig.cmake.in
+                ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake
+                INSTALL_DESTINATION lpp/cmake/lpp)
+
+        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h
+                DESTINATION lpp/include/lpp)
+        install(TARGETS lpp EXPORT lppTargets)
+        install(EXPORT lppTargets
+                FILE lppTargets.cmake
+                NAMESPACE lpp::
+                DESTINATION lpp/cmake/lpp)
+
+
+
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION lpp/cmake/lpp)
 endif ()
 
 if (GLOG_FOUND)
