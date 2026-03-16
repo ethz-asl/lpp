@@ -66,37 +66,25 @@ if (catkin_FOUND)
                 )
 endif ()
 
-if(SKBUILD)
+if (SKBUILD)
         include(CMakePackageConfigHelpers)
 
-        configure_package_config_file(
-                cmake/lppConfig.cmake.in
+        configure_package_config_file(cmake/lppConfig.cmake.in
                 ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake
-                INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/lpp
-        )
+                INSTALL_DESTINATION lpp/cmake/lpp)
 
-        install(FILES
-                ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h
-                DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/lpp
-        )
-
-        install(TARGETS lpp
-                EXPORT lppTargets
-                ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-                LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        )
-
+        install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h
+                DESTINATION lpp/include/lpp)
+        install(TARGETS lpp EXPORT lppTargets)
         install(EXPORT lppTargets
                 FILE lppTargets.cmake
                 NAMESPACE lpp::
-                DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/lpp
-        )
+                DESTINATION lpp/cmake/lpp)
 
-        install(FILES
-                ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake
-                DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/lpp
-        )
-endif()
+
+
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION lpp/cmake/lpp)
+endif ()
 
 if (GLOG_FOUND)
         target_link_libraries(lpp_demo glog)
