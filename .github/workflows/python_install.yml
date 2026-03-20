@@ -27,19 +27,5 @@ jobs:
       - name: Checkout lpp
         uses: actions/checkout@v6
 
-      - name: Install curl
-        run: apt update && apt install -y curl
-
-      - name: Install micromamba
-        shell: bash
-        run: |
-          curl -L micro.mamba.pm/install.sh | bash
-
-      - name: Install Python and package
-        shell: bash
-        run: |
-          source ~/.bashrc
-          micromamba env create -n lpptest
-          micromamba activate lpptest
-          micromamba install -y python==${{ matrix.python-version }} -c conda-forge
-          pip install -v .
+      - name: Install lpp
+        run: uv sync
