@@ -27,8 +27,10 @@ jobs:
       - name: Checkout lpp
         uses: actions/checkout@v6
 
+      - name: Add uv to PATH
+        run: echo "/root/.local/bin" >> "$GITHUB_PATH"
+
       - name: Install lpp
         run: | 
-          source ~/.bashrc
           uv sync
         shell: bash
