@@ -29,3 +29,4 @@ jobs:
 
       - name: Install lpp
         run: uv sync
+        shell: bash
