@@ -1,4 +1,4 @@
-name: pip install
+name: uv install
 
 on:
   pull_request:
@@ -28,5 +28,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install lpp
-        run: uv sync
+        run: | 
+          source ~/.bashrc
+          uv sync
         shell: bash
