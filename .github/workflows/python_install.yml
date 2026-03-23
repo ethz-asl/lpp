@@ -31,6 +31,4 @@ jobs:
         run: echo "/root/.local/bin" >> "$GITHUB_PATH"
 
       - name: Install lpp
-        run: | 
-          uv sync
-        shell: bash
+        run: uv sync
