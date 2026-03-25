@@ -51,6 +51,11 @@ add_library(lpp ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h)
 # As there are no src files, set the linker language explicitly
 set_target_properties(lpp PROPERTIES LINKER_LANGUAGE CXX)
 
+target_include_directories(lpp PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include/lpp>
+)
+
 add_executable(lpp_demo ${CMAKE_CURRENT_SOURCE_DIR}/src/demo.cpp)
 target_compile_definitions(lpp_demo PRIVATE MODE_LPP)
 
@@ -71,19 +76,19 @@ if (SKBUILD)
 
         configure_package_config_file(cmake/lppConfig.cmake.in
                 ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake
-                INSTALL_DESTINATION lpp/cmake/lpp)
+                INSTALL_DESTINATION share/lpp/cmake)
 
         install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h
-                DESTINATION lpp/include/lpp)
+                DESTINATION include/lpp)
         install(TARGETS lpp EXPORT lppTargets)
         install(EXPORT lppTargets
                 FILE lppTargets.cmake
                 NAMESPACE lpp::
-                DESTINATION lpp/cmake/lpp)
+                DESTINATION share/lpp/cmake)
 
 
 
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION lpp/cmake/lpp)
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION share/lpp/cmake)
 endif ()
 
 if (GLOG_FOUND)
