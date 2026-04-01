@@ -31,4 +31,4 @@ jobs:
         run: echo "/root/.local/bin" >> "$GITHUB_PATH"
 
       - name: Install lpp
-        run: uv sync
+        run: uv sync --python ${{ matrix.python-version }}
