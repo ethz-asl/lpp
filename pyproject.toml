@@ -21,9 +21,6 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
 ]
 
-[project.entry-points."cmake.prefix"]
-lpp = "lpp.cmake"
-
 [project.urls]
 Homepage = "https://github.com/ethz-asl/lpp"
 Repository = "https://github.com/ethz-asl/lpp"
