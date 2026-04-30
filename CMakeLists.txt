@@ -95,8 +95,6 @@ if (GLOG_FOUND)
         target_link_libraries(lpp_demo glog)
 endif ()
 
-target_link_libraries(lpp_demo systemd)
-
 ################## Testing ##################
 
 if (NOT LPP_BUILD_TESTS)
@@ -204,13 +202,14 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/sysd/test_sysd_every_n.cc
                 test/sysd/test_sysd_first_n.cc
                 test/sysd/test_sysd_if_every_n.cc
+                test/sysd/test_sysd_init.cc
                 test/sysd/test_sysd_log_string.cc
                 test/sysd/test_sysd_rosprintf.cc
                 test/sysd/test_sysd_timed.cc
                 test/sysd/test_sysd_vlog.cc)
 
         target_include_directories(${SYSD_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/sysd)
-        target_link_libraries(${SYSD_TESTS} glog gtest ${catkin_LIBRARIES} systemd gcov)
+        target_link_libraries(${SYSD_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${SYSD_TESTS} PRIVATE MODE_SYSD)
         target_compile_options(${SYSD_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
