@@ -39,6 +39,11 @@
 #include <unordered_map>
 #include <iostream>
 #include <chrono>
+#include <cerrno>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <fstream>
 #include <mutex>
 #include <functional>
 #include <memory>
@@ -82,12 +87,11 @@
 #define LPP_ROSLOG_SUPPORTED
 #endif
 
-#if __has_include(<systemd/sd-journal.h>)
-#ifndef SD_JOURNAL_SUPPRESS_LOCATION
-#define SD_JOURNAL_SUPPRESS_LOCATION
-#endif
-#include <systemd/sd-journal.h>
+#if __has_include(<sys/socket.h>) && __has_include(<sys/un.h>) && __has_include(<syslog.h>) && __has_include(<unistd.h>)
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <syslog.h>
+#include <unistd.h>
 #define LPP_SYSD_SUPPORTED
 #endif
 
@@ -125,6 +129,138 @@ enum class BaseSeverity {
   FATAL
 };
 
+#ifdef MODE_SYSD
+inline constexpr const char *kJournalSocketPath = "/run/systemd/journal/socket";
+
+inline int toSysdPriority(BaseSeverity severity) {
+  switch (severity) {
+    case BaseSeverity::DEBUG:
+      return LOG_DEBUG;
+    case BaseSeverity::INFO:
+      return LOG_INFO;
+    case BaseSeverity::WARN:
+      return LOG_WARNING;
+    case BaseSeverity::ERROR:
+      return LOG_ERR;
+    case BaseSeverity::FATAL:
+      return LOG_CRIT;
+  }
+  return LOG_INFO;
+}
+
+class JournalSender {
+ public:
+  JournalSender() : send_buffer_size_(systemSendBufferSize()) {
+    makeSocket();
+  }
+
+  ~JournalSender() {
+    if (fd_ >= 0) {
+      close(fd_);
+    }
+  }
+
+  JournalSender(const JournalSender &) = delete;
+  JournalSender &operator=(const JournalSender &) = delete;
+  JournalSender(JournalSender &&) = delete;
+  JournalSender &operator=(JournalSender &&) = delete;
+
+  void send(BaseSeverity severity, const std::string &message, const std::string &identifier) const {
+    if (fd_ < 0) {
+      return;
+    }
+
+    const std::string payload = makePayload(severity, message, identifier);
+    sockaddr_un addr{};
+    addr.sun_family = AF_UNIX;
+    std::strncpy(addr.sun_path, kJournalSocketPath, sizeof(addr.sun_path) - 1U);
+
+    int flags = MSG_DONTWAIT;
+#ifdef MSG_NOSIGNAL
+    flags |= MSG_NOSIGNAL;
+#endif
+
+    const auto addr_len = static_cast<socklen_t>(offsetof(sockaddr_un, sun_path) + std::strlen(kJournalSocketPath) + 1U);
+    (void) sendto(fd_, payload.data(), payload.size(), flags, reinterpret_cast<sockaddr *>(&addr), addr_len);
+  }
+
+  static std::string makePayload(BaseSeverity severity, const std::string &message, const std::string &identifier) {
+    std::string payload;
+    payload.reserve(estimatedPayloadSize(message, identifier));
+    appendJournalField(&payload, "MESSAGE", message);
+    appendJournalField(&payload, "PRIORITY", std::to_string(toSysdPriority(severity)));
+    if (!identifier.empty()) {
+      appendJournalField(&payload, "SYSLOG_IDENTIFIER", identifier);
+    }
+    return payload;
+  }
+
+  static int systemSendBufferSize() {
+    std::ifstream wmem_max("/proc/sys/net/core/wmem_max");
+    int send_buffer_size = 0;
+    wmem_max >> send_buffer_size;
+    return send_buffer_size > 0 ? send_buffer_size : 0;
+  }
+
+ private:
+  void makeSocket() {
+    fd_ = socket(AF_UNIX, SOCK_DGRAM | SOCK_CLOEXEC | SOCK_NONBLOCK, 0);
+    if (fd_ < 0) {
+      std::cerr << "Error on opening systemd socket: " << strerror(errno) << std::endl;
+      return;
+    }
+
+    if (send_buffer_size_ > 0) {
+      (void) setsockopt(fd_, SOL_SOCKET, SO_SNDBUF, &send_buffer_size_, sizeof(send_buffer_size_));
+    }
+  }
+
+  static std::size_t fieldOverhead(const std::string &field, const std::string &value) {
+    constexpr std::size_t kFieldSeparatorSize = 1U; // '=' for single-line fields, '\n' before binary field data.
+    constexpr std::size_t kFieldTerminatorSize = 1U; // Trailing '\n' after every journal field.
+    const std::size_t value_size_prefix = value.find('\n') == std::string::npos ? 0U : sizeof(std::uint64_t);
+    return field.size() + kFieldSeparatorSize + value_size_prefix + kFieldTerminatorSize;
+  }
+
+  static std::size_t estimatedPayloadSize(const std::string &message, const std::string &identifier) {
+    const std::string priority = std::to_string(LOG_CRIT);
+    std::size_t size = message.size() + fieldOverhead("MESSAGE", message);
+    size += priority.size() + fieldOverhead("PRIORITY", priority);
+    if (!identifier.empty()) {
+      size += identifier.size() + fieldOverhead("SYSLOG_IDENTIFIER", identifier);
+    }
+    return size;
+  }
+
+  static void appendLittleEndianUint64(std::string *payload, std::uint64_t value) {
+    for (unsigned int i = 0; i < sizeof(value); ++i) {
+      // Shift the requested byte into the low 8 bits, mask it, and append least-significant byte first.
+      payload->push_back(static_cast<char>((value >> (i * 8U)) & 0xffU));
+    }
+  }
+
+  static void appendJournalField(std::string *payload, const std::string &field, const std::string &value) {
+    if (value.find('\n') == std::string::npos) {
+      payload->append(field);
+      payload->push_back('=');
+      payload->append(value);
+      payload->push_back('\n');
+      return;
+    }
+
+    payload->append(field);
+    payload->push_back('\n');
+    // Journald native protocol stores multiline or binary field sizes as 64-bit little-endian values.
+    appendLittleEndianUint64(payload, static_cast<std::uint64_t>(value.size()));
+    payload->append(value);
+    payload->push_back('\n');
+  }
+
+  int fd_ = -1;
+  int send_buffer_size_ = 0;
+};
+#endif
+
 LPP_DIAG_POP
 
 //! Initialization logic
@@ -135,6 +271,7 @@ class Init {
   std::string sysd_identifier;
 #ifdef MODE_SYSD
   std::function<void(BaseSeverity, const std::string &, const std::string &)> sysd_sender;
+  JournalSender journal_sender;
 #endif
 };
 
@@ -189,7 +326,7 @@ inline static Init lppInit;
 #endif
 
 #if defined MODE_SYSD && !defined LPP_SYSD_SUPPORTED
-#error Logging Mode is set to sysd but systemd-dev headers were not found
+#error Logging Mode is set to sysd but required Unix socket headers were not found
 #endif
 
 
@@ -720,39 +857,13 @@ inline BaseSeverity toBase(GlogSeverity glog_severity) {
 }
 
 #ifdef MODE_SYSD
-inline int toSysdPriority(BaseSeverity severity) {
-  switch (severity) {
-    case BaseSeverity::DEBUG:
-      return LOG_DEBUG;
-    case BaseSeverity::INFO:
-      return LOG_INFO;
-    case BaseSeverity::WARN:
-      return LOG_WARNING;
-    case BaseSeverity::ERROR:
-      return LOG_ERR;
-    case BaseSeverity::FATAL:
-      return LOG_CRIT;
-  }
-  return LOG_INFO;
-}
-
 inline void journalSend(BaseSeverity severity, const std::string &message) {
   if (lppInit.sysd_sender != nullptr) {
     lppInit.sysd_sender(severity, message, lppInit.sysd_identifier);
     return;
   }
 
-  if (lppInit.sysd_identifier.empty()) {
-    sd_journal_send("MESSAGE=%s", message.c_str(),
-                    "PRIORITY=%i", toSysdPriority(severity),
-                    nullptr);
-    return;
-  }
-
-  sd_journal_send("MESSAGE=%s", message.c_str(),
-                  "PRIORITY=%i", toSysdPriority(severity),
-                  "SYSLOG_IDENTIFIER=%s", lppInit.sysd_identifier.c_str(),
-                  nullptr);
+  lppInit.journal_sender.send(severity, message, lppInit.sysd_identifier);
 }
 #endif
 

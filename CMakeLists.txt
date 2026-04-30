@@ -51,6 +51,11 @@ add_library(lpp ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h)
 # As there are no src files, set the linker language explicitly
 set_target_properties(lpp PROPERTIES LINKER_LANGUAGE CXX)
 
+target_include_directories(lpp PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include/lpp>
+)
+
 add_executable(lpp_demo ${CMAKE_CURRENT_SOURCE_DIR}/src/demo.cpp)
 target_compile_definitions(lpp_demo PRIVATE MODE_LPP)
 
@@ -71,26 +76,24 @@ if (SKBUILD)
 
         configure_package_config_file(cmake/lppConfig.cmake.in
                 ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake
-                INSTALL_DESTINATION lpp/cmake/lpp)
+                INSTALL_DESTINATION share/lpp/cmake)
 
         install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/log++.h
-                DESTINATION lpp/include/lpp)
+                DESTINATION include/lpp)
         install(TARGETS lpp EXPORT lppTargets)
         install(EXPORT lppTargets
                 FILE lppTargets.cmake
                 NAMESPACE lpp::
-                DESTINATION lpp/cmake/lpp)
+                DESTINATION share/lpp/cmake)
 
 
 
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION lpp/cmake/lpp)
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION share/lpp/cmake)
 endif ()
 
 if (GLOG_FOUND)
         target_link_libraries(lpp_demo glog)
 endif ()
-
-target_link_libraries(lpp_demo systemd)
 
 ################## Testing ##################
 
@@ -199,13 +202,14 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/sysd/test_sysd_every_n.cc
                 test/sysd/test_sysd_first_n.cc
                 test/sysd/test_sysd_if_every_n.cc
+                test/sysd/test_sysd_init.cc
                 test/sysd/test_sysd_log_string.cc
                 test/sysd/test_sysd_rosprintf.cc
                 test/sysd/test_sysd_timed.cc
                 test/sysd/test_sysd_vlog.cc)
 
         target_include_directories(${SYSD_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/sysd)
-        target_link_libraries(${SYSD_TESTS} glog gtest ${catkin_LIBRARIES} systemd gcov)
+        target_link_libraries(${SYSD_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${SYSD_TESTS} PRIVATE MODE_SYSD)
         target_compile_options(${SYSD_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
