@@ -326,12 +326,10 @@ If building with catkin, the tests can be built with the following command:
 $ catkin build lpp -DLPP_BUILD_TESTS=1
 ```
 
-Python binding tests are written with pytest. Build a wheel and run the tests
-against that wheel:
+Python binding tests are written with pytest. Run with:
 
 ```shell
-$ uv build --out-dir /tmp/lpp-dist
-$ uv run --no-project --with pytest --with /tmp/lpp-dist/<wheel-name>.whl pytest --rootdir=/tmp test/python
+uv run --with pytest pytest test/python
 ```
 
 ## Unittests
