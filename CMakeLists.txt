@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(lpp)
 
+option(LPP_BUILD_PYTHON_BINDINGS "Build lpp Python bindings" OFF)
+
 if (ENABLE_COVERAGE)
         set(LPP_TEST_CXX_FLAGS ${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage)
         message(STATUS "Coverage enabled")
@@ -90,6 +92,19 @@ if (SKBUILD)
 
 
         install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION share/lpp/cmake)
+
+        if (LPP_BUILD_PYTHON_BINDINGS)
+                find_package(Python COMPONENTS Interpreter Development REQUIRED)
+                find_package(nanobind CONFIG REQUIRED)
+
+                nanobind_add_module(_lpp python/lpp_bindings.cc)
+                target_include_directories(_lpp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+                install(TARGETS _lpp LIBRARY DESTINATION lpp)
+        endif ()
+endif ()
+
+if (LPP_BUILD_PYTHON_BINDINGS AND NOT SKBUILD)
+        message(FATAL_ERROR "LPP_BUILD_PYTHON_BINDINGS is only supported when building with scikit-build-core")
 endif ()
 
 if (GLOG_FOUND)
