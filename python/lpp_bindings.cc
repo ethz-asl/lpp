@@ -5,13 +5,10 @@
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 
-#include <chrono>
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <optional>
 #include <string>
-#include <unordered_map>
 
 #if defined(__has_include)
 #if __has_include(<sys/socket.h>) && __has_include(<sys/un.h>) && __has_include(<syslog.h>) && __has_include(<unistd.h>)
@@ -75,50 +72,6 @@ LppSeverity toLppSeverity(BaseSeverity severity) {
 
 std::string objectToString(const nb::object &object) {
   return nb::cast<std::string>(nb::str(object));
-}
-
-std::string callerKey(const std::string &policy_name) {
-  PyFrameObject *frame = PyEval_GetFrame();
-  if (frame == nullptr) {
-    return policy_name + ":<unknown>:0";
-  }
-
-  const int line = PyFrame_GetLineNumber(frame);
-  PyObject *code = reinterpret_cast<PyObject *>(PyFrame_GetCode(frame));
-  if (code == nullptr) {
-    return policy_name + ":<unknown>:" + std::to_string(line);
-  }
-
-  PyObject *filename_obj = PyObject_GetAttrString(code, "co_filename");
-  std::string filename = "<unknown>";
-  if (filename_obj != nullptr) {
-    const char *filename_chars = PyUnicode_AsUTF8(filename_obj);
-    if (filename_chars != nullptr) {
-      filename = filename_chars;
-    }
-    Py_DECREF(filename_obj);
-  } else {
-    PyErr_Clear();
-  }
-
-  Py_DECREF(code);
-  return policy_name + ":" + filename + ":" + std::to_string(line);
-}
-
-std::string policyKey(const nb::object &key, const std::string &policy_name) {
-  if (key.ptr() != Py_None) {
-    return nb::cast<std::string>(key);
-  }
-  return callerKey(policy_name);
-}
-
-nb::object formatMessage(const std::string &format, const nb::args &args) {
-  nb::str py_format(format.c_str());
-  PyObject *formatted = PyNumber_Remainder(py_format.ptr(), args.ptr());
-  if (formatted == nullptr) {
-    throw nb::python_error();
-  }
-  return nb::steal(formatted);
 }
 
 #ifdef LPP_PY_SYSD_SUPPORTED
@@ -196,13 +149,12 @@ void sendToJournal(BaseSeverity severity, const std::string &message, const std:
 
 }  // namespace
 
-class Logger {
+class LppEmitter {
  public:
-  Logger(LogMode mode, nb::object identifier, nb::object callback, int verbosity, nb::object sysd_sender)
+  LppEmitter(LogMode mode, nb::object identifier, nb::object callback, nb::object sysd_sender)
       : mode_(mode),
         identifier_(identifier.ptr() == Py_None ? "" : nb::cast<std::string>(identifier)),
         callback_(std::move(callback)),
-        verbosity_(verbosity),
         sysd_sender_(std::move(sysd_sender)) {
     if (mode_ == LogMode::MODE_GLOG) {
       throw std::runtime_error("MODE_GLOG is not available in the Python bindings");
@@ -217,108 +169,18 @@ class Logger {
 #endif
   }
 
-  void log(LppSeverity severity, const nb::object &message) {
-    emit(lpp::internal::toBase(severity), objectToString(message));
-  }
-
-  void logIf(LppSeverity severity, bool condition, const nb::object &message) {
-    if (condition) {
-      log(severity, message);
-    }
-  }
-
-  void logEvery(LppSeverity severity, unsigned int n, const nb::object &message, const nb::object &key) {
-    validateCount(n);
-    const std::string resolved_key = policyKey(key, "every");
-    auto &counter = every_counters_[resolved_key];
-    const bool should_log = counter % n == 0U;
-    ++counter;
-    if (should_log) {
-      log(severity, message);
-    }
-  }
-
-  void logFirst(LppSeverity severity, unsigned int n, const nb::object &message, const nb::object &key) {
-    const std::string resolved_key = policyKey(key, "first");
-    auto &counter = first_counters_[resolved_key];
-    if (counter < n) {
-      ++counter;
-      log(severity, message);
-    }
-  }
-
-  void logTimed(LppSeverity severity, float seconds, const nb::object &message, const nb::object &key) {
-    if (seconds < 0.0F) {
-      throw std::invalid_argument("seconds must be non-negative");
-    }
-
-    const std::string resolved_key = policyKey(key, "timed");
-    const auto now = std::chrono::steady_clock::now();
-    auto it = timed_last_log_.find(resolved_key);
-    if (it == timed_last_log_.end() ||
-        now >= it->second + std::chrono::duration_cast<std::chrono::steady_clock::duration>(
-                              std::chrono::duration<float>(seconds))) {
-      timed_last_log_[resolved_key] = now;
-      log(severity, message);
-    }
-  }
-
-  void logString(LppSeverity severity, const nb::object &message, const nb::object &sink) {
-    const std::string string_message = objectToString(message);
-    if (sink.ptr() != Py_None) {
-      sink.attr("append")(string_message);
-      return;
-    }
-    emit(lpp::internal::toBase(severity), string_message);
-  }
-
-  void logFormat(LppSeverity severity, const std::string &format, const nb::args &args) {
-    log(severity, formatMessage(format, args));
-  }
-
-  void vlog(LppSeverity severity, int verbose_level, const nb::object &message) {
-    if (verbosity_ >= verbose_level) {
-      log(severity, message);
-    }
-  }
-
-  void vlogIf(LppSeverity severity, int verbose_level, bool condition, const nb::object &message) {
-    if (condition) {
-      vlog(severity, verbose_level, message);
-    }
-  }
-
-  void vlogEvery(LppSeverity severity, int verbose_level, unsigned int n, const nb::object &message, const nb::object &key) {
-    if (verbosity_ >= verbose_level) {
-      logEvery(severity, n, message, key);
-    }
-  }
-
-  void vlogIfEvery(LppSeverity severity,
-                   int verbose_level,
-                   bool condition,
-                   unsigned int n,
-                   const nb::object &message,
-                   const nb::object &key) {
-    if (condition) {
-      vlogEvery(severity, verbose_level, n, message, key);
-    }
+  void emit(LppSeverity severity, const nb::object &message) {
+    emitMessage(lpp::internal::toBase(severity), objectToString(message));
   }
 
  private:
-  static void validateCount(unsigned int n) {
-    if (n == 0U) {
-      throw std::invalid_argument("n must be greater than zero");
-    }
-  }
-
-  void emit(BaseSeverity severity, const std::string &message) {
+  void emitMessage(BaseSeverity severity, const std::string &message) {
     if (mode_ == LogMode::MODE_NOLOG) {
       return;
     }
 
     if (mode_ == LogMode::MODE_SYSD) {
-      emitSysd(severity, message);
+      emitSysdMessage(severity, message);
       return;
     }
 
@@ -330,7 +192,7 @@ class Logger {
     std::cout << severityPrefix(severity) << message << std::endl;
   }
 
-  void emitSysd(BaseSeverity severity, const std::string &message) {
+  void emitSysdMessage(BaseSeverity severity, const std::string &message) {
 #ifdef NDEBUG
     if (severity == BaseSeverity::DEBUG) {
       return;
@@ -348,11 +210,7 @@ class Logger {
   LogMode mode_;
   std::string identifier_;
   nb::object callback_;
-  int verbosity_;
   nb::object sysd_sender_;
-  std::unordered_map<std::string, unsigned int> every_counters_;
-  std::unordered_map<std::string, unsigned int> first_counters_;
-  std::unordered_map<std::string, std::chrono::steady_clock::time_point> timed_last_log_;
 };
 
 }  // namespace lpp::python
@@ -375,39 +233,11 @@ NB_MODULE(_lpp, m) {
       .value("MODE_GLOG", lpp::python::LogMode::MODE_GLOG)
       .value("MODE_ROSLOG", lpp::python::LogMode::MODE_ROSLOG);
 
-  nb::class_<lpp::python::Logger>(m, "Logger")
-      .def(nb::init<lpp::python::LogMode, nb::object, nb::object, int, nb::object>(),
+  nb::class_<lpp::python::LppEmitter>(m, "_LppEmitter")
+      .def(nb::init<lpp::python::LogMode, nb::object, nb::object, nb::object>(),
            "mode"_a = lpp::python::LogMode::MODE_LPP,
            "identifier"_a = nb::none(),
            "callback"_a = nb::none(),
-           "verbosity"_a = 0,
            "sysd_sender"_a = nb::none())
-      .def("log", &lpp::python::Logger::log, "severity"_a, "message"_a)
-      .def("log_if", &lpp::python::Logger::logIf, "severity"_a, "condition"_a, "message"_a)
-      .def("log_every", &lpp::python::Logger::logEvery, "severity"_a, "n"_a, "message"_a, "key"_a = nb::none())
-      .def("log_first", &lpp::python::Logger::logFirst, "severity"_a, "n"_a, "message"_a, "key"_a = nb::none())
-      .def("log_timed", &lpp::python::Logger::logTimed, "severity"_a, "seconds"_a, "message"_a, "key"_a = nb::none())
-      .def("log_string", &lpp::python::Logger::logString, "severity"_a, "message"_a, "sink"_a = nb::none())
-      .def("log_format",
-           [](lpp::python::Logger &self,
-              lpp::internal::LppSeverity severity,
-              const std::string &format,
-              const nb::args &args) { self.logFormat(severity, format, args); })
-      .def("vlog", &lpp::python::Logger::vlog, "severity"_a, "verbose_level"_a, "message"_a)
-      .def("vlog_if", &lpp::python::Logger::vlogIf, "severity"_a, "verbose_level"_a, "condition"_a, "message"_a)
-      .def("vlog_every",
-           &lpp::python::Logger::vlogEvery,
-           "severity"_a,
-           "verbose_level"_a,
-           "n"_a,
-           "message"_a,
-           "key"_a = nb::none())
-      .def("vlog_if_every",
-           &lpp::python::Logger::vlogIfEvery,
-           "severity"_a,
-           "verbose_level"_a,
-           "condition"_a,
-           "n"_a,
-           "message"_a,
-           "key"_a = nb::none());
+      .def("emit", &lpp::python::LppEmitter::emit, "severity"_a, "message"_a);
 }

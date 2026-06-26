@@ -10,10 +10,11 @@
 
 - Framework to standardize ros and glog output at compile time.
 - Uses ros/glog's native log calls depending on selected mode.
+- Optional Python bindings with a method-based logger API.
 - Customize log output
 - All log calls are thread-safe.
 - Lightweight with performance in mind
-- Header only
+- Header only for C++
 - GCC 8 or later required
 - Recommended to use with C++17/C++20, but also works with C++11/C++14.
 
@@ -77,7 +78,7 @@ I0929 11:57:50.238536 1360823 main.cpp:8] Foo: 5
 - a project:
 
 ```cmake
-# Valid modes are: MODE_LPP MODE_GLOG MODE_ROSLOG MODE_DEFAULT
+# Valid modes are: MODE_LPP MODE_GLOG MODE_ROSLOG MODE_SYSD MODE_DEFAULT MODE_NOLOG
 # Use add_definitions(-DMODE_LPP) if cmake version <= 3.11
 
 add_compile_definitions(MODE_LPP)
@@ -128,6 +129,20 @@ $ git clone git@github.com:ethz-asl/lpp.git
 $ catkin build lpp
 ```
 
+### Option 4: Install the Python package
+The Python bindings are built only through scikit-build. Normal CMake and catkin
+builds do not require Python or nanobind.
+
+```shell
+$ uv pip install .
+```
+
+or build a wheel:
+
+```shell
+$ uv build
+```
+
 # Usage
 
 ## Modes
@@ -135,6 +150,7 @@ $ catkin build lpp
 - **MODE_LPP** Log++ Logging output.
 - **MODE_GLOG:** Google Logging output. Calls abort() if it logs a fatal error.
 - **MODE_ROSLOG:** ROS Logging output.
+- **MODE_SYSD:** systemd journal output.
 - **MODE_DEFAULT:** Disables Logging standardization. Messages are logged according to their framework.
 - **MODE_NOLOG:** Disables Logging completely. Useful for unittests or in some cases for release builds.
 
@@ -165,7 +181,7 @@ Log++ provides its own logging functions, if you want to use Log++ as the base l
 ```c++
 int foo = 1;
 int bar = 3;
-LOG(I, "Values: " << foo " " << bar);
+LOG(I, "Values: " << foo << " " << bar);
 ```
 
 ### Conditional logging
@@ -173,7 +189,7 @@ LOG(I, "Values: " << foo " " << bar);
 ```c++
 int foo = 1;
 int bar = 3;
-LOG(I, foo != bar, "Values: " << foo << " " << bar)
+LOG(I, foo != bar, "Values: " << foo << " " << bar);
 ```
 
 ### Occasional logging
@@ -213,6 +229,76 @@ int main(int argc, char **argv) {
 }
 ```
 
+## Python bindings
+
+The Python API provides a low-boilerplate `Logger()` helper for short scripts.
+It returns a standard `logging.Logger` configured with an `LppHandler` and
+`logging.INFO` level.
+
+```python
+from lpp import LogMode, Logger
+
+logger = Logger("foo", LogMode.MODE_LPP)
+
+logger.info("started")
+logger.warning("many retries")
+logger.critical("cannot continue")
+```
+
+### Python modes
+
+- `LogMode.MODE_LPP`: Log++ stdout-style output. This mode also supports a Python callback.
+- `LogMode.MODE_SYSD`: systemd journal output. Pass `identifier="my-service"` to set `SYSLOG_IDENTIFIER`.
+- `LogMode.MODE_NOLOG`: accepts log calls and emits nothing.
+- `LogMode.MODE_DEFAULT`: uses Log++ stdout-style output for the Python handler.
+- `LogMode.MODE_GLOG` and `LogMode.MODE_ROSLOG`: enum values are exported, but construction raises `RuntimeError` unless these backends are implemented for Python.
+
+```python
+import logging
+from lpp import LogMode, Logger
+
+logger = Logger("my-service", LogMode.MODE_SYSD, identifier="my-service")
+logger.error("failed to connect")
+```
+
+### Python logging methods
+
+Use the standard Python logging API:
+
+```python
+logger.debug("details")
+logger.info("ready")
+logger.info("value=%s", value)
+logger.warning("retrying")
+logger.error("failed")
+logger.critical("cannot continue")
+```
+
+`critical()` maps to Log++ fatal severity. Python logging handles formatting,
+filters, levels, propagation, and handlers before the record reaches `LppHandler`.
+Log++ policy helpers such as `LOG_EVERY` are intentionally not part of the
+Python API; use standard `logging.Filter` patterns for Python-side filtering or
+throttling.
+
+For advanced logging setup, attach `LppHandler` manually:
+
+```python
+import logging
+from lpp import LogMode, LppHandler
+
+logger = logging.getLogger("foo")
+logger.addHandler(LppHandler(LogMode.MODE_LPP))
+logger.setLevel(logging.INFO)
+```
+
+`MODE_LPP` can also route output through a callback, which is useful for tests:
+
+```python
+events = []
+logger = Logger("test", callback=lambda severity, message: events.append((severity, message)))
+logger.warning("captured")
+```
+
 ## Overview of logging methods
 
 | Method                         | Log++                | Glog                                 | ROS                         | 
@@ -240,11 +326,20 @@ If building with catkin, the tests can be built with the following command:
 $ catkin build lpp -DLPP_BUILD_TESTS=1
 ```
 
+Python binding tests are written with pytest. Build a wheel and run the tests
+against that wheel:
+
+```shell
+$ uv build --out-dir /tmp/lpp-dist
+$ uv run --no-project --with pytest --with /tmp/lpp-dist/<wheel-name>.whl pytest --rootdir=/tmp test/python
+```
+
 ## Unittests
 - All modes (default, glog, lpp, roslog, nolog) have a separate test suite. All tests should run with each mode.
 - Test all severity levels (Debug, Info, Warning, Error, Fatal)
 - Test if the functionality of a logging function works, not only the logging format (Default, Conditional, Occasional, Timed, First N occurrences)
 - Tests must run in debug mode in order to test debug log output
+- Python tests mirror the C++ behavior groups for the method-based binding API.
 
 Naming Convention:
 

@@ -1,5 +1,6 @@
 """Python bindings for Log++."""
 
-from ._lpp import LogMode, Logger, LppSeverity
+from ._lpp import LogMode, LppSeverity
+from .handler import Logger, LppHandler
 
-__all__ = ["LogMode", "Logger", "LppSeverity"]
+__all__ = ["LogMode", "Logger", "LppHandler", "LppSeverity"]
