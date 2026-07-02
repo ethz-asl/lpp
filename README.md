@@ -150,7 +150,11 @@ $ uv build
 - **MODE_LPP** Log++ Logging output.
 - **MODE_GLOG:** Google Logging output. Calls abort() if it logs a fatal error.
 - **MODE_ROSLOG:** ROS Logging output.
-- **MODE_SYSD:** systemd journal output.
+- **MODE_SYSD:** systemd journal output. Logs can be viewed with
+  `journalctl -t <identifier>`, or followed live with
+  `journalctl -f -t <identifier>`. The identifier is the systemd journal
+  `SYSLOG_IDENTIFIER` field; by default it is the executable name passed to
+  `LOG_INIT(argv[0])`, with any path stripped.
 - **MODE_DEFAULT:** Disables Logging standardization. Messages are logged according to their framework.
 - **MODE_NOLOG:** Disables Logging completely. Useful for unittests or in some cases for release builds.
 
@@ -249,6 +253,9 @@ logger.critical("cannot continue")
 
 - `LogMode.MODE_LPP`: Log++ stdout-style output. This mode also supports a Python callback.
 - `LogMode.MODE_SYSD`: systemd journal output. Pass `identifier="my-service"` to set `SYSLOG_IDENTIFIER`.
+  Logs can be viewed with `journalctl -t my-service`, or followed live with
+  `journalctl -f -t my-service`. If no identifier is provided, the Python
+  binding uses the process basename from `sys.argv[0]`.
 - `LogMode.MODE_NOLOG`: accepts log calls and emits nothing.
 - `LogMode.MODE_DEFAULT`: uses Log++ stdout-style output for the Python handler.
 - `LogMode.MODE_GLOG` and `LogMode.MODE_ROSLOG`: enum values are exported, but construction raises `RuntimeError` unless these backends are implemented for Python.

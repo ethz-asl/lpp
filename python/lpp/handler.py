@@ -1,6 +1,8 @@
 """Python logging integration for Log++."""
 
 import logging
+import os
+import sys
 
 from ._lpp import LogMode, LppSeverity, _LppEmitter
 
@@ -17,6 +19,17 @@ def _severity_from_level(levelno):
     return LppSeverity.D
 
 
+def _default_sysd_identifier():
+    argv0 = sys.argv[0] if sys.argv else ""
+    return os.path.basename(argv0)
+
+
+def _resolve_identifier(mode, identifier):
+    if mode == LogMode.MODE_SYSD and identifier is None:
+        return _default_sysd_identifier()
+    return identifier
+
+
 class LppHandler(logging.Handler):
     """Logging handler that forwards Python log records to Log++."""
 
@@ -31,7 +44,7 @@ class LppHandler(logging.Handler):
         super().__init__(level)
         self._emitter = _LppEmitter(
             mode=mode,
-            identifier=identifier,
+            identifier=_resolve_identifier(mode, identifier),
             callback=callback,
             sysd_sender=sysd_sender,
         )

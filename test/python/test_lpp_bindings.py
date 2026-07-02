@@ -1,4 +1,5 @@
 import logging
+import sys
 
 import pytest
 
@@ -213,6 +214,59 @@ def test_sysd_mode_can_use_test_sender(capfd):
 
     assert capfd.readouterr().out == ""
     assert entries == [(LppSeverity.I, "Test123", "pytest-lpp")]
+
+
+def test_sysd_mode_defaults_identifier_to_process_name(monkeypatch, capfd):
+    entries = []
+
+    def sender(severity, message, identifier):
+        entries.append((severity, message, identifier))
+
+    monkeypatch.setattr(sys, "argv", ["/usr/bin/my-process"])
+    logger = make_logger(
+        LppHandler(LogMode.MODE_SYSD, sysd_sender=sender),
+        name="test-lpp-sysd-default-identifier",
+    )
+
+    logger.info("Test%s", 123)
+
+    assert capfd.readouterr().out == ""
+    assert entries == [(LppSeverity.I, "Test123", "my-process")]
+
+
+def test_sysd_mode_defaults_empty_identifier_when_argv0_is_empty(monkeypatch, capfd):
+    entries = []
+
+    def sender(severity, message, identifier):
+        entries.append((severity, message, identifier))
+
+    monkeypatch.setattr(sys, "argv", [""])
+    logger = make_logger(
+        LppHandler(LogMode.MODE_SYSD, sysd_sender=sender),
+        name="test-lpp-sysd-empty-argv0",
+    )
+
+    logger.info("Test%s", 123)
+
+    assert capfd.readouterr().out == ""
+    assert entries == [(LppSeverity.I, "Test123", "")]
+
+
+def test_sysd_mode_allows_empty_identifier(capfd):
+    entries = []
+
+    def sender(severity, message, identifier):
+        entries.append((severity, message, identifier))
+
+    logger = make_logger(
+        LppHandler(LogMode.MODE_SYSD, identifier="", sysd_sender=sender),
+        name="test-lpp-sysd-empty-identifier",
+    )
+
+    logger.info("Test%s", 123)
+
+    assert capfd.readouterr().out == ""
+    assert entries == [(LppSeverity.I, "Test123", "")]
 
 
 @pytest.mark.parametrize("mode", [LogMode.MODE_GLOG, LogMode.MODE_ROSLOG])
