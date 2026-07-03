@@ -16,7 +16,7 @@ jobs:
       fail-fast: true
       matrix:
         ubuntu: ["22.04", "24.04"]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     container:
       image: omavteam/ubuntu-omav:${{ matrix.ubuntu }}
       credentials:
@@ -32,3 +32,6 @@ jobs:
 
       - name: Install lpp
         run: uv sync --python ${{ matrix.python-version }}
+
+      - name: Run Python tests
+        run: uv run --python ${{ matrix.python-version }} --with pytest pytest test/python
