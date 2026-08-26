@@ -4,7 +4,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "lpp"
-version = "1.1.0"
+version = "1.1.1"
 description = "Log++ logging framework header-only library"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -31,3 +31,8 @@ wheel.packages = ["python/lpp"]
 
 [tool.scikit-build.cmake.define]
 LPP_BUILD_PYTHON_BINDINGS = "ON"
+
+[tool.uv]
+cache-keys = [
+  { file = "{pyproject.toml,**/CMakeLists.txt,**/*.{C,c,cc,cpp,cxx,cu,h,hh,hpp,hxx,inl,ipp,tpp,cmake,cmake_in,in,py,cfg,json,msg,proto,pt2,service,xml,yaml,yml}}" },
+]
