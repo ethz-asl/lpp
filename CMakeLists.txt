@@ -33,7 +33,7 @@ else()
         set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include)
 endif()
 
-find_package(glog)
+find_package(glog CONFIG)
 if (SKBUILD)
         message(STATUS "SKBUILD detected: skipping catkin integration")
 else ()
@@ -59,7 +59,14 @@ target_include_directories(lpp PUBLIC
         $<INSTALL_INTERFACE:include/lpp>
 )
 
+# glog's imported target carries required definitions such as GLOG_USE_GLOG_EXPORT.
+# log++.h includes glog headers, so consumers need these usage requirements too.
+if (glog_FOUND)
+        target_link_libraries(lpp PUBLIC glog::glog)
+endif ()
+
 add_executable(lpp_demo ${CMAKE_CURRENT_SOURCE_DIR}/src/demo.cpp)
+target_link_libraries(lpp_demo lpp)
 target_compile_definitions(lpp_demo PRIVATE MODE_LPP)
 
 if (catkin_FOUND)
@@ -98,7 +105,7 @@ if (SKBUILD)
                 find_package(nanobind CONFIG REQUIRED)
 
                 nanobind_add_module(_lpp python/lpp_bindings.cc)
-                target_include_directories(_lpp PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+                target_link_libraries(_lpp PRIVATE lpp)
                 install(TARGETS _lpp LIBRARY DESTINATION lpp)
         endif ()
 endif ()
@@ -107,17 +114,13 @@ if (LPP_BUILD_PYTHON_BINDINGS AND NOT SKBUILD)
         message(FATAL_ERROR "LPP_BUILD_PYTHON_BINDINGS is only supported when building with scikit-build-core")
 endif ()
 
-if (GLOG_FOUND)
-        target_link_libraries(lpp_demo glog)
-endif ()
-
 ################## Testing ##################
 
 if (NOT LPP_BUILD_TESTS)
         message(STATUS "Skip Log++ tests")
 endif()
 # All logging frameworks are required for unittests
-if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
+if (glog_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
 
         message(STATUS "Found glog and catkin: Log++ tests will be built")
         ##### Common includes #####
@@ -137,7 +140,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/glog/test_glog_vlog.cc)
 
         target_include_directories(${GLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/glog)
-        target_link_libraries(${GLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${GLOG_TESTS} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${GLOG_TESTS} PRIVATE MODE_GLOG)
         target_compile_options(${GLOG_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
@@ -154,7 +157,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/test_lpp_vlog.cc)
 
         target_include_directories(${LPP_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
-        target_link_libraries(${LPP_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${LPP_TESTS} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${LPP_TESTS} PRIVATE MODE_LPP)
         target_compile_options(${LPP_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
@@ -171,7 +174,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/lpp/custom/test_lpp_custom_vlog.cc)
 
         target_include_directories(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/lpp)
-        target_link_libraries(${LPP_TESTS_CUSTOM} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${LPP_TESTS_CUSTOM} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${LPP_TESTS_CUSTOM} PRIVATE MODE_LPP)
         target_compile_options(${LPP_TESTS_CUSTOM} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
@@ -188,7 +191,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/roslog/test_roslog_vlog.cc)
 
         target_include_directories(${ROSLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/roslog)
-        target_link_libraries(${ROSLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${ROSLOG_TESTS} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${ROSLOG_TESTS} PRIVATE MODE_ROSLOG)
         target_compile_options(${ROSLOG_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
@@ -207,7 +210,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/default/test_severity_conversions.cc)
 
         target_include_directories(${DEFAULT_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/default)
-        target_link_libraries(${DEFAULT_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${DEFAULT_TESTS} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${DEFAULT_TESTS} PRIVATE MODE_DEFAULT)
         target_compile_options(${DEFAULT_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
@@ -225,7 +228,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/sysd/test_sysd_vlog.cc)
 
         target_include_directories(${SYSD_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/sysd)
-        target_link_libraries(${SYSD_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${SYSD_TESTS} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${SYSD_TESTS} PRIVATE MODE_SYSD)
         target_compile_options(${SYSD_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
@@ -235,7 +238,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
                 test/sysd/test_sysd_release.cc)
 
         target_include_directories(${SYSD_RELEASE_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/sysd)
-        target_link_libraries(${SYSD_RELEASE_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${SYSD_RELEASE_TESTS} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${SYSD_RELEASE_TESTS} PRIVATE MODE_SYSD NDEBUG)
         target_compile_options(${SYSD_RELEASE_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 
@@ -253,7 +256,7 @@ if (GLOG_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
         )
 
         target_include_directories(${NOLOG_TESTS} PRIVATE ${LPP_INCLUDE_DIRECTORIES} test/nolog)
-        target_link_libraries(${NOLOG_TESTS} glog gtest ${catkin_LIBRARIES} gcov)
+        target_link_libraries(${NOLOG_TESTS} glog::glog gtest ${catkin_LIBRARIES} gcov)
         target_compile_definitions(${NOLOG_TESTS} PRIVATE MODE_NOLOG)
         target_compile_options(${NOLOG_TESTS} PRIVATE ${LPP_TEST_CXX_FLAGS})
 

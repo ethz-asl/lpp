@@ -1,4 +1,12 @@
 @PACKAGE_INIT@
 
+# Resolve our prefix before dependencies can change PACKAGE_PREFIX_DIR on
+# CMake versions older than 3.30.
 set_and_check(lpp_INCLUDE_DIRS "${PACKAGE_PREFIX_DIR}/include/lpp")
+
+include(CMakeFindDependencyMacro)
+if (@glog_FOUND@)
+    find_dependency(glog CONFIG)
+endif()
+
 include("${CMAKE_CURRENT_LIST_DIR}/lppTargets.cmake")
