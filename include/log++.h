@@ -350,6 +350,7 @@ inline static Init lppInit;
 #undef VLOG_IF_EVERY_N
 #undef DLOG
 #undef DLOG_EVERY_N
+#undef DLOG_FIRST_N
 #undef DLOG_IF_EVERY_N
 #undef LOG_STRING
 #if defined(LOG_EVERY_T)
