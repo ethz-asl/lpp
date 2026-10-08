@@ -11,7 +11,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.url }}
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, cpu]
     strategy:
       fail-fast: false
       matrix:
