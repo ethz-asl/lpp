@@ -33,7 +33,7 @@ else()
         set(LPP_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include)
 endif()
 
-find_package(glog CONFIG)
+find_package(glog MODULE)
 if (SKBUILD)
         message(STATUS "SKBUILD detected: skipping catkin integration")
 else ()
@@ -98,7 +98,9 @@ if (SKBUILD)
 
 
 
-        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake DESTINATION share/lpp/cmake)
+        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/lppConfig.cmake
+                ${CMAKE_CURRENT_SOURCE_DIR}/cmake/Findglog.cmake
+                DESTINATION share/lpp/cmake)
 
         if (LPP_BUILD_PYTHON_BINDINGS)
                 find_package(Python COMPONENTS Interpreter Development REQUIRED)
@@ -118,6 +120,8 @@ endif ()
 
 if (NOT LPP_BUILD_TESTS)
         message(STATUS "Skip Log++ tests")
+elseif (NOT glog_FOUND OR NOT catkin_FOUND)
+        message(FATAL_ERROR "LPP_BUILD_TESTS requires both glog and catkin")
 endif()
 # All logging frameworks are required for unittests
 if (glog_FOUND AND catkin_FOUND AND LPP_BUILD_TESTS)
