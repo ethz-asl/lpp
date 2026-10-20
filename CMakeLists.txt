@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.15)
 project(lpp)
 
 option(LPP_BUILD_PYTHON_BINDINGS "Build lpp Python bindings" OFF)
-option(LPP_BUILD_LINK_TESTS "Build standalone non-glog link regression tests (Linux)" OFF)
 
 if (ENABLE_COVERAGE)
         set(LPP_TEST_CXX_FLAGS ${CMAKE_CXX_FLAGS} -g -O0 -fprofile-arcs -ftest-coverage)
@@ -60,14 +59,10 @@ target_include_directories(lpp PUBLIC
         $<INSTALL_INTERFACE:include/lpp>
 )
 
-# log++.h includes glog headers even for non-glog backends. Preserve their compile
-# requirements (including GLOG_USE_GLOG_EXPORT for glog 0.7), but not glog's link
-# dependencies: libunwind can conflict with Python extensions using libgcc_s.
-# Consumers using MODE_GLOG or MODE_DEFAULT must link glog::glog explicitly.
+# glog's imported target carries required definitions such as GLOG_USE_GLOG_EXPORT.
+# log++.h includes glog headers, so consumers need these usage requirements too.
 if (glog_FOUND)
-        target_include_directories(lpp PUBLIC "$<TARGET_PROPERTY:glog::glog,INTERFACE_INCLUDE_DIRECTORIES>")
-        target_compile_definitions(lpp PUBLIC "$<TARGET_PROPERTY:glog::glog,INTERFACE_COMPILE_DEFINITIONS>")
-        target_compile_options(lpp PUBLIC "$<TARGET_PROPERTY:glog::glog,INTERFACE_COMPILE_OPTIONS>")
+        target_link_libraries(lpp PUBLIC glog::glog)
 endif ()
 
 add_executable(lpp_demo ${CMAKE_CURRENT_SOURCE_DIR}/src/demo.cpp)
@@ -122,21 +117,6 @@ if (LPP_BUILD_PYTHON_BINDINGS AND NOT SKBUILD)
 endif ()
 
 ################## Testing ##################
-
-if (LPP_BUILD_LINK_TESTS)
-        if (NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
-                message(FATAL_ERROR "LPP_BUILD_LINK_TESTS requires Linux")
-        endif ()
-        find_package(GTest REQUIRED)
-        enable_testing()
-        foreach (mode LPP NOLOG)
-                set(link_test test_link_${mode})
-                add_executable(${link_test} test/test_link_dependencies.cc)
-                target_compile_definitions(${link_test} PRIVATE MODE_${mode})
-                target_link_libraries(${link_test} PRIVATE lpp GTest::gtest_main)
-                add_test(NAME ${link_test} COMMAND ${link_test})
-        endforeach ()
-endif ()
 
 if (NOT LPP_BUILD_TESTS)
         message(STATUS "Skip Log++ tests")
