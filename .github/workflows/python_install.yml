@@ -27,8 +27,8 @@ jobs:
       - name: Checkout lpp
         uses: actions/checkout@v7
 
-      - name: Add uv to PATH
-        run: echo "/root/.local/bin" >> "$GITHUB_PATH"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
 
       - name: Install lpp
         run: uv sync --python ${{ matrix.python-version }}
@@ -52,14 +52,16 @@ jobs:
       CC: gcc-11
       CXX: g++-11
       CMAKE_BUILD_PARALLEL_LEVEL: "4"
-      CMAKE_PREFIX_PATH: ${{ runner.temp }}/glog-${{ matrix.glog }}
       GLOG_VERSION: ${{ matrix.glog }}
     steps:
       - name: Checkout lpp
         uses: actions/checkout@v7
 
-      - name: Add uv to PATH
-        run: echo "/root/.local/bin" >> "$GITHUB_PATH"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Set glog installation prefix
+        run: echo "CMAKE_PREFIX_PATH=${RUNNER_TEMP}/glog-${GLOG_VERSION}" >> "$GITHUB_ENV"
 
       - name: Build selected glog release
         run: |
