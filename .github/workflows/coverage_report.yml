@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, linux, x64]
+    runs-on: [self-hosted, linux, x64, cpu]
     strategy:
       fail-fast: false
       matrix:

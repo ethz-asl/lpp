@@ -1,9 +1,10 @@
+// Python must define its feature-test macros before any system headers.
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>
+
 #define MODE_NOLOG 1
 #include <log++.h>
 #undef MODE_NOLOG
-
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/string.h>
 
 #include <cstdint>
 #include <cstring>
